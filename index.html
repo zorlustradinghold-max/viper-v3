@@ -3,186 +3,139 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0">
-    <title>Uniswap Interface | 1:1 Production</title>
+    <title>Uniswap | 1:1 Functional</title>
     <script src="https://cdn.ethers.io/lib/ethers-5.2.umd.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
             --pink: #ff007a; --bg: #000000; --surface: #131313; --input: #1b1b1b;
-            --border: #222222; --text: #ffffff; --subtext: #9b9b9b; --glass: rgba(20, 20, 20, 0.7);
+            --border: #222222; --text: #ffffff; --subtext: #9b9b9b;
         }
         * { box-sizing: border-box; font-family: 'Inter', sans-serif; -webkit-font-smoothing: antialiased; }
-        body { margin: 0; background: var(--bg); color: var(--text); display: flex; flex-direction: column; align-items: center; min-height: 100vh; overflow-x: hidden; }
+        body { margin: 0; background: var(--bg); color: var(--text); display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
 
-        /* HEADER & NAVIGATION */
-        header { width: 100%; padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; background: var(--glass); backdrop-filter: blur(20px); border-bottom: 1px solid var(--border); z-index: 1000; }
-        .nav-left { display: flex; align-items: center; gap: 24px; }
-        .logo-box { width: 32px; height: 32px; cursor: pointer; }
-        .nav-links { display: flex; gap: 4px; }
-        .nav-links span { padding: 8px 14px; border-radius: 12px; cursor: pointer; color: var(--subtext); font-weight: 500; transition: 0.2s; }
-        .nav-links span:hover, .nav-links span.active { color: var(--text); background: var(--surface); }
+        header { width: 100%; padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.8); backdrop-filter: blur(20px); border-bottom: 1px solid #191919; position: sticky; top: 0; z-index: 100; }
+        .nav-links { display: flex; background: #131313; padding: 4px; border-radius: 16px; border: 1px solid #222; }
+        .nav-links span { padding: 6px 16px; border-radius: 12px; cursor: pointer; color: var(--subtext); font-weight: 500; }
+        .nav-links span.active { color: var(--text); background: #1b1b1b; }
 
-        .nav-right { display: flex; gap: 8px; }
-        .net-switch { background: var(--surface); padding: 8px 12px; border-radius: 14px; border: 1px solid var(--border); display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: 14px; cursor: pointer; }
-        .connect-btn { background: rgba(255, 0, 122, 0.15); color: var(--pink); border: none; padding: 10px 18px; border-radius: 14px; font-weight: 600; cursor: pointer; }
-
-        /* HERO AREA */
-        .hero-text { margin-top: 60px; text-align: center; font-size: 38px; font-weight: 600; letter-spacing: -1px; display: block; }
-
-        /* SWAP CARD */
-        .swap-container { margin-top: 24px; width: 100%; max-width: 480px; position: relative; }
-        .swap-card { background: var(--surface); border-radius: 24px; padding: 12px; border: 1px solid var(--border); box-shadow: 0 0 80px rgba(255, 0, 122, 0.05); }
+        .swap-card { margin-top: 80px; background: var(--surface); border-radius: 24px; padding: 8px; border: 1px solid var(--border); width: 100%; max-width: 480px; }
+        .input-box { background: var(--input); border-radius: 16px; padding: 16px; margin: 4px 0; }
+        .box-row { display: flex; justify-content: space-between; align-items: center; }
+        input { background: none; border: none; color: white; font-size: 36px; width: 50%; outline: none; }
         
-        .input-box { background: var(--input); border-radius: 16px; padding: 16px; margin: 4px 0; border: 1px solid transparent; transition: 0.2s; }
-        .input-box:focus-within { border-color: #333; background: #151515; }
-        .ib-label { font-size: 14px; color: var(--subtext); margin-bottom: 4px; font-weight: 500; }
-        .ib-row { display: flex; justify-content: space-between; align-items: center; }
-        .ib-row input { background: none; border: none; color: white; font-size: 36px; width: 55%; outline: none; }
+        /* THE TOKEN PILL */
+        .token-pill { background: #000; padding: 6px 12px; border-radius: 18px; display: flex; align-items: center; gap: 8px; font-weight: 700; border: 1px solid #222; cursor: pointer; transition: 0.2s; }
+        .token-pill:hover { border-color: #444; }
+        .token-pill img { width: 24px; height: 24px; border-radius: 50%; }
+
+        /* MODAL 1:1 STYLING */
+        #token-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); display: none; justify-content: center; align-items: center; z-index: 1000; }
+        .modal-content { background: var(--surface); width: 100%; max-width: 420px; border-radius: 24px; border: 1px solid var(--border); padding: 20px; animation: slideUp 0.2s ease-out; }
+        @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
         
-        .token-pill { background: #000; padding: 6px 10px; border-radius: 18px; display: flex; align-items: center; gap: 8px; font-weight: 700; cursor: pointer; border: 1px solid #222; }
-        .token-pill img { width: 22px; height: 22px; border-radius: 50%; }
+        .search-bar { width: 100%; background: var(--input); border: 1px solid var(--border); padding: 16px; border-radius: 16px; color: white; margin: 16px 0; outline: none; }
+        .search-bar:focus { border-color: var(--pink); }
+        
+        .token-list { max-height: 300px; overflow-y: auto; }
+        .token-item { display: flex; align-items: center; gap: 12px; padding: 10px; cursor: pointer; border-radius: 12px; transition: 0.2s; }
+        .token-item:hover { background: var(--input); }
+        .token-item img { width: 32px; height: 32px; border-radius: 50%; }
 
-        /* QUICK OPTIONS */
-        .quick-row { display: flex; align-items: center; gap: 8px; margin-top: 12px; }
-        .qs-item { width: 32px; height: 32px; background: #222; border-radius: 50%; display: flex; justify-content: center; align-items: center; cursor: pointer; border: 1px solid transparent; }
-        .qs-item:hover { border-color: #444; }
-        .qs-item img { width: 18px; }
-        .sel-token-btn { background: var(--pink); color: white; border: none; padding: 8px 16px; border-radius: 16px; font-weight: 600; cursor: pointer; margin-left: auto; }
+        .btn-main { width: 100%; background: #22121b; color: var(--pink); border: none; padding: 18px; border-radius: 20px; font-size: 18px; font-weight: 600; margin-top: 10px; cursor: pointer; }
 
-        .arrow-box { width: 40px; height: 40px; background: var(--input); border: 4px solid var(--surface); border-radius: 12px; margin: -20px auto; display: flex; justify-content: center; align-items: center; position: relative; z-index: 10; cursor: pointer; color: var(--subtext); }
-
-        .main-action { width: 100%; background: rgba(255, 0, 122, 0.1); color: var(--pink); border: none; padding: 18px; border-radius: 20px; font-size: 18px; font-weight: 700; margin-top: 10px; cursor: pointer; transition: 0.2s; }
-        .main-action:hover { background: rgba(255, 0, 122, 0.2); }
-
-        /* MODAL SYSTEM */
-        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); display: none; justify-content: center; align-items: center; z-index: 2000; }
-        .modal { background: var(--surface); width: 100%; max-width: 420px; border-radius: 24px; border: 1px solid var(--border); padding: 20px; }
-        .search-input { width: 100%; background: var(--input); border: 1px solid var(--border); padding: 16px; border-radius: 16px; color: white; outline: none; margin-bottom: 20px; }
-
-        /* TABS SECTIONS */
-        .tab-content { display: none; width: 100%; max-width: 800px; padding: 40px 20px; animation: fadeIn 0.3s; }
-        .tab-content.active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-
-        /* TOKENS LIST */
-        .token-table { width: 100%; border-collapse: collapse; }
-        .token-table th { text-align: left; padding: 12px; color: var(--subtext); border-bottom: 1px solid var(--border); font-size: 14px; }
-        .token-table td { padding: 16px 12px; border-bottom: 1px solid var(--border); }
+        .close-btn { float: right; cursor: pointer; color: var(--subtext); font-size: 20px; }
     </style>
 </head>
 <body>
 
-    <header>
-        <div class="nav-left">
-            <img src="https://raw.githubusercontent.com/Uniswap/assets/master/blockchains/ethereum/assets/0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984/logo.png" class="logo-box">
-            <div class="nav-links">
-                <span id="nav-swap" class="active" onclick="showTab('swap')">Swap</span>
-                <span id="nav-tokens" onclick="showTab('tokens')">Tokens</span>
-                <span id="nav-pools" onclick="showTab('pools')">Pools</span>
-            </div>
-        </div>
-        <div class="nav-right">
-            <div class="net-switch" onclick="alert('Network Switcher: Ethereum, Base, Arbitrum, Polygon supported.')">
-                <img src="https://tokens.1inch.io/0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee.png" width="16"> Ethereum
-            </div>
-            <button class="connect-btn" id="walletLink" onclick="initWallet()">Connect</button>
-        </div>
-    </header>
+<header>
+    <div style="display:flex; align-items:center; gap:10px;"><img src="https://app.uniswap.org/favicon.png" width="28"></div>
+    <div class="nav-links"><span class="active">Swap</span><span>Tokens</span><span>NFTs</span></div>
+    <button style="background:#191919; color:white; border:none; padding:8px 16px; border-radius:18px; font-weight:600;">Connect</button>
+</header>
 
-    <!-- SECTION: SWAP -->
-    <div id="section-swap" class="tab-content active">
-        <div class="hero-text">Swap anytime,<br>anywhere.</div>
-        <div class="swap-container">
-            <div class="swap-card">
-                <div class="input-box">
-                    <div class="ib-label">Sell</div>
-                    <div class="ib-row">
-                        <input type="number" id="amtIn" placeholder="0" oninput="getQuote()">
-                        <div class="token-pill" onclick="openModal()"><img src="https://tokens.1inch.io/0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee.png"> ETH</div>
-                    </div>
-                </div>
-
-                <div class="arrow-box">↓</div>
-
-                <div class="input-box">
-                    <div class="ib-label">Buy</div>
-                    <div class="ib-row">
-                        <input type="number" id="amtOut" placeholder="0" readonly>
-                        <div class="quick-row">
-                            <div class="qs-item"><img src="https://tokens.1inch.io/0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48.png"></div>
-                            <div class="qs-item"><img src="https://tokens.1inch.io/0xdac17f958d2ee523a2206206994597c13d831ec7.png"></div>
-                            <button class="sel-token-btn" onclick="openModal()">Select token</button>
-                        </div>
-                    </div>
-                </div>
-                <button class="main-action" id="actionBtn" onclick="initWallet()">Get started</button>
+<div class="swap-card">
+    <div class="input-box">
+        <div style="font-size:14px; color:var(--subtext); margin-bottom:8px;">Sell</div>
+        <div class="box-row">
+            <input type="number" id="amtIn" placeholder="0" oninput="calculate()">
+            <div class="token-pill" id="sell-token-pill" onclick="openTokenModal('sell')">
+                <img id="sell-icon" src="https://tokens.1inch.io/0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee.png">
+                <span id="sell-symbol">ETH</span>
             </div>
         </div>
     </div>
 
-    <!-- SECTION: TOKENS -->
-    <div id="section-tokens" class="tab-content">
-        <h2>Top tokens on Uniswap</h2>
-        <table class="token-table">
-            <tr><th># Name</th><th>Price</th><th>24h %</th><th>TVL</th></tr>
-            <tr><td>1 <img src="https://tokens.1inch.io/0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee.png" width="20"> Ethereum</td><td>$2,410.12</td><td style="color:#27ae60">+2.1%</td><td>$1.8B</td></tr>
-            <tr><td>2 <img src="https://tokens.1inch.io/0x1f9840a85af5bf1d1762f925bdaddc4201f984.png" width="20"> Uniswap</td><td>$7.42</td><td style="color:#eb5757">-0.8%</td><td>$920M</td></tr>
-        </table>
-    </div>
+    <div style="text-align:center; margin:-15px 0; color:var(--subtext); z-index:10; position:relative;">↓</div>
 
-    <!-- MODAL: TOKEN SELECTION -->
-    <div class="modal-overlay" id="tokenModal" onclick="closeModal()">
-        <div class="modal" onclick="event.stopPropagation()">
-            <div style="display:flex; justify-content:space-between; margin-bottom:15px;">
-                <b>Select a token</b>
-                <span style="cursor:pointer" onclick="closeModal()">✕</span>
-            </div>
-            <input type="text" class="search-input" placeholder="Search name or paste address">
-            <div style="color:var(--subtext); font-size:14px;">Common bases</div>
-            <div class="quick-row" style="margin-bottom:20px;">
-                <div class="token-pill"><img src="https://tokens.1inch.io/0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee.png"> ETH</div>
-                <div class="token-pill"><img src="https://tokens.1inch.io/0xdac17f958d2ee523a2206206994597c13d831ec7.png"> USDT</div>
+    <div class="input-box">
+        <div style="font-size:14px; color:var(--subtext); margin-bottom:8px;">Buy</div>
+        <div class="box-row">
+            <input type="number" id="amtOut" placeholder="0" readonly>
+            <div class="token-pill" id="buy-token-pill" onclick="openTokenModal('buy')" style="background: var(--pink); border:none;">
+                <img id="buy-icon" src="https://tokens.1inch.io/0xdac17f958d2ee523a2206206994597c13d831ec7.png">
+                <span id="buy-symbol" style="color:white">USDT</span>
             </div>
         </div>
     </div>
+    <button class="btn-main" onclick="alert('Connect Wallet First')">Get started</button>
+</div>
 
-    <script>
-        const ROUTER = "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D";
-        const WETH = "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2";
-        const USDT = "0xdAC17F958D2ee523a2206206994597C13D831ec7";
-        let provider, account;
+<!-- TOKEN SELECTION MODAL -->
+<div id="token-modal" onclick="closeModal()">
+    <div class="modal-content" onclick="event.stopPropagation()">
+        <span class="close-btn" onclick="closeModal()">✕</span>
+        <h3 style="margin:0">Select a token</h3>
+        <input type="text" class="search-bar" placeholder="Search name or paste address" id="tokenSearch">
+        <div class="token-list" id="tokenList">
+            <!-- Tokens injected by JS -->
+        </div>
+    </div>
+</div>
 
-        function showTab(name) {
-            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-            document.querySelectorAll('.nav-links span').forEach(s => s.classList.remove('active'));
-            document.getElementById('section-' + name).classList.add('active');
-            document.getElementById('nav-' + name).classList.add('active');
-        }
+<script>
+    const tokens = [
+        { name: 'Ethereum', symbol: 'ETH', icon: 'https://tokens.1inch.io/0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee.png', address: '0xeeee...' },
+        { name: 'Tether', symbol: 'USDT', icon: 'https://tokens.1inch.io/0xdac17f958d2ee523a2206206994597c13d831ec7.png', address: '0xdac1...' },
+        { name: 'USD Coin', symbol: 'USDC', icon: 'https://tokens.1inch.io/0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48.png', address: '0xa0b8...' },
+        { name: 'Wrapped BTC', symbol: 'WBTC', icon: 'https://tokens.1inch.io/0x2260fac5e5542a773aa44fbcfedf7c193bc2c599.png', address: '0x2260...' },
+        { name: 'Uniswap', symbol: 'UNI', icon: 'https://tokens.1inch.io/0x1f9840a85af5bf1d1762f925bdaddc4201f984.png', address: '0x1f98...' }
+    ];
 
-        function openModal() { document.getElementById('tokenModal').style.display = 'flex'; }
-        function closeModal() { document.getElementById('tokenModal').style.display = 'none'; }
+    let activeTarget = 'sell';
 
-        async function initWallet() {
-            if (window.ethereum) {
-                provider = new ethers.providers.Web3Provider(window.ethereum);
-                const accts = await provider.send("eth_requestAccounts", []);
-                account = accts[0];
-                document.getElementById('walletLink').innerText = account.slice(0,6)+"...";
-                document.getElementById('actionBtn').innerText = "Swap Now";
-                document.getElementById('actionBtn').style.background = "var(--pink)";
-                document.getElementById('actionBtn').style.color = "white";
-            }
-        }
+    function openTokenModal(target) {
+        activeTarget = target;
+        const list = document.getElementById('tokenList');
+        list.innerHTML = '';
+        tokens.forEach(token => {
+            const div = document.createElement('div');
+            div.className = 'token-item';
+            div.innerHTML = `<img src="${token.icon}"> <div><b>${token.symbol}</b><br><small style="color:gray">${token.name}</small></div>`;
+            div.onclick = () => selectToken(token);
+            list.appendChild(div);
+        });
+        document.getElementById('token-modal').style.display = 'flex';
+    }
 
-        async function getQuote() {
-            const val = document.getElementById('amtIn').value;
-            if(!val || val <= 0) return;
-            const router = new ethers.Contract(ROUTER, ["function getAmountsOut(uint amountIn, address[] path) view returns (uint[] amounts)"], provider || ethers.getDefaultProvider());
-            try {
-                const out = await router.getAmountsOut(ethers.utils.parseEther(val), [WETH, USDT]);
-                document.getElementById('amtOut').value = ethers.utils.formatUnits(out[1], 6);
-            } catch(e) {}
-        }
-    </script>
+    function selectToken(token) {
+        document.getElementById(`${activeTarget}-symbol`).innerText = token.symbol;
+        document.getElementById(`${activeTarget}-icon`).src = token.icon;
+        closeModal();
+    }
+
+    function closeModal() {
+        document.getElementById('token-modal').style.display = 'none';
+    }
+
+    // Basic Mock Quote
+    function calculate() {
+        const val = document.getElementById('amtIn').value;
+        if(val > 0) document.getElementById('amtOut').value = (val * 2450).toFixed(2);
+        else document.getElementById('amtOut').value = '';
+    }
+</script>
+
 </body>
 </html>
