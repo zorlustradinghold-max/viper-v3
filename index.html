@@ -3,110 +3,108 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Uniswap | Verified Build</title>
+    <title>Uniswap | Identical & Verified</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root { --pink: #FC00BD; --bg: #0D0D0D; --card: #131313; }
         body { background-color: var(--bg); color: white; font-family: 'Inter', sans-serif; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
         .squircle { border-radius: 24px; border: 1px solid rgba(255,255,255,0.05); background: var(--card); transition: all 0.4s cubic-bezier(0.15, 0, 0.15, 1); }
-        .swap-arrow { background: var(--card); border: 4px solid var(--bg); border-radius: 12px; z-index: 30; transition: all 0.2s ease; }
-        .btn-pink { background: var(--pink); border-radius: 18px; font-weight: 700; transition: all 0.1s ease; box-shadow: 0 4px 12px rgba(252, 0, 189, 0.2); }
-        .move-top { transform: translateY(126px); }
-        .move-bot { transform: translateY(-126px); }
-        input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+        .nav-drawer { background: #131313; border-radius: 20px 20px 0 0; transform: translateY(100%); transition: transform 0.4s cubic-bezier(0.1, 0.7, 0.1, 1); z-index: 100; position: fixed; bottom: 0; left: 0; right: 0; max-height: 95vh; padding-bottom: 40px; }
+        .drawer-active { transform: translateY(0); }
+        .nav-item { display: flex; align-items: center; gap: 14px; padding: 14px 0; font-size: 16px; font-weight: 500; color: white; cursor: pointer; border-radius: 12px; transition: opacity 0.2s; }
+        .nav-item:active { opacity: 0.6; }
+        .section-label { color: #5F5F5F; font-size: 13px; font-weight: 600; margin-top: 24px; margin-bottom: 8px; }
+        .move-down { transform: translateY(124px); }
+        .move-up { transform: translateY(-124px); }
+        .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-blur: 4px; z-index: 90; display: none; opacity: 0; transition: opacity 0.3s; }
     </style>
 </head>
-<body class="flex flex-col items-center min-h-screen">
+<body class="flex flex-col items-center">
 
+    <!-- Header -->
     <nav class="w-full max-w-[480px] flex justify-between items-center p-4">
-        <!-- VERIFIED UNISWAP LOGO -->
-        <img src="https://raw.githubusercontent.com/Uniswap/brand-assets/main/Uniswap_Icon.svg" class="w-8 h-8" alt="Uniswap">
-        <button class="bg-[#FC00BD1A] text-[#FC00BD] border border-[#FC00BD33] px-4 py-1.5 rounded-2xl font-bold text-sm hover:bg-[#FC00BD33] transition-all">Connect</button>
+        <div class="flex items-center gap-4">
+            <img src="https://raw.githubusercontent.com/Uniswap/brand-assets/main/Uniswap_Icon.svg" class="w-8 h-8" alt="Verified Logo">
+            <button onclick="openDrawer()" class="active:opacity-50 transition-opacity">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#9B9B9B" stroke-width="2.5"><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+            </button>
+        </div>
+        <button class="bg-[#FC00BD1A] text-[#FC00BD] border border-[#FC00BD33] px-4 py-1.5 rounded-2xl font-bold text-sm active:scale-95 transition-transform">Connect</button>
     </nav>
 
+    <!-- Main -->
     <main class="w-full max-w-[480px] px-4 mt-12">
-        <h1 class="text-[34px] font-medium tracking-tighter leading-tight mb-8">Swap anytime,<br>anywhere.</h1>
-
+        <h1 class="text-[36px] font-medium tracking-tighter leading-tight mb-10">Swap anytime,<br>anywhere.</h1>
         <div class="relative flex flex-col gap-1">
-            
-            <!-- SELL CARD -->
-            <div id="sell" class="squircle p-4 z-10">
-                <div class="text-sm font-medium text-zinc-500 mb-2 font-semibold">Sell</div>
+            <div id="sell" class="squircle p-4 z-10 transition-all duration-500">
+                <div class="text-sm font-medium text-zinc-500 mb-2">Sell</div>
                 <div class="flex justify-between items-center">
-                    <input type="number" id="sInput" placeholder="0" class="bg-transparent text-4xl outline-none w-full font-medium placeholder-zinc-800">
-                    <button class="bg-[#1B1B1B] border border-white/5 flex items-center gap-2 p-1.5 pr-3 rounded-full hover:bg-zinc-800 transition-all">
-                        <!-- VERIFIED ETH LOGO -->
-                        <img src="https://raw.githubusercontent.com/Uniswap/assets/master/blockchains/ethereum/assets/0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2/logo.png" class="w-6 h-6 rounded-full">
-                        <span class="font-bold text-[15px]">ETH</span>
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#9B9B9B" stroke-width="3"><path d="M6 9l6 6 6-6"/></svg>
+                    <input type="number" placeholder="0" class="bg-transparent text-4xl outline-none w-full font-medium placeholder-zinc-800">
+                    <button class="bg-[#1B1B1B] border border-white/5 flex items-center gap-2 p-1.5 pr-3 rounded-full">
+                        <img src="https://raw.githubusercontent.com/Uniswap/assets/master/blockchains/ethereum/assets/0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2/logo.png" class="w-6 h-6 rounded-full" alt="Verified ETH">
+                        <span class="font-bold">ETH</span>
                     </button>
                 </div>
-                <div id="sPrice" class="text-sm text-zinc-600 mt-1 font-medium tracking-tight">$0</div>
             </div>
-
-            <!-- SWAP TOGGLE -->
             <div class="absolute left-1/2 top-[124px] -translate-x-1/2 -translate-y-1/2 z-20">
-                <button onclick="runSwap()" class="swap-arrow p-2.5 active:scale-90 hover:scale-110">
-                    <svg id="arrow" class="text-zinc-500 transition-transform duration-500" width="20" height="20" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path d="M7 13l5 5 5-5M7 6l5 5 5-5"></path></svg>
+                <button onclick="toggle()" class="bg-[#131313] p-3 rounded-2xl border-[6px] border-[#0D0D0D] active:scale-90 transition-transform shadow-2xl">
+                    <svg id="arr" class="text-zinc-500 transition-transform duration-500" width="20" height="20" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path d="M7 13l5 5 5-5M7 6l5 5 5-5"></path></svg>
                 </button>
             </div>
-
-            <!-- BUY CARD -->
-            <div id="buy" class="squircle p-4">
-                <div class="text-sm font-medium text-zinc-500 mb-2 font-semibold">Buy</div>
+            <div id="buy" class="squircle p-4 transition-all duration-500">
+                <div class="text-sm font-medium text-zinc-500 mb-2">Buy</div>
                 <div class="flex justify-between items-center">
-                    <div id="bValue" class="text-4xl text-zinc-800 font-medium">0</div>
-                    <button class="btn-pink text-white px-5 py-2.5 text-[15px] hover:brightness-110 active:scale-95 transition-all">Select token</button>
-                </div>
-                <!-- QUICK LIST WITH VERIFIED LOGOS -->
-                <div class="flex gap-2 mt-4">
-                    <!-- USDC -->
-                    <img class="w-8 h-8 rounded-full border border-white/5 p-1 opacity-50 hover:opacity-100 cursor-pointer" src="https://raw.githubusercontent.com/Uniswap/assets/master/blockchains/ethereum/assets/0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48/logo.png">
-                    <!-- USDT -->
-                    <img class="w-8 h-8 rounded-full border border-white/5 p-1 opacity-50 hover:opacity-100 cursor-pointer" src="https://raw.githubusercontent.com/Uniswap/assets/master/blockchains/ethereum/assets/0xdAC17F958D2ee523a2206206994597C13D831ec7/logo.png">
-                    <!-- WBTC -->
-                    <img class="w-8 h-8 rounded-full border border-white/5 p-1 opacity-50 hover:opacity-100 cursor-pointer" src="https://raw.githubusercontent.com/Uniswap/assets/master/blockchains/ethereum/assets/0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599/logo.png">
-                    <div class="w-8 h-8 rounded-full bg-zinc-800 border border-white/5 flex items-center justify-center text-[10px] text-zinc-500 font-bold">19+</div>
+                    <div class="text-4xl text-zinc-800 font-medium">0</div>
+                    <button class="bg-[#FC00BD] text-white px-5 py-2.5 rounded-2xl font-bold text-[15px] shadow-lg shadow-pink-500/20 active:scale-95 transition-all">Select token</button>
                 </div>
             </div>
-
-            <!-- START BUTTON -->
-            <button class="w-full mt-3 bg-[#FC00BD1A] text-[#FC00BD] py-5 rounded-[24px] font-bold text-lg border border-[#FC00BD1A] hover:bg-[#FC00BD33] active:scale-[0.98] transition-all">Get started</button>
         </div>
-
-        <p class="text-center text-[13px] text-zinc-500 mt-8 px-10 leading-relaxed font-medium">
-            Buy and sell crypto with <span class="text-[#FC00BD]">zero app fees</span> on 19+ networks including Ethereum, Unichain, and Base.
-        </p>
     </main>
 
+    <!-- Slide-Up Menu Drawer -->
+    <div id="overlay" onclick="closeDrawer()" class="overlay"></div>
+    <div id="drawer" class="nav-drawer p-6">
+        <div class="w-12 h-1.5 bg-zinc-800 rounded-full mx-auto mb-6"></div>
+        
+        <div class="section-label">App</div>
+        <div class="nav-item text-[#FC00BD]"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg> Trade</div>
+        <div class="nav-item"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M16.2 7.8l-2.1 6.4-6.4 2.1 2.1-6.4 6.4-2.1z"/></svg> Explore</div>
+        <div class="nav-item"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg> Pool</div>
+        <div class="nav-item"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg> Portfolio</div>
+
+        <div class="section-label">Products</div>
+        <div class="nav-item"><img src="https://raw.githubusercontent.com/Uniswap/brand-assets/main/Uniswap_Icon.svg" class="w-5 h-5"> Wallet</div>
+        <div class="nav-item"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg> UniswapX</div>
+        
+        <div class="border-t border-white/5 mt-6 pt-6 flex justify-between">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#5F5F5F" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3M12 17h.01"/></svg>
+            <div class="flex gap-4">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="#5F5F5F"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.042-1.416-4.042-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="#5F5F5F"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+            </div>
+        </div>
+    </div>
+
     <script>
-        const ethPrice = 2450.00;
-        const sInput = document.getElementById('sInput');
-        const sPrice = document.getElementById('sPrice');
-        const bValue = document.getElementById('bValue');
-
-        sInput.addEventListener('input', (e) => {
-            const val = parseFloat(e.target.value);
-            if(val > 0) {
-                sPrice.innerText = '$' + (val * ethPrice).toLocaleString(undefined, {minimumFractionDigits: 2});
-                bValue.innerText = (val * 2445.10).toLocaleString(undefined, {maximumFractionDigits: 2}); // Simulated Rate
-                bValue.classList.remove('text-zinc-800');
-                bValue.classList.add('text-white');
-            } else {
-                sPrice.innerText = '$0';
-                bValue.innerText = '0';
-                bValue.classList.add('text-zinc-800');
-                bValue.classList.remove('text-white');
-            }
-        });
-
-        let isSwapped = false;
-        function runSwap() {
-            isSwapped = !isSwapped;
-            document.getElementById('sell').classList.toggle('move-top');
-            document.getElementById('buy').classList.toggle('move-bot');
-            document.getElementById('arrow').style.transform = isSwapped ? 'rotate(180deg)' : 'rotate(0deg)';
+        function openDrawer() {
+            document.getElementById('overlay').style.display = 'block';
+            setTimeout(() => {
+                document.getElementById('overlay').style.opacity = '1';
+                document.getElementById('drawer').classList.add('drawer-active');
+            }, 10);
+        }
+        function closeDrawer() {
+            document.getElementById('drawer').classList.remove('drawer-active');
+            document.getElementById('overlay').style.opacity = '0';
+            setTimeout(() => document.getElementById('overlay').style.display = 'none', 300);
+        }
+        let s = false;
+        function toggle() {
+            s = !s;
+            document.getElementById('sell').classList.toggle('move-down');
+            document.getElementById('buy').classList.toggle('move-up');
+            document.getElementById('arr').style.transform = s ? 'rotate(180deg)' : 'rotate(0deg)';
         }
     </script>
 </body>
