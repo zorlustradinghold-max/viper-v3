@@ -7,166 +7,219 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        :root { --pink: #FF007A; --bg: #0D0D0D; --card: #131313; --well: #1B1B1B; --border: rgba(255,255,255,0.07); --text-sec: #9B9B9B; }
+        :root { --pink: #FF007A; --bg: #080808; --card: #131313; --well: #1B1B1B; --border: rgba(255,255,255,0.07); --text-sec: #9B9B9B; }
         body { background-color: var(--bg); color: white; font-family: 'Inter', sans-serif; -webkit-font-smoothing: antialiased; margin: 0; overflow-x: hidden; }
         
         .no-scrollbar::-webkit-scrollbar { display: none; }
-        .pink-glow { position: fixed; top: 50%; left: 50%; width: 800px; height: 800px; background: radial-gradient(circle, rgba(255, 0, 122, 0.06) 0%, transparent 70%); transform: translate(-50%, -50%); z-index: -1; filter: blur(120px); }
+        .pink-glow { position: fixed; top: 50%; left: 50%; width: 800px; height: 800px; background: radial-gradient(circle, rgba(255, 0, 122, 0.05) 0%, transparent 70%); transform: translate(-50%, -50%); z-index: -1; filter: blur(120px); }
         
-        /* Modal Backdrop */
-        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(12px); display: none; z-index: 3000; align-items: center; justify-content: center; padding: 12px; }
+        /* Modal System */
+        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(12px); display: none; z-index: 5000; align-items: center; justify-content: center; padding: 12px; }
         .modal-overlay.active { display: flex; }
-
-        /* Modal Box */
-        .modal-box { 
-            background: var(--card); border: 1px solid var(--border); 
-            width: 100%; max-width: 440px; border-radius: 24px; 
-            display: flex; flex-col; max-height: 90vh;
-            animation: modalPop 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-        }
+        .modal-box { background: var(--card); border: 1px solid var(--border); width: 100%; max-width: 440px; border-radius: 24px; display: flex; flex-direction: column; max-height: 85vh; animation: modalPop 0.2s cubic-bezier(0, 0.5, 0.5, 1); }
         @keyframes modalPop { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 
-        /* Wallet Search */
-        .search-container { background: #0D0D0D; border: 1px solid var(--border); border-radius: 16px; padding: 12px; display: flex; gap: 12px; align-items: center; margin-bottom: 20px; }
-        .search-container input { background: transparent; border: none; outline: none; width: 100%; color: white; font-size: 16px; font-weight: 500; }
-
         /* Wallet List UI */
-        .wallet-item { display: flex; align-items: center; gap: 14px; padding: 10px 12px; border-radius: 16px; cursor: pointer; transition: 0.15s; }
+        .wallet-item { display: flex; align-items: center; gap: 14px; padding: 10px 12px; border-radius: 16px; cursor: pointer; transition: 0.15s; border: 1px solid transparent; }
         .wallet-item:hover { background: rgba(255,255,255,0.06); }
         .wallet-icon { width: 40px; height: 40px; border-radius: 10px; object-fit: cover; }
-        
-        .section-label { font-size: 12px; font-bold: 700; color: #5D5D5D; text-transform: uppercase; letter-spacing: 0.05em; padding: 0 12px; margin: 16px 0 8px 0; }
+        .section-label { font-size: 12px; font-weight: 700; color: #5D5D5D; text-transform: uppercase; letter-spacing: 0.05em; padding: 0 12px; margin: 16px 0 8px 0; }
 
-        .cta-btn { width: 100%; padding: 16px; border-radius: 20px; font-weight: 600; font-size: 18px; transition: 0.2s; background: var(--pink); color: white; }
+        /* Swap Card UI */
+        .well { background: var(--well); border-radius: 20px; padding: 16px; border: 1px solid transparent; transition: 0.2s; }
+        .well:hover { border-color: rgba(255,255,255,0.08); }
+        .well:focus-within { border-color: rgba(255,255,255,0.15); background: #222; }
+        
+        .flip-btn { position: absolute; left: 50%; top: calc(50% - 24px); transform: translate(-50%, -50%); background: var(--well); border: 4px solid var(--card); border-radius: 12px; padding: 8px; z-index: 10; cursor: pointer; transition: 0.2s; }
+        .flip-btn:hover { background: #282828; transform: translate(-50%, -50%) scale(1.08); }
+
+        input[type="number"] { background: transparent; border: none; outline: none; font-size: 36px; font-weight: 500; width: 100%; color: #5D5D5D; letter-spacing: -0.05em; }
+        input.active { color: white !important; }
+
+        .cta-btn { width: 100%; padding: 16px; border-radius: 20px; font-weight: 600; font-size: 18px; transition: 0.2s; background: var(--pink); color: white; box-shadow: 0 4px 12px rgba(255, 0, 122, 0.2); }
+        .cta-btn:disabled { background: var(--well); color: #5D5D5D; cursor: not-allowed; box-shadow: none; }
     </style>
 </head>
-<body>
+<body class="flex flex-col items-center">
 
     <div class="pink-glow"></div>
 
-    <!-- MAIN HEADER -->
-    <header class="w-full flex justify-between items-center p-4 border-b border-white/5 bg-[#0D0D0D] sticky top-0 z-[1000]">
-        <div class="flex items-center gap-4">
-            <svg onclick="toggleMenu()" class="cursor-pointer text-[#9B9B9B] hover:text-white" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
-            <img src="https://upload.wikimedia.org/wikipedia/commons/e/e7/Uniswap_Logo.svg" class="w-8 h-8 cursor-pointer">
-        </div>
+    <!-- BANNER -->
+    <div class="w-full bg-[#131313] border-b border-white/5 p-3 flex justify-between items-center px-4">
         <div class="flex items-center gap-3">
-            <button id="main-connect-btn" onclick="toggleWalletModal()" class="bg-[#FF007A1A] text-[#FF007A] px-5 py-2 rounded-2xl font-bold text-sm">Connect</button>
+            <img src="https://upload.wikimedia.org/wikipedia/commons/e/e7/Uniswap_Logo.svg" class="w-10 h-10">
+            <div>
+                <div class="text-[13px] font-bold">Uniswap: Crypto & NFT Wallet</div>
+                <div class="text-[11px] text-[#9B9B9B]">Get the Uniswap Wallet app</div>
+            </div>
         </div>
-    </header>
+        <button class="bg-[#FF007A] text-white px-4 py-1.5 rounded-full text-xs font-bold">Get app</button>
+    </div>
+
+    <!-- NAVBAR -->
+    <nav class="w-full flex justify-between items-center px-4 md:px-8 py-4 sticky top-0 z-[1000] bg-[#080808]">
+        <div class="flex items-center gap-6">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/e/e7/Uniswap_Logo.svg" class="w-8 h-8" alt="Uniswap Logo">
+            <div class="hidden lg:flex gap-6 font-semibold text-[#9B9B9B]">
+                <span class="text-white">Swap</span>
+                <span class="hover:text-white cursor-pointer transition">Explore</span>
+                <span class="hover:text-white cursor-pointer transition">Pool</span>
+            </div>
+        </div>
+        <div class="flex items-center gap-2">
+            <div class="hidden sm:flex bg-[#1B1B1B] border border-white/5 rounded-2xl px-3 py-1.5 items-center gap-2 font-bold text-sm">
+                <img src="https://raw.githubusercontent.com/Uniswap/assets/master/blockchains/ethereum/assets/0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2/logo.png" class="w-5 h-5 rounded-full">
+                Ethereum
+            </div>
+            <button id="nav-connect" onclick="toggleWalletModal()" class="bg-[#FF007A1A] text-[#FF007A] px-4 py-1.5 rounded-2xl font-bold text-[15px] hover:bg-[#FF007A2A] transition">Connect</button>
+        </div>
+    </nav>
+
+    <!-- MAIN INTERFACE -->
+    <main class="mt-12 w-full max-w-[484px] px-4">
+        <h1 class="text-[34px] font-medium tracking-tighter leading-tight mb-8 text-center">Swap anytime,<br>anywhere.</h1>
+        
+        <div class="bg-[#131313] border border-white/5 rounded-[24px] p-2 relative shadow-2xl">
+            <!-- SELL WELL -->
+            <div class="well mb-1">
+                <div class="text-sm font-medium text-[#9B9B9B] mb-2">Sell</div>
+                <div class="flex justify-between items-center">
+                    <input type="number" id="amt-s" placeholder="0" oninput="syncInputs()">
+                    <button class="bg-[#1B1B1B] border border-white/5 rounded-full p-1 pr-3 flex items-center gap-2 font-bold hover:bg-[#2c2c2c] transition">
+                        <img src="https://raw.githubusercontent.com/Uniswap/assets/master/blockchains/ethereum/assets/0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2/logo.png" class="w-6 h-6 rounded-full">
+                        <span class="text-xl">ETH</span>
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M6 9l6 6 6-6"/></svg>
+                    </button>
+                </div>
+                <p id="fiat-s" class="text-sm text-[#5D5D5D] font-medium mt-2">$0.00</p>
+            </div>
+
+            <div class="flip-btn">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9B9B9B" stroke-width="3"><path d="M7 13l5 5 5-5M7 6l5 5 5-5"></path></svg>
+            </div>
+
+            <!-- BUY WELL -->
+            <div class="well">
+                <div class="text-sm font-medium text-[#9B9B9B] mb-2">Buy</div>
+                <div class="flex justify-between items-center">
+                    <input type="number" id="amt-b" placeholder="0" readonly>
+                    <button onclick="toggleWalletModal()" class="bg-[#FF007A] text-white px-4 py-2 rounded-full font-bold text-lg flex items-center gap-1 hover:bg-[#E8006F] transition">Select token</button>
+                </div>
+            </div>
+
+            <button id="cta-main" onclick="toggleWalletModal()" class="cta-btn mt-2">Connect Wallet</button>
+        </div>
+    </main>
 
     <!-- WALLET MODAL -->
-    <div id="wallet-modal" class="modal-overlay">
-        <div class="modal-box flex-col overflow-hidden">
-            <!-- Header -->
-            <div class="p-5 pb-0 flex justify-between items-center mb-4">
+    <div id="wallet-modal" class="modal-overlay" onclick="toggleWalletModal(event)">
+        <div class="modal-box" onclick="event.stopPropagation()">
+            <div class="p-5 pb-2 flex justify-between items-center">
                 <h2 class="text-xl font-bold">Connect a wallet</h2>
-                <div class="flex gap-4 items-center">
-                    <svg class="text-[#9B9B9B] cursor-pointer hover:text-white" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
-                    <svg onclick="toggleWalletModal()" class="text-[#9B9B9B] cursor-pointer hover:text-white" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg>
-                </div>
+                <svg onclick="toggleWalletModal()" class="text-[#9B9B9B] cursor-pointer hover:text-white" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg>
             </div>
 
-            <!-- Scrollable Content -->
-            <div class="p-5 pt-0 overflow-y-auto no-scrollbar">
-                <!-- Search Bar -->
-                <div class="search-container">
+            <div class="p-5 pt-2 overflow-y-auto no-scrollbar">
+                <div class="bg-[#0D0D0D] border border-white/5 rounded-2xl p-3 mb-4 flex items-center gap-3">
                     <svg width="18" height="18" fill="none" stroke="#5D5D5D" stroke-width="3" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                    <input type="text" id="wallet-search" placeholder="Search wallets" oninput="filterWallets()">
+                    <input type="text" id="wallet-search" placeholder="Search wallets" class="bg-transparent border-none outline-none text-base w-full" oninput="renderWallets()">
                 </div>
 
-                <!-- Featured -->
-                <div id="wallet-list-container">
-                    <div class="wallet-item bg-[#1B1B1B] mb-4" onclick="selectWallet('Uniswap Wallet')">
-                        <img src="https://upload.wikimedia.org/wikipedia/commons/e/e7/Uniswap_Logo.svg" class="wallet-icon">
-                        <div class="flex-1 font-bold">Uniswap Wallet</div>
-                    </div>
-
-                    <div class="section-label">Popular</div>
-                    <div id="popular-wallets"></div>
-
-                    <div class="section-label">All Wallets</div>
-                    <div id="all-wallets"></div>
+                <div id="wallet-list">
+                    <!-- Dynamic List -->
                 </div>
             </div>
 
-            <!-- Footer -->
-            <div class="p-5 border-t border-white/5 bg-[#131313]">
-                <p class="text-[11px] text-[#5D5D5D] leading-relaxed text-center">
-                    By connecting a wallet, you agree to Uniswap Labs' <span class="text-white hover:underline cursor-pointer">Terms of Service</span> and consent to its <span class="text-white hover:underline cursor-pointer">Privacy Policy</span>.
+            <div class="p-5 bg-[#131313] border-t border-white/5">
+                <p class="text-[11px] text-[#5D5D5D] text-center leading-relaxed">
+                    By connecting a wallet, you agree to Uniswap Labs' <span class="text-white hover:underline cursor-pointer">Terms of Service</span>.
                 </p>
             </div>
         </div>
     </div>
 
     <script>
-        // DATA: Extended list of 50 common wallets
-        const walletData = [
-            { name: "MetaMask", icon: "https://upload.wikimedia.org/wikipedia/commons/3/36/MetaMask_Fox.svg", popular: true },
-            { name: "Coinbase Wallet", icon: "https://images.ctfassets.net/q5ulk4u67rxd/1r893ot98q6V6r0iH8hYp6/9e53e4141680d2495d46813295988e0e/coinbase-wallet-logo.png", popular: true },
-            { name: "WalletConnect", icon: "https://raw.githubusercontent.com/WalletConnect/walletconnect-assets/master/Logo/Blue%20(Default)/Logo.svg", popular: true },
-            { name: "Trust Wallet", icon: "https://trustwallet.com/assets/images/media/assets/trust_wallet_logo.svg", popular: true },
-            { name: "Safe", icon: "https://raw.githubusercontent.com/safe-global/safe-pwa/main/public/resources/logos/safe.svg", popular: true },
-            { name: "Rainbow", icon: "https://rainbow.me/favicon.png", popular: true },
-            { name: "Ledger", icon: "https://www.ledger.com/wp-content/uploads/2021/11/Ledger_favicon.png", popular: false },
-            { name: "Phantom", icon: "https://phantom.app/favicon.ico", popular: false },
-            { name: "Rabby Wallet", icon: "https://rabby.io/static/images/rabby-logo.png", popular: false },
-            { name: "OKX Wallet", icon: "https://static.okx.com/cdn/assets/imgs/221/9E4C560416973347.png", popular: false },
-            { name: "Brave Wallet", icon: "https://brave.com/static-assets/images/brave-logo-color-RGB.svg", popular: false },
-            { name: "Zerion", icon: "https://zerion.io/favicon.ico", popular: false },
-            { name: "Argent", icon: "https://www.argent.xyz/favicon.ico", popular: false },
-            { name: "1inch Wallet", icon: "https://1inch.io/img/logo.png", popular: false },
-            { name: "Exodus", icon: "https://www.exodus.com/apple-touch-icon.png", popular: false },
-            { name: "Bybit Wallet", icon: "https://www.bybit.com/favicon.ico", popular: false },
-            { name: "Bitget Wallet", icon: "https://www.bitget.com/favicon.ico", popular: false },
-            { name: "Crypto.com", icon: "https://crypto.com/favicon.ico", popular: false },
-            { name: "Tally Ho", icon: "https://taho.xyz/favicon.ico", popular: false },
-            { name: "Enjin Wallet", icon: "https://enjin.io/favicon.ico", popular: false },
-            { name: "ImToken", icon: "https://token.im/favicon.ico", popular: false },
-            { name: "Math Wallet", icon: "https://mathwallet.org/favicon.ico", popular: false }
+        const WALLETS = [
+            { name: 'Uniswap Wallet', icon: 'https://upload.wikimedia.org/wikipedia/commons/e/e7/Uniswap_Logo.svg', popular: true },
+            { name: 'MetaMask', icon: 'https://upload.wikimedia.org/wikipedia/commons/3/36/MetaMask_Fox.svg', popular: true },
+            { name: 'Coinbase Wallet', icon: 'https://images.ctfassets.net/q5ulk4u67rxd/1r893ot98q6V6r0iH8hYp6/9e53e4141680d2495d46813295988e0e/coinbase-wallet-logo.png', popular: true },
+            { name: 'WalletConnect', icon: 'https://raw.githubusercontent.com/WalletConnect/walletconnect-assets/master/Logo/Blue%20(Default)/Logo.svg', popular: true },
+            { name: 'Safe', icon: 'https://raw.githubusercontent.com/safe-global/safe-pwa/main/public/resources/logos/safe.svg', popular: false },
+            { name: 'Rabby Wallet', icon: 'https://rabby.io/static/images/rabby-logo.png', popular: false },
+            { name: 'Trust Wallet', icon: 'https://trustwallet.com/assets/images/media/assets/trust_wallet_logo.svg', popular: false }
         ];
 
-        function toggleWalletModal() {
+        let isConnected = false;
+
+        function toggleWalletModal(e) {
             document.getElementById('wallet-modal').classList.toggle('active');
+            if(!isConnected) renderWallets();
         }
 
-        function filterWallets() {
+        async function triggerConnect(walletName) {
+            // Check for real provider
+            if (window.ethereum) {
+                try {
+                    await window.ethereum.request({ method: 'eth_requestAccounts' });
+                    handleConnection(walletName);
+                } catch (err) {
+                    console.error("User rejected");
+                    handleConnection(walletName); // Fallback simulation
+                }
+            } else {
+                handleConnection(walletName);
+            }
+        }
+
+        function handleConnection(walletName) {
+            isConnected = true;
+            // UPDATE: Show only wallet name, no address
+            const navBtn = document.getElementById('nav-connect');
+            navBtn.innerText = walletName; 
+            navBtn.className = "bg-[#1B1B1B] text-white px-4 py-1.5 rounded-2xl font-bold border border-white/5";
+            
+            document.getElementById('cta-main').innerText = "Enter an amount";
+            document.getElementById('cta-main').disabled = true;
+            
+            toggleWalletModal();
+        }
+
+        function renderWallets() {
             const query = document.getElementById('wallet-search').value.toLowerCase();
-            renderWallets(query);
+            const container = document.getElementById('wallet-list');
+            const filtered = WALLETS.filter(w => w.name.toLowerCase().includes(query));
+
+            container.innerHTML = `
+                <div class="section-label">Popular</div>
+                ${filtered.filter(w => w.popular).map(w => walletRow(w)).join('')}
+                <div class="section-label">Other</div>
+                ${filtered.filter(w => !w.popular).map(w => walletRow(w)).join('')}
+            `;
         }
 
-        function renderWallets(query = "") {
-            const popularContainer = document.getElementById('popular-wallets');
-            const allContainer = document.getElementById('all-wallets');
-            
-            const filtered = walletData.filter(w => w.name.toLowerCase().includes(query));
-
-            popularContainer.innerHTML = filtered.filter(w => w.popular).map(w => createWalletHTML(w)).join('');
-            allContainer.innerHTML = filtered.filter(w => !w.popular).map(w => createWalletHTML(w)).join('');
-            
-            // Hide labels if searching
-            document.querySelectorAll('.section-label').forEach(label => {
-                label.style.display = query ? 'none' : 'block';
-            });
-        }
-
-        function createWalletHTML(wallet) {
+        function walletRow(w) {
             return `
-                <div class="wallet-item" onclick="selectWallet('${wallet.name}')">
-                    <img src="${wallet.icon}" class="wallet-icon">
-                    <div class="flex-1 font-bold">${wallet.name}</div>
+                <div class="wallet-item" onclick="triggerConnect('${w.name}')">
+                    <img src="${w.icon}" class="wallet-icon">
+                    <span class="font-bold">${w.name}</span>
                 </div>
             `;
         }
 
-        function selectWallet(name) {
-            const btn = document.getElementById('main-connect-btn');
-            btn.innerText = "0x71...E15";
-            btn.className = "bg-[#1B1B1B] text-white px-4 py-2 rounded-2xl font-bold text-sm border border-white/5";
-            toggleWalletModal();
+        function syncInputs() {
+            const val = parseFloat(document.getElementById('amt-s').value) || 0;
+            const inS = document.getElementById('amt-s');
+            const cta = document.getElementById('cta-main');
+
+            inS.classList.toggle('active', val > 0);
+            document.getElementById('fiat-s').innerText = `$${(val * 3240).toLocaleString()}`;
+
+            if (isConnected) {
+                cta.innerText = val > 0 ? "Swap" : "Enter an amount";
+                cta.disabled = val <= 0;
+            }
         }
 
-        // Initialize
         renderWallets();
     </script>
 </body>
