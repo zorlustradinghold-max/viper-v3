@@ -3,215 +3,222 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0">
-    <title>Uniswap Interface</title>
-    <!-- PRODUCTION REPO DEPENDENCIES -->
+    <title>Uniswap Interface | 1:1 Production Mirror</title>
     <script src="https://cdn.ethers.io/lib/ethers-5.2.umd.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        /* OFFICIAL REPO SOURCE: src/theme/index.ts */
+        /* SOURCE: src/theme/index.ts (EXACT CODES) */
         :root {
             --bg0: #000000; --bg1: #0D0D0D; --bg2: #131313; --bg3: #1B1B1B;
             --pink: #FF007A; --text1: #FFFFFF; --text2: #9B9B9B; --border: #191919;
-            --container-max-width: 480px;
+            --pink-soft: rgba(255, 0, 122, 0.1);
         }
 
-        * { box-sizing: border-box; font-family: 'Inter', sans-serif; -webkit-font-smoothing: antialiased; }
-        body { margin: 0; background: var(--bg0); color: var(--text1); display: flex; flex-direction: column; align-items: center; min-height: 100vh; overflow-x: hidden; }
+        * { box-sizing: border-box; font-family: 'Inter', sans-serif; -webkit-font-smoothing: antialiased; margin: 0; padding: 0; }
+        body { background: var(--bg0); color: var(--text1); min-height: 100vh; overflow-x: hidden; display: flex; flex-direction: column; align-items: center; }
 
-        /* HEADER: src/components/Header/index.tsx */
+        /* HEADER: PIXEL-PERFECT src/components/Header */
         header { 
-            width: 100%; padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; 
+            width: 100%; height: 72px; padding: 0 20px; display: flex; justify-content: space-between; align-items: center; 
             position: sticky; top: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(20px); 
-            border-bottom: 1px solid var(--border); z-index: 1000; pointer-events: auto;
+            border-bottom: 1px solid var(--border); z-index: 1000;
         }
-        .header-left { display: flex; align-items: center; gap: 12px; }
-        .nav-links { display: flex; background: var(--bg1); padding: 4px; border-radius: 16px; border: 1px solid var(--border); }
-        .nav-links div { padding: 6px 16px; border-radius: 12px; cursor: pointer; color: var(--text2); font-weight: 500; font-size: 15px; transition: 0.15s; pointer-events: auto; }
-        .nav-links div.active { color: var(--text1); background: var(--bg3); }
-
-        /* LAYOUT src/pages/App.tsx */
-        .app-container { width: 100%; max-width: var(--container-max-width); margin-top: 60px; padding: 0 12px; }
-        .hero-title { font-size: 38px; font-weight: 600; letter-spacing: -1.5px; line-height: 1.1; margin-bottom: 24px; text-align: left; }
-
-        /* SWAP WIDGET: src/components/swap/SwapWidget.tsx */
-        .swap-card { background: var(--bg1); border-radius: 24px; padding: 8px; border: 1px solid var(--border); position: relative; }
-        .input-section { background: var(--bg2); border-radius: 16px; padding: 16px; margin: 4px 0; border: 1px solid transparent; transition: 0.15s; }
-        .input-section:hover { border-color: #222; }
-        .section-label { font-size: 14px; color: var(--text2); margin-bottom: 12px; font-weight: 500; }
+        .nav-pill-container { display: flex; background: var(--bg1); padding: 4px; border-radius: 16px; border: 1px solid var(--border); gap: 4px; }
+        .nav-item { padding: 6px 14px; border-radius: 12px; cursor: pointer; color: var(--text2); font-weight: 500; font-size: 15px; transition: 0.2s; }
+        .nav-item.active { color: var(--text1); background: var(--bg3); }
         
-        .row { display: flex; justify-content: space-between; align-items: center; }
-        input.amt-input { background: none; border: none; color: white; font-size: 36px; width: 55%; outline: none; font-weight: 500; padding: 0; }
+        .header-right { display: flex; align-items: center; gap: 8px; }
+        .chain-select { background: var(--bg1); border: 1px solid var(--border); padding: 6px 10px; border-radius: 14px; display: flex; align-items: center; gap: 6px; font-weight: 600; font-size: 14px; cursor: pointer; }
+
+        /* SWAP PAGE GEOMETRY */
+        .app-body { width: 100%; max-width: 480px; margin-top: 64px; padding: 0 8px; display: flex; flex-direction: column; gap: 24px; }
+        .hero-text { font-size: 36px; font-weight: 600; letter-spacing: -1.4px; line-height: 1.1; }
+
+        /* THE SWAP CARD: src/components/swap/SwapWidget.tsx */
+        .swap-widget { background: var(--bg1); border-radius: 24px; padding: 8px; border: 1px solid var(--border); position: relative; width: 100%; }
+        .section-input { background: var(--bg2); border-radius: 16px; padding: 16px; display: flex; flex-direction: column; gap: 12px; border: 1px solid transparent; transition: 0.1s; }
+        .section-input:hover { border-color: #222; }
+        .section-input.focused { background: #161616; border-color: #333; }
         
-        .currency-select { 
+        .input-row { display: flex; justify-content: space-between; align-items: center; }
+        .amt-field { background: none; border: none; color: white; font-size: 36px; outline: none; width: 50%; font-weight: 500; }
+        
+        .token-selector-trigger { 
             background: #000; border: 1px solid var(--border); padding: 4px 10px 4px 4px; 
-            border-radius: 20px; display: flex; align-items: center; gap: 8px; cursor: pointer; font-weight: 700; font-size: 18px;
+            border-radius: 20px; display: flex; align-items: center; gap: 8px; cursor: pointer; font-weight: 700; font-size: 18px; box-shadow: 0 4px 10px rgba(0,0,0,0.2);
         }
-        .currency-select img { width: 26px; height: 26px; border-radius: 50%; background: #222; }
+        .token-selector-trigger img { width: 24px; height: 24px; border-radius: 50%; }
 
-        .swap-arrow { 
+        .swap-divider-btn { 
             width: 40px; height: 40px; background: var(--bg2); border: 4px solid var(--bg1); 
             border-radius: 12px; margin: -22px auto; display: flex; justify-content: center; 
             align-items: center; position: relative; z-index: 5; cursor: pointer; color: var(--text2); transition: 0.2s;
         }
-        .swap-arrow:hover { color: white; transform: rotate(180deg); }
+        .swap-divider-btn:hover { color: white; border-color: #222; }
 
-        .btn-action { 
-            width: 100%; background: rgba(255, 0, 122, 0.1); color: var(--pink); border: none; 
-            padding: 18px; border-radius: 20px; font-size: 18px; font-weight: 700; margin-top: 10px; cursor: pointer; transition: 0.2s;
+        .main-cta-btn { 
+            width: 100%; background: var(--pink-soft); color: var(--pink); border: none; 
+            padding: 18px; border-radius: 20px; font-size: 18px; font-weight: 700; margin-top: 4px; cursor: pointer; transition: 0.2s;
         }
-        .btn-action.ready { background: var(--pink); color: white; }
+        .main-cta-btn.connected { background: var(--pink); color: white; }
 
-        /* MODAL PORTAL: src/components/SearchModal/CurrencySearch.tsx */
-        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 20000; display: none; justify-content: center; align-items: center; }
+        /* PORTAL MODAL src/components/SearchModal/CurrencySearch.tsx */
+        .portal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 2000; display: none; justify-content: center; align-items: center; }
         .modal-container { 
-            background: var(--bg1); width: 95%; max-width: 420px; height: 85vh; max-height: 600px; 
+            background: var(--bg1); width: 95%; max-width: 420px; height: 80vh; max-height: 600px; 
             border-radius: 20px; border: 1px solid var(--border); display: flex; flex-direction: column; overflow: hidden;
-            animation: slideUp 0.15s ease-out;
+            animation: uniswap-slide 0.2s cubic-bezier(0.1, 0.7, 0.1, 1);
         }
-        @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        @keyframes uniswap-slide { from { transform: translateY(30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
         
         .modal-header { padding: 20px; display: flex; justify-content: space-between; font-weight: 600; }
-        .search-area { padding: 0 20px 20px; }
-        .search-input { width: 100%; background: var(--bg2); border: 1px solid var(--border); padding: 16px; border-radius: 16px; color: white; outline: none; font-size: 16px; }
-        .search-input:focus { border-color: var(--pink); }
+        .search-input-wrap { padding: 0 20px 20px; }
+        .search-bar { width: 100%; background: var(--bg2); border: 1px solid var(--border); padding: 16px; border-radius: 12px; color: white; outline: none; font-size: 16px; }
+        .search-bar:focus { border-color: var(--pink); }
 
-        .common-bases { display: flex; gap: 8px; flex-wrap: wrap; padding: 0 20px 20px; }
-        .base-pill { background: var(--bg2); border: 1px solid var(--border); padding: 6px 12px; border-radius: 12px; font-size: 14px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px; }
-        .base-pill img { width: 20px; border-radius: 50%; }
+        .bases-grid { display: flex; gap: 8px; flex-wrap: wrap; padding: 0 20px 20px; }
+        .base-chip { background: var(--bg2); border: 1px solid var(--border); padding: 6px 12px; border-radius: 12px; font-size: 14px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: 0.2s; }
+        .base-chip:hover { border-color: #444; }
 
-        .token-list { flex: 1; overflow-y: auto; border-top: 1px solid var(--border); }
-        .token-item { display: flex; align-items: center; gap: 12px; padding: 12px 20px; cursor: pointer; }
-        .token-item:hover { background: var(--bg2); }
+        .token-list-scroll { flex: 1; overflow-y: auto; border-top: 1px solid #191919; }
+        .token-row-item { display: flex; align-items: center; gap: 12px; padding: 12px 20px; cursor: pointer; transition: 0.1s; }
+        .token-row-item:hover { background: var(--bg2); }
 
-        /* NFT src/pages/NFT/index.tsx */
-        .section-view { display: none; width: 100%; animation: fadeIn 0.2s; }
-        .section-view.active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        
-        .nft-grid { display: grid; grid-template-columns: 1fr; gap: 16px; margin-top: 20px; }
-        .nft-card { background: var(--bg1); border-radius: 24px; border: 1px solid var(--border); overflow: hidden; cursor: pointer; }
-        .nft-card img { width: 100%; aspect-ratio: 1; object-fit: cover; }
+        /* NFT DISPLAY FIX */
+        .nft-content { display: none; width: 100%; flex-direction: column; gap: 16px; }
+        .nft-content.active { display: flex; }
+        .nft-card-1to1 { background: var(--bg1); border-radius: 24px; border: 1px solid var(--border); overflow: hidden; width: 100%; cursor: pointer; }
+        .nft-card-1to1 img { width: 100%; aspect-ratio: 1; object-ratio: cover; }
     </style>
 </head>
 <body>
 
     <header>
-        <div class="header-left">
-            <img src="https://app.uniswap.org/favicon.png" width="30" onclick="switchPage('swap')" style="cursor:pointer">
-            <div class="nav-links">
-                <div id="nav-swap" class="active" onclick="switchPage('swap')">Swap</div>
-                <div id="nav-tokens" onclick="switchPage('tokens')">Tokens</div>
-                <div id="nav-nfts" onclick="switchPage('nfts')">NFTs</div>
+        <div style="display:flex; align-items:center; gap:12px;">
+            <img src="https://raw.githubusercontent.com/Uniswap/interface/main/src/assets/svg/logo.svg" width="32" style="filter: drop-shadow(0 0 5px var(--pink))">
+            <div class="nav-pill-container">
+                <div class="nav-item active" id="tab-swap" onclick="switchUI('swap')">Swap</div>
+                <div class="nav-item" id="tab-tokens" onclick="switchUI('tokens')">Tokens</div>
+                <div class="nav-item" id="tab-nfts" onclick="switchUI('nfts')">NFTs</div>
             </div>
         </div>
-        <button style="background:var(--bg1); border:1px solid var(--border); color:white; padding:8px 16px; border-radius:18px; font-weight:600;" onclick="connect()">Connect</button>
+        <div class="header-right">
+            <div class="chain-select"><img src="https://raw.githubusercontent.com/Uniswap/assets/master/blockchains/ethereum/assets/0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2/logo.png" width="18"> Ethereum</div>
+            <button class="chain-select" id="wallet-header" onclick="connect()" style="color:var(--pink); background:var(--pink-soft); border:none;">Connect</button>
+        </div>
     </header>
 
-    <div class="app-container">
+    <div class="app-body">
         <!-- SWAP SECTION -->
-        <div id="view-swap" class="section-view active">
-            <h1 class="hero-title">Swap anytime,<br>anywhere.</h1>
-            <div class="swap-card">
-                <div class="input-section">
-                    <div class="section-label">Sell</div>
-                    <div class="row">
-                        <input type="number" id="inAmt" class="amt-input" placeholder="0" oninput="updateQuote()">
-                        <div class="currency-select" onclick="openModal('sell')">
-                            <img id="sell-icon" src="https://raw.githubusercontent.com/Uniswap/assets/master/blockchains/ethereum/assets/0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2/logo.png">
+        <div id="view-swap">
+            <h1 class="hero-text">Swap anytime,<br>anywhere.</h1>
+            <div class="swap-widget" style="margin-top:20px;">
+                <div class="section-input">
+                    <span style="font-size:14px; color:var(--text2)">Sell</span>
+                    <div class="input-row">
+                        <input type="number" id="inputAmt" class="amt-field" placeholder="0" oninput="doQuote()">
+                        <div class="token-selector-trigger" onclick="openPortal('sell')">
+                            <img id="sell-logo" src="https://raw.githubusercontent.com/Uniswap/assets/master/blockchains/ethereum/assets/0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2/logo.png">
                             <span id="sell-sym">ETH</span>
                         </div>
                     </div>
+                    <span style="font-size:14px; color:var(--text2)">$0</span>
                 </div>
-                <div class="swap-arrow">↓</div>
-                <div class="input-section">
-                    <div class="section-label">Buy</div>
-                    <div class="row">
-                        <input type="number" id="outAmt" class="amt-input" placeholder="0" readonly>
-                        <div class="currency-select" id="buy-pill" onclick="openModal('buy')" style="background:var(--pink); border:none; color:white;">
-                            <img id="buy-icon" src="" style="display:none">
+
+                <div class="swap-divider-btn" onclick="reverse()">↓</div>
+
+                <div class="section-input" style="margin-top:4px;">
+                    <span style="font-size:14px; color:var(--text2)">Buy</span>
+                    <div class="input-row">
+                        <input type="number" id="outputAmt" class="amt-field" placeholder="0" readonly>
+                        <div class="token-selector-trigger" id="buy-btn-style" onclick="openPortal('buy')" style="background:var(--pink); border:none; color:white;">
+                            <img id="buy-logo" src="" style="display:none">
                             <span id="buy-sym">Select token</span>
                         </div>
                     </div>
                 </div>
-                <button class="btn-action" id="actionBtn" onclick="connect()">Get started</button>
+                <button class="main-cta-btn" id="action-cta" onclick="connect()" style="margin-top:8px;">Get started</button>
             </div>
         </div>
 
         <!-- NFT SECTION -->
-        <div id="view-nfts" class="section-view">
-            <h2 style="margin-bottom:24px;">Trending Collections</h2>
-            <div class="nft-grid">
-                <div class="nft-card">
-                    <img src="https://i.seadn.io/gae/Ju9Cqy-mBcyv_vS737M9t6z3e_xH0E88V6LTo32NisE636D8u0_h4vWc6vYlFfS_C8_L9?auto=format&w=1000">
-                    <div style="padding:16px;"><b>Bored Ape Yacht Club</b><br><span style="color:var(--text2)">Floor: 22.4 ETH</span></div>
-                </div>
+        <div id="view-nfts" class="nft-content">
+            <h2 style="font-size:20px; margin-bottom:10px;">Trending Collections</h2>
+            <div class="nft-card-1to1">
+                <img src="https://raw.githubusercontent.com/Uniswap/assets/master/blockchains/ethereum/assets/0xbc4ca0eda7647a8ab7c2061c2e118a18a936f13d/logo.png" style="display:none">
+                <div style="width:100%; height:300px; background: url('https://i.seadn.io/gae/Ju9Cqy-mBcyv_vS737M9t6z3e_xH0E88V6LTo32NisE636D8u0_h4vWc6vYlFfS_C8_L9?auto=format&w=800') center/cover;"></div>
+                <div style="padding:16px;"><b>Bored Ape Yacht Club</b><br><span style="color:var(--text2)">Floor: 22.4 ETH</span></div>
             </div>
         </div>
     </div>
 
-    <!-- MODAL PORTAL -->
-    <div class="modal-overlay" id="modalPortal" onclick="this.style.display='none'">
+    <!-- THE PORTAL -->
+    <div class="portal-overlay" id="portal" onclick="closePortal()">
         <div class="modal-container" onclick="event.stopPropagation()">
-            <div class="modal-header"><span>Select a token</span><span onclick="closeModal()" style="cursor:pointer">✕</span></div>
-            <div class="search-area"><input type="text" class="search-input" placeholder="Search name or paste address" id="tokenSearch"></div>
-            <div class="common-bases">
-                <div class="base-pill" onclick="select('ETH', 'https://raw.githubusercontent.com/Uniswap/assets/master/blockchains/ethereum/assets/0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2/logo.png')"><img src="https://raw.githubusercontent.com/Uniswap/assets/master/blockchains/ethereum/assets/0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2/logo.png"> ETH</div>
-                <div class="base-pill" onclick="select('USDT', 'https://raw.githubusercontent.com/Uniswap/assets/master/blockchains/ethereum/assets/0xdAC17F958D2ee523a2206206994597C13D831ec7/logo.png')"><img src="https://raw.githubusercontent.com/Uniswap/assets/master/blockchains/ethereum/assets/0xdAC17F958D2ee523a2206206994597C13D831ec7/logo.png"> USDT</div>
+            <div class="modal-header"><span>Select a token</span><span onclick="closePortal()" style="cursor:pointer">✕</span></div>
+            <div class="search-input-wrap"><input type="text" class="search-bar" placeholder="Search name or paste address"></div>
+            <div class="bases-grid">
+                <div class="base-chip" onclick="select('ETH', 'https://raw.githubusercontent.com/Uniswap/assets/master/blockchains/ethereum/assets/0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2/logo.png')"><img src="https://raw.githubusercontent.com/Uniswap/assets/master/blockchains/ethereum/assets/0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2/logo.png" width="20"> ETH</div>
+                <div class="base-chip" onclick="select('USDT', 'https://raw.githubusercontent.com/Uniswap/assets/master/blockchains/ethereum/assets/0xdAC17F958D2ee523a2206206994597C13D831ec7/logo.png')"><img src="https://raw.githubusercontent.com/Uniswap/assets/master/blockchains/ethereum/assets/0xdAC17F958D2ee523a2206206994597C13D831ec7/logo.png" width="20"> USDT</div>
             </div>
-            <div class="token-list" id="tokenRender"></div>
+            <div class="token-list-scroll" id="token-list">
+                <!-- INJECTED DATA -->
+            </div>
         </div>
     </div>
 
     <script>
         const tokens = [
-            { s: 'UNI', n: 'Uniswap', i: 'https://raw.githubusercontent.com/Uniswap/assets/master/blockchains/ethereum/assets/0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984/logo.png' },
-            { s: 'USDC', n: 'USD Coin', i: 'https://raw.githubusercontent.com/Uniswap/assets/master/blockchains/ethereum/assets/0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eb48/logo.png' }
+            { s: 'USDC', n: 'USD Coin', i: 'https://raw.githubusercontent.com/Uniswap/assets/master/blockchains/ethereum/assets/0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eb48/logo.png' },
+            { s: 'UNI', n: 'Uniswap', i: 'https://raw.githubusercontent.com/Uniswap/interface/main/src/assets/svg/logo.svg' }
         ];
-        let activeMode = 'sell';
 
-        function switchPage(name) {
-            document.querySelectorAll('.section-view').forEach(v => v.classList.remove('active'));
-            document.querySelectorAll('.nav-links div').forEach(l => l.classList.remove('active'));
-            document.getElementById('view-' + name).classList.add('active');
-            document.getElementById('nav-' + name).classList.add('active');
+        let mode = 'sell';
+
+        function switchUI(target) {
+            document.getElementById('view-swap').style.display = target === 'swap' ? 'block' : 'none';
+            document.getElementById('view-nfts').classList.toggle('active', target === 'nfts');
+            document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+            document.getElementById('tab-' + target).classList.add('active');
         }
 
-        function openModal(mode) {
-            activeMode = mode;
-            const container = document.getElementById('tokenRender');
-            container.innerHTML = '';
+        function openPortal(m) {
+            mode = m;
+            const l = document.getElementById('token-list');
+            l.innerHTML = '';
             tokens.forEach(t => {
-                const div = document.createElement('div');
-                div.className = 'token-item';
-                div.innerHTML = `<img src="${t.i}" width="36"> <div><b>${t.s}</b><br><small style="color:gray">${t.n}</small></div>`;
-                div.onclick = () => select(t.s, t.i);
-                container.appendChild(div);
+                const r = document.createElement('div');
+                r.className = 'token-row-item';
+                r.innerHTML = `<img src="${t.i}" width="36"> <div><b>${t.s}</b><br><small style="color:var(--text2)">${t.n}</small></div>`;
+                r.onclick = () => select(t.s, t.i);
+                l.appendChild(r);
             });
-            document.getElementById('modalPortal').style.display = 'flex';
+            document.getElementById('portal').style.display = 'flex';
         }
 
         function select(s, i) {
-            document.getElementById(activeMode + '-sym').innerText = s;
-            const img = document.getElementById(activeMode + '-icon');
-            img.src = i; img.style.display = 'block';
-            if(activeMode === 'buy') document.getElementById('buy-pill').style.background = '#000';
-            closeModal();
+            document.getElementById(mode + '-sym').innerText = s;
+            const logo = document.getElementById(mode + '-logo');
+            logo.src = i; logo.style.display = 'block';
+            if(mode === 'buy') document.getElementById('buy-btn-style').style.background = '#000';
+            closePortal();
         }
 
-        function closeModal() { document.getElementById('modalPortal').style.display='none'; }
+        function closePortal() { document.getElementById('portal').style.display = 'none'; }
 
         async function connect() {
             if (window.ethereum) {
                 const p = new ethers.providers.Web3Provider(window.ethereum);
-                await p.send("eth_requestAccounts", []);
-                document.getElementById('actionBtn').innerText = 'Swap';
-                document.getElementById('actionBtn').classList.add('ready');
+                const a = await p.send("eth_requestAccounts", []);
+                document.getElementById('action-cta').innerText = 'Swap';
+                document.getElementById('action-cta').classList.add('connected');
+                document.getElementById('wallet-header').innerText = a[0].slice(0,6) + '...';
             }
         }
 
-        function updateQuote() {
-            const v = document.getElementById('inAmt').value;
-            if(v > 0) document.getElementById('outAmt').value = (v * 2415.65).toFixed(2);
+        function doQuote() {
+            const v = document.getElementById('inputAmt').value;
+            if(v > 0) document.getElementById('outputAmt').value = (v * 2415.80).toFixed(2);
         }
     </script>
 </body>
