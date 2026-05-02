@@ -1,225 +1,234 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0">
-    <title>Uniswap Interface | 1:1 Production Mirror</title>
-    <script src="https://cdn.ethers.io/lib/ethers-5.2.umd.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-        /* SOURCE: src/theme/index.ts (EXACT CODES) */
-        :root {
-            --bg0: #000000; --bg1: #0D0D0D; --bg2: #131313; --bg3: #1B1B1B;
-            --pink: #FF007A; --text1: #FFFFFF; --text2: #9B9B9B; --border: #191919;
-            --pink-soft: rgba(255, 0, 122, 0.1);
-        }
-
-        * { box-sizing: border-box; font-family: 'Inter', sans-serif; -webkit-font-smoothing: antialiased; margin: 0; padding: 0; }
-        body { background: var(--bg0); color: var(--text1); min-height: 100vh; overflow-x: hidden; display: flex; flex-direction: column; align-items: center; }
-
-        /* HEADER: PIXEL-PERFECT src/components/Header */
-        header { 
-            width: 100%; height: 72px; padding: 0 20px; display: flex; justify-content: space-between; align-items: center; 
-            position: sticky; top: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(20px); 
-            border-bottom: 1px solid var(--border); z-index: 1000;
-        }
-        .nav-pill-container { display: flex; background: var(--bg1); padding: 4px; border-radius: 16px; border: 1px solid var(--border); gap: 4px; }
-        .nav-item { padding: 6px 14px; border-radius: 12px; cursor: pointer; color: var(--text2); font-weight: 500; font-size: 15px; transition: 0.2s; }
-        .nav-item.active { color: var(--text1); background: var(--bg3); }
-        
-        .header-right { display: flex; align-items: center; gap: 8px; }
-        .chain-select { background: var(--bg1); border: 1px solid var(--border); padding: 6px 10px; border-radius: 14px; display: flex; align-items: center; gap: 6px; font-weight: 600; font-size: 14px; cursor: pointer; }
-
-        /* SWAP PAGE GEOMETRY */
-        .app-body { width: 100%; max-width: 480px; margin-top: 64px; padding: 0 8px; display: flex; flex-direction: column; gap: 24px; }
-        .hero-text { font-size: 36px; font-weight: 600; letter-spacing: -1.4px; line-height: 1.1; }
-
-        /* THE SWAP CARD: src/components/swap/SwapWidget.tsx */
-        .swap-widget { background: var(--bg1); border-radius: 24px; padding: 8px; border: 1px solid var(--border); position: relative; width: 100%; }
-        .section-input { background: var(--bg2); border-radius: 16px; padding: 16px; display: flex; flex-direction: column; gap: 12px; border: 1px solid transparent; transition: 0.1s; }
-        .section-input:hover { border-color: #222; }
-        .section-input.focused { background: #161616; border-color: #333; }
-        
-        .input-row { display: flex; justify-content: space-between; align-items: center; }
-        .amt-field { background: none; border: none; color: white; font-size: 36px; outline: none; width: 50%; font-weight: 500; }
-        
-        .token-selector-trigger { 
-            background: #000; border: 1px solid var(--border); padding: 4px 10px 4px 4px; 
-            border-radius: 20px; display: flex; align-items: center; gap: 8px; cursor: pointer; font-weight: 700; font-size: 18px; box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-        }
-        .token-selector-trigger img { width: 24px; height: 24px; border-radius: 50%; }
-
-        .swap-divider-btn { 
-            width: 40px; height: 40px; background: var(--bg2); border: 4px solid var(--bg1); 
-            border-radius: 12px; margin: -22px auto; display: flex; justify-content: center; 
-            align-items: center; position: relative; z-index: 5; cursor: pointer; color: var(--text2); transition: 0.2s;
-        }
-        .swap-divider-btn:hover { color: white; border-color: #222; }
-
-        .main-cta-btn { 
-            width: 100%; background: var(--pink-soft); color: var(--pink); border: none; 
-            padding: 18px; border-radius: 20px; font-size: 18px; font-weight: 700; margin-top: 4px; cursor: pointer; transition: 0.2s;
-        }
-        .main-cta-btn.connected { background: var(--pink); color: white; }
-
-        /* PORTAL MODAL src/components/SearchModal/CurrencySearch.tsx */
-        .portal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 2000; display: none; justify-content: center; align-items: center; }
-        .modal-container { 
-            background: var(--bg1); width: 95%; max-width: 420px; height: 80vh; max-height: 600px; 
-            border-radius: 20px; border: 1px solid var(--border); display: flex; flex-direction: column; overflow: hidden;
-            animation: uniswap-slide 0.2s cubic-bezier(0.1, 0.7, 0.1, 1);
-        }
-        @keyframes uniswap-slide { from { transform: translateY(30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-        
-        .modal-header { padding: 20px; display: flex; justify-content: space-between; font-weight: 600; }
-        .search-input-wrap { padding: 0 20px 20px; }
-        .search-bar { width: 100%; background: var(--bg2); border: 1px solid var(--border); padding: 16px; border-radius: 12px; color: white; outline: none; font-size: 16px; }
-        .search-bar:focus { border-color: var(--pink); }
-
-        .bases-grid { display: flex; gap: 8px; flex-wrap: wrap; padding: 0 20px 20px; }
-        .base-chip { background: var(--bg2); border: 1px solid var(--border); padding: 6px 12px; border-radius: 12px; font-size: 14px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: 0.2s; }
-        .base-chip:hover { border-color: #444; }
-
-        .token-list-scroll { flex: 1; overflow-y: auto; border-top: 1px solid #191919; }
-        .token-row-item { display: flex; align-items: center; gap: 12px; padding: 12px 20px; cursor: pointer; transition: 0.1s; }
-        .token-row-item:hover { background: var(--bg2); }
-
-        /* NFT DISPLAY FIX */
-        .nft-content { display: none; width: 100%; flex-direction: column; gap: 16px; }
-        .nft-content.active { display: flex; }
-        .nft-card-1to1 { background: var(--bg1); border-radius: 24px; border: 1px solid var(--border); overflow: hidden; width: 100%; cursor: pointer; }
-        .nft-card-1to1 img { width: 100%; aspect-ratio: 1; object-ratio: cover; }
-    </style>
-</head>
-<body>
-
-    <header>
-        <div style="display:flex; align-items:center; gap:12px;">
-            <img src="https://raw.githubusercontent.com/Uniswap/interface/main/src/assets/svg/logo.svg" width="32" style="filter: drop-shadow(0 0 5px var(--pink))">
-            <div class="nav-pill-container">
-                <div class="nav-item active" id="tab-swap" onclick="switchUI('swap')">Swap</div>
-                <div class="nav-item" id="tab-tokens" onclick="switchUI('tokens')">Tokens</div>
-                <div class="nav-item" id="tab-nfts" onclick="switchUI('nfts')">NFTs</div>
-            </div>
-        </div>
-        <div class="header-right">
-            <div class="chain-select"><img src="https://raw.githubusercontent.com/Uniswap/assets/master/blockchains/ethereum/assets/0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2/logo.png" width="18"> Ethereum</div>
-            <button class="chain-select" id="wallet-header" onclick="connect()" style="color:var(--pink); background:var(--pink-soft); border:none;">Connect</button>
-        </div>
-    </header>
-
-    <div class="app-body">
-        <!-- SWAP SECTION -->
-        <div id="view-swap">
-            <h1 class="hero-text">Swap anytime,<br>anywhere.</h1>
-            <div class="swap-widget" style="margin-top:20px;">
-                <div class="section-input">
-                    <span style="font-size:14px; color:var(--text2)">Sell</span>
-                    <div class="input-row">
-                        <input type="number" id="inputAmt" class="amt-field" placeholder="0" oninput="doQuote()">
-                        <div class="token-selector-trigger" onclick="openPortal('sell')">
-                            <img id="sell-logo" src="https://raw.githubusercontent.com/Uniswap/assets/master/blockchains/ethereum/assets/0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2/logo.png">
-                            <span id="sell-sym">ETH</span>
-                        </div>
-                    </div>
-                    <span style="font-size:14px; color:var(--text2)">$0</span>
-                </div>
-
-                <div class="swap-divider-btn" onclick="reverse()">↓</div>
-
-                <div class="section-input" style="margin-top:4px;">
-                    <span style="font-size:14px; color:var(--text2)">Buy</span>
-                    <div class="input-row">
-                        <input type="number" id="outputAmt" class="amt-field" placeholder="0" readonly>
-                        <div class="token-selector-trigger" id="buy-btn-style" onclick="openPortal('buy')" style="background:var(--pink); border:none; color:white;">
-                            <img id="buy-logo" src="" style="display:none">
-                            <span id="buy-sym">Select token</span>
-                        </div>
-                    </div>
-                </div>
-                <button class="main-cta-btn" id="action-cta" onclick="connect()" style="margin-top:8px;">Get started</button>
-            </div>
-        </div>
-
-        <!-- NFT SECTION -->
-        <div id="view-nfts" class="nft-content">
-            <h2 style="font-size:20px; margin-bottom:10px;">Trending Collections</h2>
-            <div class="nft-card-1to1">
-                <img src="https://raw.githubusercontent.com/Uniswap/assets/master/blockchains/ethereum/assets/0xbc4ca0eda7647a8ab7c2061c2e118a18a936f13d/logo.png" style="display:none">
-                <div style="width:100%; height:300px; background: url('https://i.seadn.io/gae/Ju9Cqy-mBcyv_vS737M9t6z3e_xH0E88V6LTo32NisE636D8u0_h4vWc6vYlFfS_C8_L9?auto=format&w=800') center/cover;"></div>
-                <div style="padding:16px;"><b>Bored Ape Yacht Club</b><br><span style="color:var(--text2)">Floor: 22.4 ETH</span></div>
-            </div>
-        </div>
+<header>
+    <div class="header-left">
+        <svg class="logo" viewBox="0 0 160 160">
+            <path fill="#FF007A" d="M80 0C35.817 0 0 35.817 0 80s35.817 80 80 80 80-35.817 80-80S124.183 0 80 0zm45.5 110.5c-2.3 2.3-5.2 3.5-8.5 3.5h-74c-3.3 0-6.2-1.2-8.5-3.5-2.3-2.3-3.5-5.2-3.5-8.5v-44c0-3.3 1.2-6.2 3.5-8.5 2.3-2.3 5.2-3.5 8.5-3.5h74c3.3 0 6.2 1.2 8.5 3.5 2.3 2.3 3.5 5.2 3.5 8.5v44c0 3.3-1.2 6.2-3.5 8.5z"/>
+            <path fill="#FFF" d="M117 72h-14v-14c0-1.1-.9-2-2-2h-4c-1.1 0-2 .9-2 2v14h-14c-1.1 0-2 .9-2 2v4c0 1.1.9 2 2 2h14v14c0 1.1.9 2 2 2h4c1.1 0 2-.9 2-2v-14h14c1.1 0 2-.9 2-2v-4c0-1.1-.9-2-2-2z"/>
+        </svg>
+        <nav>
+            <a href="#" class="active">Swap</a>
+            <a href="#">Tokens</a>
+            <a href="#">NFTs</a>
+            <a href="#">Pool</a>
+        </nav>
     </div>
+    <div class="header-right">
+        <div class="network-pill">
+            <img src="https://cryptologos.cc/logos/ethereum-eth-logo.svg?v=025" width="16" alt="ETH">
+            Ethereum
+            <i class="fa-solid fa-chevron-down" style="font-size: 10px;"></i>
+        </div>
+        <button class="connect-btn" id="headerConnectBtn" onclick="connectWallet()">Connect</button>
+    </div>
+</header>
 
-    <!-- THE PORTAL -->
-    <div class="portal-overlay" id="portal" onclick="closePortal()">
-        <div class="modal-container" onclick="event.stopPropagation()">
-            <div class="modal-header"><span>Select a token</span><span onclick="closePortal()" style="cursor:pointer">✕</span></div>
-            <div class="search-input-wrap"><input type="text" class="search-bar" placeholder="Search name or paste address"></div>
-            <div class="bases-grid">
-                <div class="base-chip" onclick="select('ETH', 'https://raw.githubusercontent.com/Uniswap/assets/master/blockchains/ethereum/assets/0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2/logo.png')"><img src="https://raw.githubusercontent.com/Uniswap/assets/master/blockchains/ethereum/assets/0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2/logo.png" width="20"> ETH</div>
-                <div class="base-chip" onclick="select('USDT', 'https://raw.githubusercontent.com/Uniswap/assets/master/blockchains/ethereum/assets/0xdAC17F958D2ee523a2206206994597C13D831ec7/logo.png')"><img src="https://raw.githubusercontent.com/Uniswap/assets/master/blockchains/ethereum/assets/0xdAC17F958D2ee523a2206206994597C13D831ec7/logo.png" width="20"> USDT</div>
+<main>
+    <div class="swap-card">
+        <div class="card-header">
+            <span>Swap</span>
+            <i class="fa-solid fa-gear"></i>
+        </div>
+
+        <!-- Panel 1: Pay -->
+        <div class="input-panel" id="panelPay">
+            <div class="panel-top">
+                <span class="panel-label">You pay</span>
             </div>
-            <div class="token-list-scroll" id="token-list">
-                <!-- INJECTED DATA -->
+            <div class="panel-main">
+                <input type="number" class="panel-input" id="inputPay" placeholder="0" step="any">
+                <div class="token-selector" id="tokenBtnPay">
+                    <div class="token-icon eth-icon" id="iconPay">
+                        <i class="fa-brands fa-ethereum"></i>
+                    </div>
+                    <span class="token-symbol" id="symbolPay">ETH</span>
+                    <i class="fa-solid fa-chevron-down" style="font-size: 12px; color: var(--text-secondary);"></i>
+                </div>
+            </div>
+            <div class="panel-footer">
+                <span id="valuePay">$0.00</span>
+                <span>Balance: 1.25 <span id="balanceSymPay">ETH</span></span>
             </div>
         </div>
+
+        <!-- Arrow -->
+        <div class="swap-arrow-wrapper">
+            <div class="swap-arrow-btn" onclick="swapTokens()">
+                <i class="fa-solid fa-arrow-down"></i>
+            </div>
+        </div>
+
+        <!-- Panel 2: Receive -->
+        <div class="input-panel" id="panelReceive">
+            <div class="panel-top">
+                <span class="panel-label">You receive</span>
+            </div>
+            <div class="panel-main">
+                <input type="number" class="panel-input" id="inputReceive" placeholder="0" step="any">
+                <div class="token-selector" id="tokenBtnReceive">
+                    <div class="token-icon usdt-icon" id="iconReceive">
+                        <i class="fa-solid fa-t"></i>
+                    </div>
+                    <span class="token-symbol" id="symbolReceive">USDT</span>
+                    <i class="fa-solid fa-chevron-down" style="font-size: 12px; color: var(--text-secondary);"></i>
+                </div>
+            </div>
+            <div class="panel-footer">
+                <span id="valueReceive">$0.00</span>
+                <span>Balance: 500.00 <span id="balanceSymReceive">USDT</span></span>
+            </div>
+        </div>
+
+        <!-- Swap Info -->
+        <div class="swap-info" id="swapInfo" style="display: none;">
+            <div class="price-row">
+                <span id="priceDisplay">1 ETH = 2415.60 USDT</span>
+                <i class="fa-solid fa-info-circle"></i>
+            </div>
+            <div class="details-row">
+                <span>Slippage tolerance</span>
+                <span class="accent-text">0.5%</span>
+            </div>
+        </div>
+
+        <!-- Button -->
+        <button class="action-btn btn-swap-disabled" id="mainActionButton" onclick="handleAction()">Connect Wallet</button>
     </div>
+</main>
 
-    <script>
-        const tokens = [
-            { s: 'USDC', n: 'USD Coin', i: 'https://raw.githubusercontent.com/Uniswap/assets/master/blockchains/ethereum/assets/0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eb48/logo.png' },
-            { s: 'UNI', n: 'Uniswap', i: 'https://raw.githubusercontent.com/Uniswap/interface/main/src/assets/svg/logo.svg' }
-        ];
+<script>
+    // Configuration
+    const RATE = 2415.60;
+    let isEthToUsdt = true;
+    let walletConnected = false;
 
-        let mode = 'sell';
+    // Elements
+    const inputPay = document.getElementById('inputPay');
+    const inputReceive = document.getElementById('inputReceive');
+    const valuePay = document.getElementById('valuePay');
+    const valueReceive = document.getElementById('valueReceive');
+    const mainActionButton = document.getElementById('mainActionButton');
+    const swapInfo = document.getElementById('swapInfo');
+    const priceDisplay = document.getElementById('priceDisplay');
 
-        function switchUI(target) {
-            document.getElementById('view-swap').style.display = target === 'swap' ? 'block' : 'none';
-            document.getElementById('view-nfts').classList.toggle('active', target === 'nfts');
-            document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
-            document.getElementById('tab-' + target).classList.add('active');
-        }
+    const symbolPay = document.getElementById('symbolPay');
+    const symbolReceive = document.getElementById('symbolReceive');
+    const iconPay = document.getElementById('iconPay');
+    const iconReceive = document.getElementById('iconReceive');
+    const balanceSymPay = document.getElementById('balanceSymPay');
+    const balanceSymReceive = document.getElementById('balanceSymReceive');
 
-        function openPortal(m) {
-            mode = m;
-            const l = document.getElementById('token-list');
-            l.innerHTML = '';
-            tokens.forEach(t => {
-                const r = document.createElement('div');
-                r.className = 'token-row-item';
-                r.innerHTML = `<img src="${t.i}" width="36"> <div><b>${t.s}</b><br><small style="color:var(--text2)">${t.n}</small></div>`;
-                r.onclick = () => select(t.s, t.i);
-                l.appendChild(r);
-            });
-            document.getElementById('portal').style.display = 'flex';
-        }
+    // Logic: Input Calculation
+    function updateValues(source) {
+        const payVal = parseFloat(inputPay.value);
+        const receiveVal = parseFloat(inputReceive.value);
 
-        function select(s, i) {
-            document.getElementById(mode + '-sym').innerText = s;
-            const logo = document.getElementById(mode + '-logo');
-            logo.src = i; logo.style.display = 'block';
-            if(mode === 'buy') document.getElementById('buy-btn-style').style.background = '#000';
-            closePortal();
-        }
-
-        function closePortal() { document.getElementById('portal').style.display = 'none'; }
-
-        async function connect() {
-            if (window.ethereum) {
-                const p = new ethers.providers.Web3Provider(window.ethereum);
-                const a = await p.send("eth_requestAccounts", []);
-                document.getElementById('action-cta').innerText = 'Swap';
-                document.getElementById('action-cta').classList.add('connected');
-                document.getElementById('wallet-header').innerText = a[0].slice(0,6) + '...';
+        if (source === 'pay') {
+            if (!isNaN(payVal) && payVal > 0) {
+                const calculated = isEthToUsdt ? payVal * RATE : payVal / RATE;
+                inputReceive.value = calculated.toFixed(isEthToUsdt ? 2 : 6);
+            } else {
+                inputReceive.value = '';
+            }
+        } else {
+            if (!isNaN(receiveVal) && receiveVal > 0) {
+                const calculated = isEthToUsdt ? receiveVal / RATE : receiveVal * RATE;
+                inputPay.value = calculated.toFixed(isEthToUsdt ? 6 : 2);
+            } else {
+                inputPay.value = '';
             }
         }
+        
+        updateFiatMocks();
+        updateButtonState();
+    }
 
-        function doQuote() {
-            const v = document.getElementById('inputAmt').value;
-            if(v > 0) document.getElementById('outputAmt').value = (v * 2415.80).toFixed(2);
+    function updateFiatMocks() {
+        const val = parseFloat(inputPay.value) || 0;
+        const fiat = isEthToUsdt ? val * RATE : val * 1; // Simplification
+        valuePay.innerText = `$${fiat.toLocaleString(undefined, {minimumFractionDigits: 2})}`;
+        valueReceive.innerText = `$${fiat.toLocaleString(undefined, {minimumFractionDigits: 2})}`;
+        
+        if (val > 0) {
+            swapInfo.style.display = 'block';
+        } else {
+            swapInfo.style.display = 'none';
         }
-    </script>
-</body>
-</html>
+    }
+
+    // Logic: Token Swapping
+    function swapTokens() {
+        isEthToUsdt = !isEthToUsdt;
+        
+        // Swap Icons/Text
+        const tempSym = symbolPay.innerText;
+        const tempIconClass = iconPay.className;
+        const tempIconInner = iconPay.innerHTML;
+
+        symbolPay.innerText = symbolReceive.innerText;
+        symbolReceive.innerText = tempSym;
+        
+        iconPay.className = iconReceive.className;
+        iconReceive.className = tempIconClass;
+
+        iconPay.innerHTML = iconReceive.innerHTML;
+        iconReceive.innerHTML = tempIconInner;
+
+        balanceSymPay.innerText = symbolPay.innerText;
+        balanceSymReceive.innerText = symbolReceive.innerText;
+
+        // Reset inputs
+        inputPay.value = '';
+        inputReceive.value = '';
+        
+        // Update Price Display
+        priceDisplay.innerText = isEthToUsdt 
+            ? `1 ETH = ${RATE} USDT` 
+            : `1 USDT = ${(1/RATE).toFixed(6)} ETH`;
+
+        updateValues('pay');
+    }
+
+    // Button States
+    function updateButtonState() {
+        const val = parseFloat(inputPay.value);
+        
+        if (!walletConnected) {
+            mainActionButton.innerText = "Connect Wallet";
+            mainActionButton.className = "action-btn btn-swap-ready"; // Active to allow clicking
+            return;
+        }
+
+        if (isNaN(val) || val <= 0) {
+            mainActionButton.innerText = "Enter an amount";
+            mainActionButton.className = "action-btn btn-swap-disabled";
+        } else {
+            mainActionButton.innerText = "Swap";
+            mainActionButton.className = "action-btn btn-swap-ready";
+        }
+    }
+
+    function connectWallet() {
+        walletConnected = true;
+        document.getElementById('headerConnectBtn').innerText = "0x71C...4e31";
+        document.getElementById('headerConnectBtn').style.background = "var(--panel-bg)";
+        document.getElementById('headerConnectBtn').style.color = "var(--text-primary)";
+        updateButtonState();
+    }
+
+    function handleAction() {
+        if (!walletConnected) {
+            connectWallet();
+        } else {
+            const amount = inputPay.value;
+            const from = symbolPay.innerText;
+            const to = symbolReceive.innerText;
+            alert(`Transaction Mock: Swapping ${amount} ${from} for ${inputReceive.value} ${to}`);
+        }
+    }
+
+    // Event Listeners
+    inputPay.addEventListener('input', () => updateValues('pay'));
+    inputReceive.addEventListener('input', () => updateValues('receive'));
+
+    // Initial state
+    updateButtonState();
+</script>
