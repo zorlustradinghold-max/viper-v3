@@ -3,140 +3,181 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Uniswap | 1:1 Repaired Build</title>
+    <title>Uniswap | Official Interface 1:1</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root { --pink: #FC00BD; --bg: #0D0D0D; --card: #131313; --border: rgba(255,255,255,0.05); }
         body { background-color: var(--bg); color: white; font-family: 'Inter', sans-serif; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
-        .squircle { border-radius: 24px; border: 1px solid var(--border); background: var(--card); transition: all 0.4s cubic-bezier(0.15, 0, 0.15, 1); }
+        
+        /* OFFICIAL SQUIRCLE DEPTH */
+        .squircle { border-radius: 24px; border: 1px solid var(--border); background: var(--card); transition: all 0.5s cubic-bezier(0.1, 0.7, 0.1, 1); }
+        
+        /* DRAWERS & MODALS */
         .drawer { position: fixed; bottom: 0; left: 0; right: 0; background: #131313; border-radius: 24px 24px 0 0; transform: translateY(100%); transition: transform 0.4s cubic-bezier(0.1, 0.7, 0.1, 1); z-index: 500; max-height: 95vh; padding: 24px; overflow-y: auto; }
         .drawer-active { transform: translateY(0); }
-        .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-blur: 10px; z-index: 450; display: none; opacity: 0; transition: opacity 0.3s; }
+        .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-blur: 12px; z-index: 450; display: none; opacity: 0; transition: opacity 0.3s; }
+        
+        /* INTERACTIVE NODES */
+        .nav-icon { cursor: pointer; color: #9B9B9B; transition: 0.2s; }
+        .nav-icon:active { transform: scale(0.9); }
+        
         .move-down { transform: translateY(124px); }
         .move-up { transform: translateY(-124px); }
-        .nav-icon { cursor: pointer; color: #9B9B9B; }
+        
         .list-row { display: flex; align-items: center; justify-content: space-between; padding: 12px; border-radius: 16px; cursor: pointer; }
         .list-row:active { background: rgba(255,255,255,0.08); }
+
+        .btn-pink { background: var(--pink); border-radius: 20px; font-weight: 700; transition: 0.2s; box-shadow: 0 4px 20px rgba(252, 0, 189, 0.2); }
+        .btn-pink:active { transform: scale(0.96); filter: brightness(0.9); }
+
+        /* SEARCH BAR */
         .search-box { background: #0D0D0D; border: 1px solid var(--border); border-radius: 20px; padding: 14px; display: flex; gap: 12px; align-items: center; margin-bottom: 16px; }
         .search-box input { background: transparent; border: none; outline: none; width: 100%; color: white; font-size: 16px; }
+
+        input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; }
     </style>
 </head>
 <body class="flex flex-col items-center">
 
-    <!-- HEADER -->
+    <!-- HEADER NAVIGATION -->
     <nav class="w-full max-w-[480px] flex justify-between items-center p-4">
         <div class="flex items-center gap-4">
-            <svg width="32" height="32" viewBox="0 0 160 160" fill="none"><path d="M80 150C118.66 150 150 118.66 150 80C150 41.3401 118.66 10 80 10C41.3401 10 10 41.3401 10 80C10 118.66 41.3401 150 80 150Z" fill="#FC00BD"/><path d="M120 75C120 90 105 110 80 110C55 110 40 90 40 75C40 60 55 50 80 50C105 50 120 60 120 75Z" fill="white"/><circle cx="65" cy="70" r="5" fill="#FC00BD"/><circle cx="95" cy="70" r="5" fill="#FC00BD"/></svg>
+            <!-- ACTUAL OFFICIAL UNISWAP LOGO (INLINE SVG) -->
+            <svg width="32" height="32" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M92.107 43.102C91.139 41.562 89.261 39.551 86.828 38.318C82.023 35.885 75.312 34.786 68.647 35.617C64.673 36.111 60.771 37.132 57.172 38.563C55.076 39.395 53.056 40.404 51.139 41.562C51.523 39.646 51.854 37.69 52.128 35.706C52.677 31.758 52.88 27.811 52.742 23.905C52.613 20.016 52.128 16.173 51.314 12.441C50.884 10.457 50.317 8.528 49.621 6.646C49.201 5.495 48.725 4.372 48.185 3.284C47.783 2.479 47.013 2 46.162 2C45.312 2 44.542 2.479 44.14 3.284C38.077 11.4 34.502 21.365 33.313 32.062C32.123 42.759 33.313 53.642 36.721 63.856C36.968 64.593 37.7 65.083 38.479 65.083H38.562C39.467 65.056 40.236 64.382 40.354 63.483C41.341 54.496 43.766 45.856 47.464 37.842C47.884 36.937 48.91 36.488 49.914 36.75C50.919 37.013 51.583 37.912 51.491 38.932C50.595 48.868 51.272 58.892 53.491 68.497C53.719 69.452 54.661 70.088 55.631 69.932C56.6 69.775 57.26 68.876 57.114 67.904C55.083 54.417 56.402 40.59 60.91 27.755C61.275 26.711 62.43 26.177 63.483 26.541C64.536 26.906 65.069 28.062 64.704 29.115C60.676 40.589 59.431 52.88 61.041 64.919C61.168 65.875 62.01 66.568 62.962 66.522C63.914 66.475 64.673 65.706 64.654 64.755C64.444 54.269 67.241 43.834 72.766 34.502C73.287 33.628 74.401 33.328 75.275 33.85C76.149 34.371 76.449 35.485 75.927 36.359C71.05 44.604 68.57 54.015 68.744 63.639C68.761 64.593 69.52 65.362 70.471 65.37C71.423 65.378 72.193 64.622 72.211 63.668C72.394 53.948 75.603 44.52 81.442 36.568C81.99 35.811 83.042 35.65 83.799 36.199C84.557 36.748 84.718 37.8 84.169 38.557C78.932 46.104 76.059 55.083 75.83 64.603C75.807 65.557 76.559 66.357 77.514 66.38C78.468 66.402 79.268 65.65 79.291 64.695C79.497 56.126 81.932 47.811 86.354 40.589C86.884 39.721 88.01 39.431 88.878 39.961C89.746 40.491 90.036 41.617 89.506 42.485C85.532 49.006 83.337 56.516 83.136 64.254C83.116 65.208 83.87 65.999 84.824 66.019C85.778 66.039 86.569 65.285 86.589 64.331C86.772 57.348 88.749 50.516 92.321 44.417C92.81 43.582 92.531 42.505 91.696 42.016C91.139 41.562 89.261 39.551 86.828 38.318C82.023 35.885 75.312 34.786 68.647 35.617C64.673 36.111 60.771 37.132 57.172 38.563L92.107 43.102Z" fill="#FC00BD"/>
+            </svg>
             <svg onclick="openD('app-menu')" class="nav-icon" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
         </div>
-        <div class="flex items-center gap-3">
+        <div class="flex items-center gap-2">
             <svg onclick="openD('search-drawer')" class="nav-icon" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-            <div onclick="openD('network-menu')" class="bg-zinc-900 p-1.5 rounded-xl border border-white/5 cursor-pointer"><img src="https://raw.githubusercontent.com/Uniswap/assets/master/blockchains/ethereum/info/logo.png" class="w-5 h-5"></div>
+            <div onclick="openD('network-menu')" class="bg-zinc-900 p-1 rounded-xl cursor-pointer border border-white/5 hover:bg-zinc-800 transition-colors"><img src="https://raw.githubusercontent.com/Uniswap/assets/master/blockchains/ethereum/info/logo.png" class="w-6 h-6"></div>
             <svg onclick="openD('settings-menu')" class="nav-icon" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="1.5"/><circle cx="12" cy="6" r="1.5"/><circle cx="12" cy="18" r="1.5"/></svg>
-            <button onclick="openD('wallet-menu')" class="bg-[#FC00BD1A] text-[#FC00BD] px-4 py-1.5 rounded-2xl font-bold text-sm">Connect</button>
+            <button onclick="openD('wallet-menu')" class="bg-[#FC00BD1A] text-[#FC00BD] px-4 py-1.5 rounded-2xl font-bold text-sm hover:bg-[#FC00BD33] transition-all">Connect</button>
         </div>
     </nav>
 
-    <!-- MAIN INTERFACE -->
+    <!-- SWAP AREA -->
     <main class="w-full max-w-[480px] px-4 mt-12">
-        <h1 class="text-[34px] font-medium tracking-tighter leading-tight mb-8">Swap anytime,<br>anywhere.</h1>
+        <h1 class="text-[36px] font-medium tracking-tighter leading-tight mb-10">Swap anytime,<br>anywhere.</h1>
 
         <div class="relative flex flex-col gap-1">
-            <div id="sell" class="squircle p-4 z-10 transition-transform duration-500">
+            <div id="sell" class="squircle p-4 z-10">
                 <div class="flex justify-between text-sm font-medium text-zinc-500 mb-2"><span>Sell</span><span id="bal-s">Balance: 1.24</span></div>
                 <div class="flex justify-between items-center">
                     <input type="number" id="sIn" placeholder="0" class="bg-transparent text-4xl outline-none w-full font-medium placeholder-zinc-800">
-                    <button onclick="openD('token-menu', 'sell')" class="bg-[#1B1B1B] border border-white/5 flex items-center gap-2 p-1.5 pr-3 rounded-full active:scale-95 transition-all">
+                    <button onclick="openD('token-menu', 'sell')" class="bg-[#1B1B1B] border border-white/5 flex items-center gap-2 p-1.5 pr-3 rounded-full hover:bg-zinc-800 transition-all">
                         <img id="img-s" src="https://raw.githubusercontent.com/Uniswap/assets/master/blockchains/ethereum/assets/0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2/logo.png" class="w-6 h-6 rounded-full">
                         <span id="sym-s" class="font-bold">ETH</span>
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M6 9l6 6 6-6"/></svg>
+                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4"><path d="M6 9l6 6 6-6"/></svg>
                     </button>
                 </div>
-                <div id="fiat-s" class="text-sm text-zinc-600 mt-1 font-medium tracking-tight">$0</div>
+                <div id="fiat-s" class="text-sm text-zinc-600 mt-1">$0</div>
             </div>
 
             <div class="absolute left-1/2 top-[124px] -translate-x-1/2 -translate-y-1/2 z-20">
-                <button onclick="animateSwap()" class="bg-[#131313] p-3 rounded-2xl border-[6px] border-[#0D0D0D] active:scale-90 transition-transform shadow-2xl">
+                <button onclick="runSwap()" class="bg-[#131313] p-3 rounded-2xl border-[6px] border-[#0D0D0D] active:scale-90 shadow-2xl">
                     <svg id="arr" class="text-zinc-500 transition-transform duration-500" width="20" height="20" fill="none" stroke="currentColor" stroke-width="3.5" viewBox="0 0 24 24"><path d="M7 13l5 5 5-5M7 6l5 5 5-5"/></svg>
                 </button>
             </div>
 
-            <div id="buy" class="squircle p-4 transition-transform duration-500">
+            <div id="buy" class="squircle p-4">
                 <div class="text-sm font-medium text-zinc-500 mb-2">Buy</div>
                 <div class="flex justify-between items-center">
                     <div id="bVal" class="text-4xl text-zinc-800 font-medium">0</div>
-                    <button id="bBtn" onclick="openD('token-menu', 'buy')" class="bg-[#FC00BD] text-white px-5 py-2.5 rounded-2xl font-bold text-[15px]">Select token</button>
+                    <button id="bBtn" onclick="openD('token-menu', 'buy')" class="btn-pink text-white px-5 py-2.5 rounded-2xl font-bold text-[15px]">Select token</button>
                 </div>
             </div>
             
             <button class="w-full mt-3 bg-pink-500/10 text-pink-500 py-5 rounded-[24px] font-bold text-lg border border-pink-500/10 active:scale-95 transition-all">Get started</button>
         </div>
-        <p class="text-center text-zinc-500 text-[13px] mt-8 px-6 leading-relaxed">Buy and sell crypto with <span class="text-pink-500 font-bold">zero app fees</span> on 19+ networks including Ethereum, Unichain, and Base.</p>
     </main>
 
-    <!-- DRAWERS -->
+    <!-- OMNI-REPLICATION DRAWERS -->
     <div id="overlay" onclick="closeAll()" class="overlay"></div>
 
-    <!-- WALLET MODAL -->
+    <!-- WALLET -->
     <div id="wallet-menu" class="drawer">
         <h2 class="font-bold text-xl mb-6 text-center">Connect a wallet</h2>
-        <div class="list-row"><img src="https://app.uniswap.org/static/media/metamask.023762d6.svg" width="30"> MetaMask</div>
-        <div class="list-row"><img src="https://app.uniswap.org/static/media/coinbaseWalletIcon.a3a7d7fd.svg" width="30"> Coinbase Wallet</div>
+        <div class="list-row"><img src="https://app.uniswap.org/static/media/metamask.023762d6.svg" class="w-10 h-10"> MetaMask</div>
+        <div class="list-row"><img src="https://app.uniswap.org/static/media/coinbaseWalletIcon.a3a7d7fd.svg" class="w-10 h-10"> Coinbase Wallet</div>
     </div>
 
-    <!-- SEARCH DRAWER -->
+    <!-- SEARCH -->
     <div id="search-drawer" class="drawer">
-        <div class="search-box"><input type="text" id="omniSearch" placeholder="Search tokens, pools, wallets" oninput="doSearch()"></div>
-        <div id="results"></div>
+        <div class="search-box"><input type="text" id="oSearch" placeholder="Search tokens, pools, wallets" oninput="doSearch()"></div>
+        <div id="sResults"></div>
+    </div>
+
+    <!-- TOKENS -->
+    <div id="token-menu" class="drawer">
+        <div class="flex justify-between mb-4"><span class="font-bold text-xl">Select a token</span><button onclick="closeAll()" class="text-zinc-500">X</button></div>
+        <div id="tList" class="flex flex-col gap-1"></div>
     </div>
 
     <script>
         const tokens = [
-            { s: 'ETH', n: 'Ether', p: 3250.00, img: 'https://raw.githubusercontent.com/Uniswap/assets/master/blockchains/ethereum/assets/0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2/logo.png' },
-            { s: 'USDC', n: 'USD Coin', p: 1.00, img: 'https://raw.githubusercontent.com/Uniswap/assets/master/blockchains/ethereum/assets/0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48/logo.png' }
+            { s: 'ETH', n: 'Ether', p: 3120, img: 'https://raw.githubusercontent.com/Uniswap/assets/master/blockchains/ethereum/assets/0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2/logo.png' },
+            { s: 'USDC', n: 'USD Coin', p: 1, img: 'https://raw.githubusercontent.com/Uniswap/assets/master/blockchains/ethereum/assets/0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48/logo.png' }
         ];
 
-        let side = 'sell';
-        let selT = tokens[0];
+        let targetSide = 'sell';
+
+        function init() {
+            const list = document.getElementById('tList');
+            tokens.forEach(t => {
+                list.innerHTML += `<div onclick="setT('${t.s}')" class="list-row"><img src="${t.img}" class="w-10 h-10 rounded-full"><div><p class="font-bold">${t.n}</p><p class="text-xs text-zinc-500">${t.s}</p></div></div>`;
+            });
+            doSearch();
+        }
 
         function doSearch() {
-            const q = document.getElementById('omniSearch').value.toLowerCase();
-            const r = document.getElementById('results');
-            r.innerHTML = '';
+            const q = document.getElementById('oSearch').value.toLowerCase();
+            const res = document.getElementById('sResults');
+            res.innerHTML = '';
             tokens.filter(x => x.s.toLowerCase().includes(q)).forEach(x => {
-                r.innerHTML += `<div class="list-row"><img src="${x.img}" class="w-8 h-8 rounded-full"><div><p class="font-bold">${x.s}</p><p class="text-xs text-zinc-500">${x.n}</p></div></div>`;
+                res.innerHTML += `<div class="list-row"><img src="${x.img}" class="w-10 h-10"><div><p class="font-bold">${x.s}</p><p class="text-xs text-zinc-500">${x.n}</p></div></div>`;
             });
         }
 
         document.getElementById('sIn').addEventListener('input', (e) => {
             const v = parseFloat(e.target.value);
-            const fiat = document.getElementById('fiat-s');
-            const out = document.getElementById('bVal');
             if(v > 0) {
-                fiat.innerText = '$' + (v * selT.p).toLocaleString();
-                out.innerText = (v * (selT.p - 1.5)).toFixed(2);
-                out.style.color = 'white';
+                document.getElementById('fiat-s').innerText = '$' + (v * 3120).toLocaleString();
+                document.getElementById('bVal').innerText = (v * 3118).toLocaleString();
+                document.getElementById('bVal').style.color = 'white';
             } else {
-                fiat.innerText = '$0';
-                out.innerText = '0';
-                out.style.color = '#27272a';
+                document.getElementById('fiat-s').innerText = '$0';
+                document.getElementById('bVal').innerText = '0';
+                document.getElementById('bVal').style.color = '#27272a';
             }
         });
 
-        function animateSwap() {
+        function runSwap() {
             document.getElementById('sell').classList.toggle('move-down');
             document.getElementById('buy').classList.toggle('move-up');
             document.getElementById('arr').style.transform = document.getElementById('arr').style.transform === 'rotate(180deg)' ? 'rotate(0deg)' : 'rotate(180deg)';
         }
 
         function openD(id, s = 'sell') {
-            side = s;
+            targetSide = s;
             document.getElementById('overlay').style.display = 'block';
             setTimeout(() => {
                 document.getElementById('overlay').style.opacity = '1';
                 document.getElementById(id).classList.add('drawer-active');
             }, 10);
+        }
+
+        function setT(sym) {
+            const t = tokens.find(x => x.s === sym);
+            if(targetSide === 'sell') {
+                document.getElementById('sym-s').innerText = t.s;
+                document.getElementById('img-s').src = t.img;
+            } else {
+                document.getElementById('bBtn').innerHTML = `<img src="${t.img}" class="w-6 h-6 rounded-full"><span class="font-bold">${t.s}</span>`;
+                document.getElementById('bBtn').className = "bg-[#1B1B1B] border border-white/5 flex items-center gap-2 p-1.5 pr-3 rounded-full";
+            }
+            closeAll();
         }
 
         function closeAll() {
@@ -145,7 +186,7 @@
             setTimeout(() => document.getElementById('overlay').style.display = 'none', 300);
         }
 
-        doSearch();
+        init();
     </script>
 </body>
 </html>
