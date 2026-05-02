@@ -1,251 +1,109 @@
-import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  ArrowDown, 
-  ChevronDown, 
-  Search, 
-  Menu, 
-  X, 
-  Plus, 
-  Settings, 
-  ExternalLink 
-} from 'lucide-react';
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Uniswap | Interface</title>
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { background-color: #0D0D0D; color: white; font-family: 'Inter', sans-serif; overflow-x: hidden; }
+        .squircle { border-radius: 32px; border: 1px solid rgba(255, 255, 255, 0.05); background: #131313; }
+        .pink-glow { box-shadow: 0 0 20px rgba(252, 0, 189, 0.15); }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        input[type="number"]::-webkit-inner-spin-button { display: none; }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
 
-/**
- * JANUS/TESAVEK 1:1 REPLICATION ENGINE
- * TARGET: app.uniswap.org (Mobile View)
- * COMPONENTS: Header, SwapCard, TokenModal, Navigation
- */
+    <script type="text/babel">
+        const { useState } = React;
 
-// --- 1. CONFIGURATION & MOCK DATA ---
-const TOKENS = [
-  { symbol: 'ETH', name: 'Ether', logo: 'https://app.uniswap.org/static/media/eth-logo.4054a323.png' },
-  { symbol: 'USDC', name: 'USD Coin', logo: 'https://cryptologos.cc/logos/usd-coin-usdc-logo.png' },
-  { symbol: 'USDT', name: 'Tether', logo: 'https://cryptologos.cc/logos/tether-usdt-logo.png' },
-  { symbol: 'WBTC', name: 'Wrapped BTC', logo: 'https://cryptologos.cc/logos/wrapped-bitcoin-wbtc-logo.png' },
-  { symbol: 'WETH', name: 'Wrapped Ether', logo: 'https://app.uniswap.org/static/media/eth-logo.4054a323.png' },
-];
+        function App() {
+            const [isSwapped, setIsSwapped] = useState(false);
+            const [val, setVal] = useState('');
 
-// --- 2. THE ALL-IN-ONE ENGINE ---
-export default function UniswapUnifiedCode() {
-  const [sellToken, setSellToken] = useState(TOKENS[0]);
-  const [buyToken, setBuyToken] = useState<typeof TOKENS[0] | null>(null);
-  const [sellValue, setSellValue] = useState('');
-  const [isSwapping, setIsSwapping] = useState(false);
-  const [showModal, setShowModal] = useState(false);
-  const [modalType, setModalType] = useState<'sell' | 'buy'>('buy');
-
-  // --- 1:1 INTERACTION LOGIC ---
-  const handleSwapToggle = () => {
-    setIsSwapping(true);
-    setTimeout(() => {
-      const temp = sellToken;
-      setSellToken(buyToken || TOKENS[1]); // Fallback for 1:1 safety
-      setBuyToken(temp);
-      setIsSwapping(false);
-    }, 400);
-  };
-
-  const openModal = (type: 'sell' | 'buy') => {
-    setModalType(type);
-    setShowModal(true);
-  };
-
-  return (
-    <div className="min-h-screen bg-[#0D0D0D] text-white font-['Inter',sans-serif] antialiased select-none">
-      
-      {/* 1:1 HEADER COMPONENT */}
-      <nav className="flex items-center justify-between px-4 py-3 border-b border-white/[0.03]">
-        <div className="flex items-center gap-5">
-          <img 
-            src="https://upload.wikimedia.org/wikipedia/commons/e/e7/Uniswap_Logo.svg" 
-            className="w-8 h-8" 
-            alt="Uniswap" 
-          />
-          <div className="hidden sm:flex gap-5 text-sm font-semibold text-zinc-400">
-            <span className="text-white">Swap</span>
-            <span className="hover:text-white transition-colors cursor-pointer">Explore</span>
-            <span className="hover:text-white transition-colors cursor-pointer">Pool</span>
-          </div>
-        </div>
-        <div className="flex items-center gap-2">
-          <div className="bg-[#131313] p-2 rounded-xl border border-white/[0.05]">
-            <Search size={18} className="text-zinc-500" />
-          </div>
-          <button className="bg-pink-600/10 text-[#FC00BD] border border-pink-500/20 px-4 py-1.5 rounded-2xl font-bold text-sm">
-            Connect
-          </button>
-          <Menu size={22} className="text-zinc-400" />
-        </div>
-      </nav>
-
-      {/* MAIN SWAP BOX (1:1 GEOMETRY) */}
-      <main className="max-w-[480px] mx-auto pt-10 px-4">
-        <h1 className="text-[36px] font-medium tracking-tight leading-[1.1] mb-10">
-          Swap anytime,<br/>anywhere.
-        </h1>
-
-        <div className="relative">
-          {/* SELL CONTAINER */}
-          <motion.div 
-            animate={{ y: isSwapping ? 128 : 0 }}
-            transition={{ type: 'spring', stiffness: 280, damping: 25 }}
-            className="bg-[#131313] p-4 rounded-[32px] border border-white/[0.04] shadow-2xl relative z-10"
-          >
-            <div className="text-sm font-medium text-zinc-500 mb-3">Sell</div>
-            <div className="flex justify-between items-center gap-2">
-              <input 
-                type="number"
-                placeholder="0"
-                value={sellValue}
-                onChange={(e) => setSellValue(e.target.value)}
-                className="bg-transparent text-4xl font-medium outline-none w-full placeholder-zinc-800"
-              />
-              <button 
-                onClick={() => openModal('sell')}
-                className="flex items-center gap-2 bg-[#1B1B1B] border border-white/[0.05] p-1.5 pr-4 rounded-full hover:bg-[#252525] transition-all"
-              >
-                <img src={sellToken.logo} className="w-6 h-6 rounded-full" />
-                <span className="font-bold">{sellToken.symbol}</span>
-                <ChevronDown size={14} className="text-zinc-500" />
-              </button>
-            </div>
-            <div className="mt-1 text-sm text-zinc-600 font-medium">$0</div>
-          </motion.div>
-
-          {/* THE ICONIC SWAP BUTTON */}
-          <div className="absolute left-1/2 top-[128px] -translate-x-1/2 -translate-y-1/2 z-20">
-            <button 
-              onClick={handleSwapToggle}
-              className="bg-[#131313] p-2.5 rounded-xl border-[6px] border-[#0D0D0D] hover:scale-110 active:scale-95 transition-all shadow-xl group"
-            >
-              <motion.div animate={{ rotate: isSwapping ? 180 : 0 }}>
-                <ArrowDown size={20} className="text-zinc-500 group-hover:text-white" />
-              </motion.div>
-            </button>
-          </div>
-
-          {/* BUY CONTAINER */}
-          <motion.div 
-            animate={{ y: isSwapping ? -128 : 0 }}
-            transition={{ type: 'spring', stiffness: 280, damping: 25 }}
-            className="bg-[#131313] p-4 rounded-[32px] border border-white/[0.04] mt-2 relative overflow-hidden"
-          >
-            <div className="text-sm font-medium text-zinc-500 mb-3">Buy</div>
-            <div className="flex justify-between items-center gap-2">
-              <div className="text-4xl font-medium text-zinc-800">0</div>
-              {!buyToken ? (
-                <button 
-                  onClick={() => openModal('buy')}
-                  className="bg-[#FC00BD] text-white px-5 py-2.5 rounded-2xl font-bold text-[15px] shadow-lg shadow-pink-500/20 hover:bg-[#E500AB] transition-all"
-                >
-                  Select token
-                </button>
-              ) : (
-                <button 
-                  onClick={() => openModal('buy')}
-                  className="flex items-center gap-2 bg-[#1B1B1B] border border-white/[0.05] p-1.5 pr-4 rounded-full"
-                >
-                  <img src={buyToken.logo} className="w-6 h-6 rounded-full" />
-                  <span className="font-bold">{buyToken.symbol}</span>
-                  <ChevronDown size={14} className="text-zinc-500" />
-                </button>
-              )}
-            </div>
-
-            {/* QUICK SELECTION BAR (From Screenshot 1) */}
-            <div className="flex gap-2 mt-4">
-              {TOKENS.slice(0, 4).map((t, i) => (
-                <div 
-                  key={i} 
-                  onClick={() => setBuyToken(t)}
-                  className="w-8 h-8 rounded-full bg-[#1B1B1B] border border-white/[0.05] p-1.5 cursor-pointer hover:border-pink-500/50 transition-all"
-                >
-                  <img src={t.logo} className="w-full opacity-50 grayscale hover:grayscale-0 hover:opacity-100" />
-                </div>
-              ))}
-              <div className="w-8 h-8 rounded-full bg-[#1B1B1B] border border-white/[0.05] flex items-center justify-center text-zinc-500 text-[10px] font-bold">
-                7+
-              </div>
-            </div>
-          </motion.div>
-
-          <button className="w-full mt-4 bg-pink-500/10 text-pink-500 py-5 rounded-[28px] font-bold text-lg border border-pink-500/10 hover:bg-pink-600/20 transition-all">
-            Get started
-          </button>
-        </div>
-
-        <p className="text-center text-[13px] text-zinc-500 mt-8 px-10 leading-relaxed">
-          Buy and sell crypto with <span className="text-[#FC00BD]">zero app fees</span> on 19+ networks including Ethereum, Unichain, and Base.
-        </p>
-      </main>
-
-      {/* 1:1 SEARCH MODAL OVERLAY */}
-      <AnimatePresence>
-        {showModal && (
-          <>
-            <motion.div 
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setShowModal(false)}
-              className="fixed inset-0 bg-black/60 backdrop-blur-md z-[99]"
-            />
-            <motion.div 
-              initial={{ y: '100%' }}
-              animate={{ y: 0 }}
-              exit={{ y: '100%' }}
-              className="fixed bottom-0 left-0 right-0 bg-[#131313] z-[100] rounded-t-[32px] p-6 border-t border-white/10 max-h-[85vh] overflow-y-auto"
-            >
-              <div className="flex justify-between items-center mb-6">
-                <span className="font-bold text-xl">Select a token</span>
-                <X onClick={() => setShowModal(false)} className="text-zinc-500 cursor-pointer" />
-              </div>
-              
-              <div className="relative mb-6">
-                <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500" size={20} />
-                <input 
-                  className="w-full bg-[#0D0D0D] border border-white/5 rounded-2xl py-4 pl-12 pr-4 outline-none focus:border-[#FC00BD]/50 transition-all"
-                  placeholder="Search tokens"
-                />
-              </div>
-
-              <div className="flex flex-wrap gap-2 mb-6">
-                {TOKENS.map(t => (
-                  <button 
-                    key={t.symbol}
-                    onClick={() => {
-                      if (modalType === 'sell') setSellToken(t);
-                      else setBuyToken(t);
-                      setShowModal(false);
-                    }}
-                    className="flex items-center gap-2 bg-[#1B1B1B] border border-white/5 px-3 py-2 rounded-xl hover:bg-[#252525]"
-                  >
-                    <img src={t.logo} className="w-5 h-5 rounded-full" />
-                    <span className="font-bold text-sm">{t.symbol}</span>
-                  </button>
-                ))}
-              </div>
-
-              <div className="border-t border-white/[0.05] pt-4">
-                 <p className="text-xs font-bold text-zinc-500 mb-4 uppercase tracking-widest">Popular tokens</p>
-                 {TOKENS.map((t) => (
-                   <div key={t.symbol + '_list'} className="flex items-center justify-between p-3 hover:bg-white/[0.03] rounded-2xl cursor-pointer">
-                      <div className="flex items-center gap-4">
-                        <img src={t.logo} className="w-10 h-10 rounded-full" />
-                        <div>
-                          <p className="font-bold">{t.name}</p>
-                          <p className="text-xs text-zinc-500">{t.symbol}</p>
+            return (
+                <div className="min-h-screen flex flex-col items-center">
+                    {/* Header */}
+                    <header className="w-full flex justify-between items-center p-4 max-w-2xl">
+                        <div className="flex items-center gap-3">
+                            <img src="https://upload.wikimedia.org/wikipedia/commons/e/e7/Uniswap_Logo.svg" className="w-8 h-8" />
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#9B9B9B" strokeWidth="2"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
                         </div>
-                      </div>
-                      <Plus size={20} className="text-zinc-600" />
-                   </div>
-                 ))}
-              </div>
-            </motion.div>
-          </>
-        )}
-      </AnimatePresence>
-    </div>
-  );
-}
+                        <button className="bg-[#FC00BD1A] text-[#FC00BD] border border-[#FC00BD33] px-4 py-1.5 rounded-2xl font-bold text-sm">Connect</button>
+                    </header>
+
+                    {/* Main Interface */}
+                    <main className="w-full max-w-[480px] px-4 mt-10">
+                        <h1 className="text-[34px] font-medium leading-tight tracking-tighter mb-8">Swap anytime,<br/>anywhere.</h1>
+
+                        <div className="relative flex flex-col gap-1">
+                            {/* Sell Card */}
+                            <div className={`squircle p-4 transition-all duration-500 z-10 ${isSwapped ? 'translate-y-[126px]' : 'translate-y-0'}`}>
+                                <div className="text-sm font-medium text-zinc-500 mb-2">Sell</div>
+                                <div className="flex justify-between items-center">
+                                    <input 
+                                        type="number" 
+                                        placeholder="0" 
+                                        value={val}
+                                        onChange={(e) => setVal(e.target.value)}
+                                        className="bg-transparent text-4xl outline-none w-full placeholder-zinc-800 font-medium"
+                                    />
+                                    <div className="bg-[#1B1B1B] border border-white/5 flex items-center gap-2 p-1.5 pr-4 rounded-full">
+                                        <img src="https://app.uniswap.org/static/media/eth-logo.4054a323.png" className="w-6 h-6"/>
+                                        <span className="font-bold">ETH</span>
+                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path d="M6 9l6 6 6-6"/></svg>
+                                    </div>
+                                </div>
+                                <div className="text-sm text-zinc-600 mt-1 font-medium">$0</div>
+                            </div>
+
+                            {/* Swap Toggle Button */}
+                            <div className="absolute left-1/2 top-[124px] -translate-x-1/2 -translate-y-1/2 z-20">
+                                <button 
+                                    onClick={() => setIsSwapped(!isSwapped)}
+                                    className="bg-[#131313] p-2.5 rounded-xl border-[5px] border-[#0D0D0D] hover:scale-110 active:scale-95 transition-all shadow-2xl"
+                                >
+                                    <svg className={`text-zinc-500 transition-transform duration-500 ${isSwapped ? 'rotate-180' : ''}`} width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M7 13l5 5 5-5M7 6l5 5 5-5"/></svg>
+                                </button>
+                            </div>
+
+                            {/* Buy Card */}
+                            <div className={`squircle p-4 transition-all duration-500 ${isSwapped ? '-translate-y-[126px]' : 'translate-y-0'}`}>
+                                <div className="text-sm font-medium text-zinc-500 mb-2">Buy</div>
+                                <div className="flex justify-between items-center">
+                                    <div className="text-4xl text-zinc-800 font-medium">0</div>
+                                    <button className="bg-[#FC00BD] text-white px-5 py-2.5 rounded-2xl font-bold text-[15px] pink-glow hover:bg-[#E500AB] transition-all">Select token</button>
+                                </div>
+                                <div className="flex gap-2 mt-4 overflow-x-auto no-scrollbar">
+                                    {[1,2,3,4].map(i => (
+                                        <div key={i} className="w-8 h-8 rounded-full bg-[#1B1B1B] p-1.5 opacity-40 hover:opacity-100 cursor-pointer transition-opacity border border-white/5">
+                                            <img src="https://app.uniswap.org/static/media/eth-logo.4054a323.png" />
+                                        </div>
+                                    ))}
+                                    <div className="w-8 h-8 rounded-full bg-[#1B1B1B] border border-white/5 flex items-center justify-center text-[10px] text-zinc-500 font-bold">7+</div>
+                                </div>
+                            </div>
+
+                            {/* CTA Button */}
+                            <button className="w-full mt-3 bg-[#FC00BD1A] text-[#FC00BD] py-5 rounded-[24px] font-bold text-lg border border-[#FC00BD1A] hover:bg-[#FC00BD33] transition-all">Get started</button>
+                        </div>
+
+                        <p className="text-center text-[13px] text-zinc-500 mt-8 px-10 leading-relaxed">
+                            Buy and sell crypto with <span className="text-[#FC00BD]">zero app fees</span> on 19+ networks including Ethereum, Unichain, and Base.
+                        </p>
+                    </main>
+                </div>
+            );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
