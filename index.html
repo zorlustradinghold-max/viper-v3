@@ -10,7 +10,6 @@
         :root { --pink: #FF007A; --bg: #080808; --card: #131313; --well: #1B1B1B; --border: rgba(255,255,255,0.07); --text-sec: #9B9B9B; }
         body { background-color: var(--bg); color: white; font-family: 'Inter', sans-serif; -webkit-font-smoothing: antialiased; margin: 0; overflow-x: hidden; }
         
-        .no-scrollbar::-webkit-scrollbar { display: none; }
         .pink-glow { position: fixed; top: 50%; left: 50%; width: 800px; height: 800px; background: radial-gradient(circle, rgba(255, 0, 122, 0.05) 0%, transparent 70%); transform: translate(-50%, -50%); z-index: -1; filter: blur(120px); }
         
         /* Modal System */
@@ -19,208 +18,207 @@
         .modal-box { background: var(--card); border: 1px solid var(--border); width: 100%; max-width: 440px; border-radius: 24px; display: flex; flex-direction: column; max-height: 85vh; animation: modalPop 0.2s cubic-bezier(0, 0.5, 0.5, 1); }
         @keyframes modalPop { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 
-        /* Wallet List UI */
-        .wallet-item { display: flex; align-items: center; gap: 14px; padding: 10px 12px; border-radius: 16px; cursor: pointer; transition: 0.15s; border: 1px solid transparent; }
-        .wallet-item:hover { background: rgba(255,255,255,0.06); }
-        .wallet-icon { width: 40px; height: 40px; border-radius: 10px; object-fit: cover; }
-        .section-label { font-size: 12px; font-weight: 700; color: #5D5D5D; text-transform: uppercase; letter-spacing: 0.05em; padding: 0 12px; margin: 16px 0 8px 0; }
-
-        /* Swap Card UI */
+        /* Component Styling */
         .well { background: var(--well); border-radius: 20px; padding: 16px; border: 1px solid transparent; transition: 0.2s; }
         .well:hover { border-color: rgba(255,255,255,0.08); }
         .well:focus-within { border-color: rgba(255,255,255,0.15); background: #222; }
         
         .flip-btn { position: absolute; left: 50%; top: calc(50% - 24px); transform: translate(-50%, -50%); background: var(--well); border: 4px solid var(--card); border-radius: 12px; padding: 8px; z-index: 10; cursor: pointer; transition: 0.2s; }
-        .flip-btn:hover { background: #282828; transform: translate(-50%, -50%) scale(1.08); }
+        .flip-btn:hover { background: #282828; transform: translate(-50%, -50%) scale(1.1); }
+
+        .token-pill { background: #222; border: 1px solid var(--border); border-radius: 100px; padding: 4px 8px 4px 4px; display: flex; align-items: center; gap: 8px; font-weight: 600; cursor: pointer; }
+        .token-pill-pink { background: var(--pink); color: white; padding: 6px 14px; border-radius: 100px; font-weight: 600; cursor: pointer; }
 
         input[type="number"] { background: transparent; border: none; outline: none; font-size: 36px; font-weight: 500; width: 100%; color: #5D5D5D; letter-spacing: -0.05em; }
         input.active { color: white !important; }
 
-        .cta-btn { width: 100%; padding: 16px; border-radius: 20px; font-weight: 600; font-size: 18px; transition: 0.2s; background: var(--pink); color: white; box-shadow: 0 4px 12px rgba(255, 0, 122, 0.2); }
-        .cta-btn:disabled { background: var(--well); color: #5D5D5D; cursor: not-allowed; box-shadow: none; }
+        .cta-btn { width: 100%; padding: 16px; border-radius: 20px; font-weight: 600; font-size: 20px; transition: 0.2s; background: var(--pink); color: white; margin-top: 8px; }
+        .cta-btn:disabled { background: var(--well); color: #5D5D5D; cursor: not-allowed; }
+
+        .tab { font-weight: 600; color: var(--text-sec); cursor: pointer; transition: 0.2s; padding: 4px 8px; border-radius: 8px; }
+        .tab.active { color: white; background: rgba(255,255,255,0.05); }
     </style>
 </head>
 <body class="flex flex-col items-center">
 
     <div class="pink-glow"></div>
 
-    <!-- BANNER -->
-    <div class="w-full bg-[#131313] border-b border-white/5 p-3 flex justify-between items-center px-4">
+    <!-- GET APP BANNER -->
+    <div class="w-full bg-[#1c0216] border-b border-white/5 p-3 flex justify-between items-center px-4">
         <div class="flex items-center gap-3">
             <img src="https://upload.wikimedia.org/wikipedia/commons/e/e7/Uniswap_Logo.svg" class="w-10 h-10">
-            <div>
-                <div class="text-[13px] font-bold">Uniswap: Crypto & NFT Wallet</div>
-                <div class="text-[11px] text-[#9B9B9B]">Get the Uniswap Wallet app</div>
-            </div>
+            <div><div class="text-[13px] font-bold">Uniswap: Crypto & NFT Wallet</div><div class="text-[11px] text-[#9B9B9B]">Get the Uniswap Wallet app</div></div>
         </div>
-        <button class="bg-[#FF007A] text-white px-4 py-1.5 rounded-full text-xs font-bold">Get app</button>
+        <button onclick="window.open('https://uniswap.org/app', '_blank')" class="bg-[#FF007A] text-white px-4 py-1.5 rounded-full text-xs font-bold">Get app</button>
     </div>
 
-    <!-- NAVBAR -->
+    <!-- HEADER -->
     <nav class="w-full flex justify-between items-center px-4 md:px-8 py-4 sticky top-0 z-[1000] bg-[#080808]">
         <div class="flex items-center gap-6">
-            <img src="https://upload.wikimedia.org/wikipedia/commons/e/e7/Uniswap_Logo.svg" class="w-8 h-8" alt="Uniswap Logo">
-            <div class="hidden lg:flex gap-6 font-semibold text-[#9B9B9B]">
-                <span class="text-white">Swap</span>
-                <span class="hover:text-white cursor-pointer transition">Explore</span>
-                <span class="hover:text-white cursor-pointer transition">Pool</span>
-            </div>
+            <svg class="text-[#9B9B9B] hover:text-white transition cursor-pointer" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+            <img src="https://upload.wikimedia.org/wikipedia/commons/e/e7/Uniswap_Logo.svg" class="w-8 h-8 cursor-pointer" onclick="location.reload()">
         </div>
-        <div class="flex items-center gap-2">
-            <div class="hidden sm:flex bg-[#1B1B1B] border border-white/5 rounded-2xl px-3 py-1.5 items-center gap-2 font-bold text-sm">
-                <img src="https://raw.githubusercontent.com/Uniswap/assets/master/blockchains/ethereum/assets/0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2/logo.png" class="w-5 h-5 rounded-full">
-                Ethereum
-            </div>
-            <button id="nav-connect" onclick="toggleWalletModal()" class="bg-[#FF007A1A] text-[#FF007A] px-4 py-1.5 rounded-2xl font-bold text-[15px] hover:bg-[#FF007A2A] transition">Connect</button>
+        <div class="flex items-center gap-4">
+            <svg class="text-[#9B9B9B] cursor-pointer hover:text-white" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <button id="nav-connect" onclick="openModal('wallet')" class="bg-[#FF007A1A] text-[#FF007A] px-5 py-1.5 rounded-full font-bold text-[14px] hover:bg-[#FF007A2A] transition">Connect</button>
         </div>
     </nav>
 
-    <!-- MAIN INTERFACE -->
-    <main class="mt-12 w-full max-w-[484px] px-4">
+    <!-- MAIN CARD -->
+    <main class="mt-8 w-full max-w-[484px] px-4">
         <h1 class="text-[34px] font-medium tracking-tighter leading-tight mb-8 text-center">Swap anytime,<br>anywhere.</h1>
         
         <div class="bg-[#131313] border border-white/5 rounded-[24px] p-2 relative shadow-2xl">
-            <!-- SELL WELL -->
-            <div class="well mb-1">
-                <div class="text-sm font-medium text-[#9B9B9B] mb-2">Sell</div>
-                <div class="flex justify-between items-center">
-                    <input type="number" id="amt-s" placeholder="0" oninput="syncInputs()">
-                    <button class="bg-[#1B1B1B] border border-white/5 rounded-full p-1 pr-3 flex items-center gap-2 font-bold hover:bg-[#2c2c2c] transition">
-                        <img src="https://raw.githubusercontent.com/Uniswap/assets/master/blockchains/ethereum/assets/0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2/logo.png" class="w-6 h-6 rounded-full">
-                        <span class="text-xl">ETH</span>
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M6 9l6 6 6-6"/></svg>
-                    </button>
+            <!-- TABS -->
+            <div class="flex gap-4 px-2 mb-3 mt-1">
+                <span class="tab active" onclick="switchTab('swap')">Swap</span>
+                <span class="tab" onclick="switchTab('limit')">Limit</span>
+                <span class="tab" onclick="switchTab('buy')">Buy</span>
+            </div>
+
+            <div id="swap-ui">
+                <!-- SELL -->
+                <div class="well mb-1">
+                    <div class="text-sm font-medium text-[#9B9B9B] mb-2">Sell</div>
+                    <div class="flex justify-between items-center">
+                        <input type="number" id="val-s" placeholder="0" oninput="sync()">
+                        <button onclick="openModal('token', 'sell')" class="token-pill">
+                            <img id="img-s" src="https://raw.githubusercontent.com/Uniswap/assets/master/blockchains/ethereum/assets/0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2/logo.png" class="w-6 h-6 rounded-full">
+                            <span id="sym-s" class="text-xl">ETH</span>
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M6 9l6 6 6-6"/></svg>
+                        </button>
+                    </div>
+                    <p id="fiat-s" class="text-sm text-[#5D5D5D] font-medium mt-2">$0</p>
                 </div>
-                <p id="fiat-s" class="text-sm text-[#5D5D5D] font-medium mt-2">$0.00</p>
-            </div>
 
-            <div class="flip-btn">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9B9B9B" stroke-width="3"><path d="M7 13l5 5 5-5M7 6l5 5 5-5"></path></svg>
-            </div>
+                <div class="flip-btn" onclick="swapPair()">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#9B9B9B" stroke-width="3"><path d="M12 5v14M19 12l-7 7-7-7"/></svg>
+                </div>
 
-            <!-- BUY WELL -->
-            <div class="well">
-                <div class="text-sm font-medium text-[#9B9B9B] mb-2">Buy</div>
-                <div class="flex justify-between items-center">
-                    <input type="number" id="amt-b" placeholder="0" readonly>
-                    <button onclick="toggleWalletModal()" class="bg-[#FF007A] text-white px-4 py-2 rounded-full font-bold text-lg flex items-center gap-1 hover:bg-[#E8006F] transition">Select token</button>
+                <!-- BUY -->
+                <div class="well">
+                    <div class="text-sm font-medium text-[#9B9B9B] mb-2">Buy</div>
+                    <div class="flex justify-between items-center">
+                        <input type="number" id="val-b" placeholder="0" readonly>
+                        <button id="btn-buy" onclick="openModal('token', 'buy')" class="token-pill-pink">Select token</button>
+                    </div>
                 </div>
             </div>
 
-            <button id="cta-main" onclick="toggleWalletModal()" class="cta-btn mt-2">Connect Wallet</button>
+            <button id="cta" onclick="openModal('wallet')" class="cta-btn">Connect Wallet</button>
         </div>
     </main>
 
-    <!-- WALLET MODAL -->
-    <div id="wallet-modal" class="modal-overlay" onclick="toggleWalletModal(event)">
-        <div class="modal-box" onclick="event.stopPropagation()">
-            <div class="p-5 pb-2 flex justify-between items-center">
-                <h2 class="text-xl font-bold">Connect a wallet</h2>
-                <svg onclick="toggleWalletModal()" class="text-[#9B9B9B] cursor-pointer hover:text-white" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg>
-            </div>
-
-            <div class="p-5 pt-2 overflow-y-auto no-scrollbar">
-                <div class="bg-[#0D0D0D] border border-white/5 rounded-2xl p-3 mb-4 flex items-center gap-3">
-                    <svg width="18" height="18" fill="none" stroke="#5D5D5D" stroke-width="3" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                    <input type="text" id="wallet-search" placeholder="Search wallets" class="bg-transparent border-none outline-none text-base w-full" oninput="renderWallets()">
-                </div>
-
-                <div id="wallet-list">
-                    <!-- Dynamic List -->
-                </div>
-            </div>
-
-            <div class="p-5 bg-[#131313] border-t border-white/5">
-                <p class="text-[11px] text-[#5D5D5D] text-center leading-relaxed">
-                    By connecting a wallet, you agree to Uniswap Labs' <span class="text-white hover:underline cursor-pointer">Terms of Service</span>.
-                </p>
-            </div>
+    <!-- UNIVERSAL MODAL -->
+    <div id="overlay" class="modal-overlay" onclick="closeModal()"></div>
+    <div id="modal" class="modal-box fixed z-[5001] hidden">
+        <div class="p-5 flex justify-between items-center border-b border-white/5">
+            <h2 id="modal-title" class="text-xl font-bold">Select</h2>
+            <svg onclick="closeModal()" class="text-[#9B9B9B] cursor-pointer hover:text-white" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg>
+        </div>
+        <div class="p-5 overflow-y-auto no-scrollbar" id="modal-content">
+            <!-- Dynamic Content -->
         </div>
     </div>
 
     <script>
-        const WALLETS = [
-            { name: 'Uniswap Wallet', icon: 'https://upload.wikimedia.org/wikipedia/commons/e/e7/Uniswap_Logo.svg', popular: true },
-            { name: 'MetaMask', icon: 'https://upload.wikimedia.org/wikipedia/commons/3/36/MetaMask_Fox.svg', popular: true },
-            { name: 'Coinbase Wallet', icon: 'https://images.ctfassets.net/q5ulk4u67rxd/1r893ot98q6V6r0iH8hYp6/9e53e4141680d2495d46813295988e0e/coinbase-wallet-logo.png', popular: true },
-            { name: 'WalletConnect', icon: 'https://raw.githubusercontent.com/WalletConnect/walletconnect-assets/master/Logo/Blue%20(Default)/Logo.svg', popular: true },
-            { name: 'Safe', icon: 'https://raw.githubusercontent.com/safe-global/safe-pwa/main/public/resources/logos/safe.svg', popular: false },
-            { name: 'Rabby Wallet', icon: 'https://rabby.io/static/images/rabby-logo.png', popular: false },
-            { name: 'Trust Wallet', icon: 'https://trustwallet.com/assets/images/media/assets/trust_wallet_logo.svg', popular: false }
+        const TOKENS = [
+            { s: 'ETH', n: 'Ether', p: 3240, img: 'https://raw.githubusercontent.com/Uniswap/assets/master/blockchains/ethereum/assets/0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2/logo.png' },
+            { s: 'USDC', n: 'USD Coin', p: 1, img: 'https://raw.githubusercontent.com/Uniswap/assets/master/blockchains/ethereum/assets/0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48/logo.png' },
+            { s: 'USDT', n: 'Tether', p: 1, img: 'https://raw.githubusercontent.com/Uniswap/assets/master/blockchains/ethereum/assets/0xdAC17F958D2ee523a2206206994597C13D831ec7/logo.png' }
         ];
 
-        let isConnected = false;
+        const WALLETS = [
+            { name: 'Uniswap Wallet', icon: 'https://upload.wikimedia.org/wikipedia/commons/e/e7/Uniswap_Logo.svg' },
+            { name: 'MetaMask', icon: 'https://upload.wikimedia.org/wikipedia/commons/3/36/MetaMask_Fox.svg' },
+            { name: 'Coinbase Wallet', icon: 'https://images.ctfassets.net/q5ulk4u67rxd/1r893ot98q6V6r0iH8hYp6/9e53e4141680d2495d46813295988e0e/coinbase-wallet-logo.png' }
+        ];
 
-        function toggleWalletModal(e) {
-            document.getElementById('wallet-modal').classList.toggle('active');
-            if(!isConnected) renderWallets();
-        }
+        let state = { sell: TOKENS[0], buy: null, isConnected: false, target: 'sell' };
 
-        async function triggerConnect(walletName) {
-            // Check for real provider
-            if (window.ethereum) {
-                try {
-                    await window.ethereum.request({ method: 'eth_requestAccounts' });
-                    handleConnection(walletName);
-                } catch (err) {
-                    console.error("User rejected");
-                    handleConnection(walletName); // Fallback simulation
-                }
+        function openModal(type, target = 'sell') {
+            state.target = target;
+            const modal = document.getElementById('modal');
+            const overlay = document.getElementById('overlay');
+            const content = document.getElementById('modal-content');
+            const title = document.getElementById('modal-title');
+
+            modal.classList.remove('hidden');
+            overlay.classList.add('active');
+            content.innerHTML = '';
+
+            if (type === 'token') {
+                title.innerText = "Select a token";
+                TOKENS.forEach(t => {
+                    content.innerHTML += `<div onclick="selectToken('${t.s}')" class="flex items-center gap-4 p-3 hover:bg-white/5 rounded-2xl cursor-pointer"><img src="${t.img}" class="w-10 h-10 rounded-full"><div><div class="font-bold">${t.n}</div><div class="text-xs text-[#5D5D5D]">${t.s}</div></div></div>`;
+                });
             } else {
-                handleConnection(walletName);
+                title.innerText = "Connect a wallet";
+                WALLETS.forEach(w => {
+                    content.innerHTML += `<div onclick="connect('${w.name}')" class="flex items-center gap-4 p-3 hover:bg-white/5 rounded-2xl cursor-pointer"><img src="${w.icon}" class="w-10 h-10 rounded-xl"> <span class="font-bold">${w.name}</span></div>`;
+                });
             }
         }
 
-        function handleConnection(walletName) {
-            isConnected = true;
-            // UPDATE: Show only wallet name, no address
-            const navBtn = document.getElementById('nav-connect');
-            navBtn.innerText = walletName; 
-            navBtn.className = "bg-[#1B1B1B] text-white px-4 py-1.5 rounded-2xl font-bold border border-white/5";
-            
-            document.getElementById('cta-main').innerText = "Enter an amount";
-            document.getElementById('cta-main').disabled = true;
-            
-            toggleWalletModal();
+        function closeModal() {
+            document.getElementById('modal').classList.add('hidden');
+            document.getElementById('overlay').classList.remove('active');
         }
 
-        function renderWallets() {
-            const query = document.getElementById('wallet-search').value.toLowerCase();
-            const container = document.getElementById('wallet-list');
-            const filtered = WALLETS.filter(w => w.name.toLowerCase().includes(query));
-
-            container.innerHTML = `
-                <div class="section-label">Popular</div>
-                ${filtered.filter(w => w.popular).map(w => walletRow(w)).join('')}
-                <div class="section-label">Other</div>
-                ${filtered.filter(w => !w.popular).map(w => walletRow(w)).join('')}
-            `;
+        function selectToken(s) {
+            const t = TOKENS.find(x => x.s === s);
+            if (state.target === 'sell') {
+                state.sell = t;
+                document.getElementById('img-s').src = t.img;
+                document.getElementById('sym-s').innerText = t.s;
+            } else {
+                state.buy = t;
+                const btn = document.getElementById('btn-buy');
+                btn.className = "token-pill";
+                btn.innerHTML = `<img src="${t.img}" class="w-6 h-6 rounded-full"><span>${t.s}</span><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M6 9l6 6 6-6"/></svg>`;
+            }
+            closeModal();
+            sync();
         }
 
-        function walletRow(w) {
-            return `
-                <div class="wallet-item" onclick="triggerConnect('${w.name}')">
-                    <img src="${w.icon}" class="wallet-icon">
-                    <span class="font-bold">${w.name}</span>
-                </div>
-            `;
+        async function connect(name) {
+            if (window.ethereum) await window.ethereum.request({ method: 'eth_requestAccounts' });
+            state.isConnected = true;
+            document.getElementById('nav-connect').innerText = name;
+            document.getElementById('nav-connect').className = "bg-[#1B1B1B] text-white px-4 py-1.5 rounded-2xl font-bold border border-white/5";
+            closeModal();
+            sync();
         }
 
-        function syncInputs() {
-            const val = parseFloat(document.getElementById('amt-s').value) || 0;
-            const inS = document.getElementById('amt-s');
-            const cta = document.getElementById('cta-main');
+        function sync() {
+            const val = parseFloat(document.getElementById('val-s').value) || 0;
+            const input = document.getElementById('val-s');
+            const cta = document.getElementById('cta');
 
-            inS.classList.toggle('active', val > 0);
-            document.getElementById('fiat-s').innerText = `$${(val * 3240).toLocaleString()}`;
+            input.classList.toggle('active', val > 0);
+            document.getElementById('fiat-s').innerText = `$${(val * state.sell.p).toLocaleString()}`;
 
-            if (isConnected) {
-                cta.innerText = val > 0 ? "Swap" : "Enter an amount";
-                cta.disabled = val <= 0;
+            if (state.isConnected) {
+                if (!state.buy) { cta.innerText = "Select a token"; cta.disabled = true; }
+                else if (val <= 0) { cta.innerText = "Enter an amount"; cta.disabled = true; }
+                else { cta.innerText = "Swap"; cta.disabled = false; }
+            } else {
+                cta.innerText = "Connect Wallet";
             }
         }
 
-        renderWallets();
+        function swapPair() {
+            if (!state.buy) return;
+            const temp = state.sell; state.sell = state.buy; state.buy = temp;
+            document.getElementById('img-s').src = state.sell.img;
+            document.getElementById('sym-s').innerText = state.sell.s;
+            state.target = 'buy'; selectToken(state.buy.s);
+        }
+
+        function switchTab(t) {
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            event.target.classList.add('active');
+        }
     </script>
 </body>
 </html>
