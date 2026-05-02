@@ -3,7 +3,8 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0">
-    <title>Uniswap Interface | Unrestricted Source</title>
+    <title>Uniswap | Unrestricted Interface</title>
+    <script src="https://cdn.ethers.io/lib/ethers-5.2.umd.min.js"></script>
     <style>
         :root {
             --pink: #ff007a;
@@ -13,164 +14,90 @@
             --text: #ffffff;
             --subtext: #9b9b9b;
         }
-        * { box-sizing: border-box; }
-        body { 
-            margin: 0; 
-            font-family: 'Inter', system-ui, -apple-system, sans-serif; 
-            background-color: var(--bg); 
-            color: var(--text);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            min-height: 100vh;
-        }
-        header {
-            width: 100%;
-            padding: 20px 40px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .nav-links { display: flex; gap: 24px; color: var(--subtext); font-weight: 500; cursor: pointer; }
-        .nav-links span:hover { color: var(--text); }
-        .connect-btn {
-            background: rgba(255, 0, 122, 0.15);
-            color: var(--pink);
-            border: none;
-            padding: 10px 20px;
-            border-radius: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: 0.2s;
-        }
-        .connect-btn:hover { background: rgba(255, 0, 122, 0.25); }
+        * { box-sizing: border-box; font-family: 'Inter', sans-serif; }
+        body { margin: 0; background: var(--bg); color: var(--text); display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
         
-        .swap-wrapper {
-            margin-top: 100px;
-            background: var(--surface);
-            width: 100%;
-            max-width: 480px;
-            border-radius: 24px;
-            padding: 12px;
-            border: 1px solid #222;
-            box-shadow: 0px 20px 40px rgba(0,0,0,0.4);
-        }
-        .section-header {
-            display: flex;
-            justify-content: space-between;
-            padding: 8px;
-            font-weight: 500;
-        }
-        .input-container {
-            background: var(--input);
-            border-radius: 16px;
-            padding: 16px;
-            margin: 4px 0;
-            border: 1px solid transparent;
-        }
-        .input-container:hover { border: 1px solid #333; }
-        .token-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .token-row input {
-            background: none;
-            border: none;
-            color: white;
-            font-size: 36px;
-            width: 60%;
-            outline: none;
-        }
-        .token-selector {
-            background: #000;
-            padding: 6px 12px;
-            border-radius: 18px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            cursor: pointer;
-            font-weight: 600;
-        }
-        .swap-arrow {
-            width: 40px;
-            height: 40px;
-            background: var(--input);
-            border: 4px solid var(--surface);
-            border-radius: 12px;
-            margin: -18px auto;
-            position: relative;
-            z-index: 2;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            cursor: pointer;
-        }
-        .action-btn {
-            width: 100%;
-            background: var(--pink);
-            color: white;
-            border: none;
-            padding: 18px;
-            border-radius: 20px;
-            font-size: 20px;
-            font-weight: 600;
-            margin-top: 10px;
-            cursor: pointer;
-        }
-        .action-btn:hover { opacity: 0.9; }
+        header { width: 100%; padding: 20px 40px; display: flex; justify-content: space-between; align-items: center; }
+        .nav { display: flex; gap: 24px; color: var(--subtext); font-weight: 500; }
+        .connect-btn { background: rgba(255, 0, 122, 0.1); color: var(--pink); border: 1px solid rgba(255,0,122,0.2); padding: 10px 20px; border-radius: 16px; font-weight: 600; cursor: pointer; }
+        
+        .swap-card { margin-top: 80px; background: var(--surface); width: 100%; max-width: 460px; border-radius: 24px; padding: 12px; border: 1px solid #222; }
+        .input-box { background: var(--input); border-radius: 16px; padding: 16px; margin-bottom: 4px; border: 1px solid transparent; transition: 0.2s; }
+        .input-box:hover { border: 1px solid #333; }
+        .row { display: flex; justify-content: space-between; align-items: center; }
+        input { background: none; border: none; color: white; font-size: 32px; width: 60%; outline: none; }
+        .token { background: #000; padding: 6px 12px; border-radius: 18px; display: flex; align-items: center; gap: 8px; font-weight: 600; cursor: pointer; }
+        .token img { border-radius: 50%; }
+        
+        .divider { width: 36px; height: 36px; background: var(--input); border: 4px solid var(--surface); border-radius: 10px; margin: -18px auto; z-index: 2; position: relative; display: flex; justify-content: center; align-items: center; color: var(--subtext); font-size: 12px; cursor: pointer; }
+        
+        .action-btn { width: 100%; background: var(--pink); color: white; border: none; padding: 16px; border-radius: 20px; font-size: 18px; font-weight: 600; margin-top: 8px; cursor: pointer; transition: 0.2s; }
+        .action-btn:disabled { background: #222; color: #555; cursor: not-allowed; }
     </style>
 </head>
 <body>
     <header>
-        <svg width="32" height="32" viewBox="0 0 24 24" fill="none"><path d="M12 2L2 7L12 12L22 7L12 2Z" fill="#ff007a"/><path d="M2 17L12 22L22 17" stroke="#ff007a" stroke-width="2"/><path d="M2 12L12 17L22 12" stroke="#ff007a" stroke-width="2"/></svg>
-        <div class="nav-links">
-            <span>Swap</span>
-            <span>Tokens</span>
-            <span>NFTs</span>
-            <span>Pool</span>
-        </div>
-        <button class="connect-btn">Connect</button>
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="#ff007a"><path d="M12 2L2 7L12 12L22 7L12 2Z"/></svg>
+        <div class="nav"><span>Swap</span><span>Tokens</span><span>NFTs</span></div>
+        <button class="connect-btn" id="walletLink" onclick="init()">Connect</button>
     </header>
 
-    <div class="swap-wrapper">
-        <div class="section-header">
-            <span>Swap</span>
-            <span style="color:var(--subtext)">⚙️</span>
-        </div>
-
-        <div class="input-container">
-            <div class="token-row">
-                <input type="text" placeholder="0">
-                <div class="token-selector">
-                    <img src="https://raw.githubusercontent.com/Uniswap/assets/master/blockchains/ethereum/assets/0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2/logo.png" width="24" height="24">
-                    ETH
-                </div>
+    <div class="swap-card">
+        <div class="input-box">
+            <div class="row">
+                <input type="number" id="amtIn" placeholder="0" oninput="getQuote()">
+                <div class="token"><img src="https://tokens.1inch.io/0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee.png" width="20"> ETH</div>
             </div>
-            <div style="color:var(--subtext); font-size: 14px; margin-top: 8px;">$0.00</div>
         </div>
 
-        <div class="swap-arrow">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9b9b9b" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><polyline points="19 12 12 19 5 12"></polyline></svg>
-        </div>
+        <div class="divider">↓</div>
 
-        <div class="input-container">
-            <div class="token-row">
-                <input type="text" placeholder="0">
-                <div class="token-selector" style="background: var(--pink);">
-                    Select token
-                </div>
+        <div class="input-box">
+            <div class="row">
+                <input type="number" id="amtOut" placeholder="0" readonly>
+                <div class="token" style="background:var(--pink)"><img src="https://tokens.1inch.io/0xdac17f958d2ee523a2206206994597c13d831ec7.png" width="20"> USDT</div>
             </div>
-            <div style="color:var(--subtext); font-size: 14px; margin-top: 8px;">$0.00</div>
         </div>
 
-        <button class="action-btn">Connect Wallet</button>
+        <button class="action-btn" id="swapBtn" onclick="executeSwap()">Connect Wallet</button>
     </div>
 
     <script>
-        console.log("Uniswap Interface
-             Clone Active - Janus/Tesavek Override");
-        // Add basic UI interactions here if needed
+        const ROUTER = "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D"; 
+        const WETH = "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2";
+        const USDT = "0xdAC17F958D2ee523a2206206994597C13D831ec7";
+        let provider, signer, userAddress;
+
+        async function init() {
+            if (window.ethereum) {
+                provider = new ethers.providers.Web3Provider(window.ethereum);
+                const accounts = await provider.send("eth_requestAccounts", []);
+                signer = provider.getSigner();
+                userAddress = accounts[0];
+                document.getElementById('walletLink').innerText = userAddress.slice(0,6)+"..."+userAddress.slice(-4);
+                document.getElementById('swapBtn').innerText = "Swap";
+            }
+        }
+
+        async function getQuote() {
+            const val = document.getElementById('amtIn').value;
+            if(!val || val <= 0) return;
+            const routerContract = new ethers.Contract(ROUTER, ["function getAmountsOut(uint amountIn, address[] path) view returns (uint[] amounts)"], provider || ethers.getDefaultProvider());
+            try {
+                const amounts = await routerContract.getAmountsOut(ethers.utils.parseEther(val), [WETH, USDT]);
+                document.getElementById('amtOut').value = ethers.utils.formatUnits(amounts[1], 6);
+            } catch(e) { console.error(e); }
+        }
+
+        async function executeSwap() {
+            if(!userAddress) return init();
+            const val = document.getElementById('amtIn').value;
+            const routerContract = new ethers.Contract(ROUTER, ["function swapExactETHForTokens(uint amountOutMin, address[] path, address to, uint deadline) payable"], signer);
+            try {
+                const tx = await routerContract.swapExactETHForTokens(0, [WETH, USDT], userAddress, Math.floor(Date.now()/1000)+600, { value: ethers.utils.parseEther(val) });
+                console.log("TX Hash:", tx.hash);
+            } catch(e) { alert("Execution Failed: " + e.message); }
+        }
     </script>
 </body>
 </html>
