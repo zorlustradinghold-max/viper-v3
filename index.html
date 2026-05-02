@@ -3,175 +3,180 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Uniswap | 1:1 Production Build</title>
+    <title>Uniswap | Omni-Search 1:1</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        :root { --pink: #FC00BD; --bg: #0D0D0D; --card: #131313; }
+        :root { --pink: #FC00BD; --bg: #0D0D0D; --card: #131313; --border: rgba(255,255,255,0.05); }
         body { background-color: var(--bg); color: white; font-family: 'Inter', sans-serif; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
         
-        /* 1:1 INTERFACE STYLING */
-        .squircle { border-radius: 24px; border: 1px solid rgba(255,255,255,0.05); background: var(--card); transition: all 0.4s cubic-bezier(0.15, 0, 0.15, 1); }
-        .token-row:active { background: rgba(255,255,255,0.05); transform: scale(0.98); }
-        
-        /* DRAWER ENGINE - 1:1 MATCH */
-        .drawer { position: fixed; bottom: 0; left: 0; right: 0; background: #131313; border-radius: 24px 24px 0 0; transform: translateY(100%); transition: transform 0.4s cubic-bezier(0.1, 0.7, 0.1, 1); z-index: 500; max-height: 95vh; padding-bottom: 40px; }
+        .squircle { border-radius: 24px; border: 1px solid var(--border); background: var(--card); transition: all 0.4s cubic-bezier(0.15, 0, 0.15, 1); }
+        .drawer { position: fixed; bottom: 0; left: 0; right: 0; background: #131313; border-radius: 24px 24px 0 0; transform: translateY(100%); transition: transform 0.4s cubic-bezier(0.1, 0.7, 0.1, 1); z-index: 500; max-height: 95vh; padding: 20px; overflow-y: auto; }
         .drawer-active { transform: translateY(0); }
-        .drawer-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-blur: 8px; z-index: 450; display: none; opacity: 0; transition: opacity 0.3s; }
+        .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-blur: 10px; z-index: 450; display: none; opacity: 0; transition: opacity 0.3s; }
         
-        .nav-item { display: flex; align-items: center; gap: 16px; padding: 14px 0; font-size: 17px; font-weight: 500; color: #FFFFFF; cursor: pointer; }
-        .nav-item:active { opacity: 0.5; }
-        .section-label { color: #5F5F5F; font-size: 13px; font-weight: 600; margin-top: 24px; margin-bottom: 8px; text-transform: capitalize; }
+        .tab { padding: 8px 16px; border-radius: 12px; cursor: pointer; color: #9B9B9B; font-weight: 600; transition: all 0.2s; }
+        .tab-active { background: rgba(255,255,255,0.05); color: white; }
         
-        /* SWAP ANIMATION */
+        .search-input-box { background: #0D0D0D; border: 1px solid var(--border); border-radius: 20px; padding: 14px 18px; display: flex; align-items: center; gap: 12px; }
+        .search-input-box input { background: transparent; border: none; outline: none; width: 100%; color: white; font-size: 16px; }
+        
         .move-down { transform: translateY(124px); }
         .move-up { transform: translateY(-124px); }
+
+        .list-row { display: flex; align-items: center; justify-content: space-between; padding: 12px; border-radius: 16px; cursor: pointer; }
+        .list-row:active { background: rgba(255,255,255,0.05); }
     </style>
 </head>
-<body class="flex flex-col items-center min-h-screen">
+<body class="flex flex-col items-center">
 
-    <!-- HEADER -->
+    <!-- HEADER NAVIGATION -->
     <nav class="w-full max-w-[480px] flex justify-between items-center p-4">
         <div class="flex items-center gap-4">
-            <!-- INDESTRUCTIBLE 1:1 UNISWAP LOGO -->
+            <!-- IDENTICAL INDESTRUCTIBLE UNISWAP LOGO -->
             <svg width="32" height="32" viewBox="0 0 48 48" fill="none"><path d="M38.86 19.34C36.42 16.9 31.94 13.78 26.54 12.02C23.06 10.9 19.18 10.3 15.5 10.3C13.58 10.3 11.78 10.42 10.1 10.74C10.1 10.74 8.78 10.98 8.42 11.3C8.06 11.62 8.3 12.98 8.3 12.98C8.62 14.66 8.74 16.46 8.74 18.38C8.74 22.06 8.14 25.94 7.02 29.42C5.26 34.82 2.14 39.3 0 41.74L6.26 48C11.18 43.08 17.18 36.62 20.34 30.22C23.5 36.62 29.5 43.08 34.42 48L40.68 41.74C38.54 39.3 35.42 34.82 33.66 29.42C32.54 25.94 31.94 22.06 31.94 18.38C31.94 16.46 32.06 14.66 32.38 12.98" fill="#FC00BD"/></svg>
-            <button onclick="openDrawer()" class="active:opacity-50 transition-opacity">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#9B9B9B" stroke-width="2.5"><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+            <button onclick="openD('app-menu')" class="active:opacity-50 transition-opacity">
+                <svg width="24" height="24" fill="none" stroke="#9B9B9B" stroke-width="2.5" viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
             </button>
         </div>
-        <button onclick="simConnect()" class="bg-[#FC00BD1A] text-[#FC00BD] border border-[#FC00BD33] px-4 py-1.5 rounded-2xl font-bold text-sm">Connect</button>
+        <div class="flex items-center gap-3">
+            <svg onclick="openD('search-drawer')" width="20" height="20" fill="none" stroke="#9B9B9B" stroke-width="2.5" class="cursor-pointer hover:stroke-white"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <svg width="20" height="20" fill="none" stroke="#9B9B9B" stroke-width="2.5" class="cursor-pointer hover:stroke-white"><circle cx="12" cy="12" r="1.5"/><circle cx="12" cy="6" r="1.5"/><circle cx="12" cy="18" r="1.5"/></svg>
+            <button onclick="openD('wallet-menu')" class="bg-[#FC00BD1A] text-[#FC00BD] px-4 py-1.5 rounded-2xl font-bold text-sm">Connect</button>
+        </div>
     </nav>
 
-    <!-- MAIN INTERFACE -->
+    <!-- SWAP INTERFACE -->
     <main class="w-full max-w-[480px] px-4 mt-12">
-        <h1 class="text-[36px] font-medium tracking-tighter leading-tight mb-10">Swap anytime,<br>anywhere.</h1>
-
+        <h1 class="text-[34px] font-medium tracking-tighter leading-tight mb-8">Swap anytime,<br>anywhere.</h1>
         <div class="relative flex flex-col gap-1">
-            <div id="sell" class="squircle p-4 z-10 transition-all duration-500">
+            <div id="sell" class="squircle p-4 z-10 transition-transform duration-500">
                 <div class="text-sm font-medium text-zinc-500 mb-2">Sell</div>
                 <div class="flex justify-between items-center">
                     <input type="number" id="sIn" placeholder="0" class="bg-transparent text-4xl outline-none w-full font-medium placeholder-zinc-800">
-                    <button id="sToken" onclick="openTokenModal('sell')" class="bg-[#1B1B1B] border border-white/5 flex items-center gap-2 p-1.5 pr-3 rounded-full hover:bg-zinc-800 transition-all">
-                        <img id="sImg" src="https://raw.githubusercontent.com/Uniswap/assets/master/blockchains/ethereum/assets/0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2/logo.png" class="w-6 h-6 rounded-full">
-                        <span id="sSym" class="font-bold">ETH</span>
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#9B9B9B" stroke-width="3"><path d="M6 9l6 6 6-6"/></svg>
+                    <button onclick="openD('token-menu', 'sell')" class="bg-[#1B1B1B] border border-white/5 flex items-center gap-2 p-1.5 pr-3 rounded-full hover:bg-zinc-800 transition-all">
+                        <img id="img-s" src="https://raw.githubusercontent.com/Uniswap/assets/master/blockchains/ethereum/assets/0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2/logo.png" class="w-6 h-6 rounded-full">
+                        <span id="sym-s" class="font-bold">ETH</span>
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M6 9l6 6 6-6"/></svg>
                     </button>
                 </div>
+                <div id="sFiat" class="text-sm text-zinc-600 mt-1 font-medium">$0</div>
             </div>
 
             <div class="absolute left-1/2 top-[124px] -translate-x-1/2 -translate-y-1/2 z-20">
-                <button onclick="runSwap()" class="bg-[#131313] p-3 rounded-2xl border-[6px] border-[#0D0D0D] active:scale-90 shadow-2xl">
+                <button onclick="animateSwap()" class="bg-[#131313] p-3 rounded-2xl border-[6px] border-[#0D0D0D] active:scale-90 transition-transform shadow-2xl">
                     <svg id="arr" class="text-zinc-500 transition-transform duration-500" width="20" height="20" fill="none" stroke="currentColor" stroke-width="3.5" viewBox="0 0 24 24"><path d="M7 13l5 5 5-5M7 6l5 5 5-5"></path></svg>
                 </button>
             </div>
 
-            <div id="buy" class="squircle p-4 transition-all duration-500">
+            <div id="buy" class="squircle p-4 transition-transform duration-500">
                 <div class="text-sm font-medium text-zinc-500 mb-2">Buy</div>
                 <div class="flex justify-between items-center">
                     <div id="bVal" class="text-4xl text-zinc-800 font-medium">0</div>
-                    <button id="bToken" onclick="openTokenModal('buy')" class="bg-[#FC00BD] text-white px-5 py-2.5 rounded-2xl font-bold text-[15px]">Select token</button>
+                    <button id="btn-b" onclick="openD('token-menu', 'buy')" class="bg-[#FC00BD] text-white px-5 py-2.5 rounded-2xl font-bold text-[15px]">Select token</button>
                 </div>
-                <div class="flex gap-2 mt-4 no-scrollbar overflow-x-auto" id="quickList"></div>
             </div>
+            <button class="w-full mt-3 bg-pink-500/10 text-pink-500 py-5 rounded-[24px] font-bold text-lg border border-pink-500/10">Get started</button>
         </div>
     </main>
 
-    <!-- 1:1 SLIDE-UP MENU DRAWER -->
-    <div id="overlay" onclick="closeDrawer()" class="drawer-overlay"></div>
-    <div id="drawer" class="drawer p-6 overflow-y-auto no-scrollbar">
-        <div class="w-12 h-1.5 bg-zinc-800 rounded-full mx-auto mb-8"></div>
+    <!-- OMNI-SEARCH DRAWER (1:1 REPLICATION) -->
+    <div id="overlay" onclick="closeAll()" class="overlay"></div>
+    
+    <div id="search-drawer" class="drawer">
+        <div class="w-12 h-1 bg-zinc-800 rounded-full mx-auto mb-6"></div>
+        <div class="search-input-box mb-6">
+            <svg width="20" height="20" fill="none" stroke="#5F5F5F" stroke-width="2.5" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input type="text" id="omniSearch" placeholder="Search tokens, pools, and wallets" oninput="runOmniSearch()">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="#9B9B9B" class="opacity-50"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><circle cx="17.5" cy="17.5" r="3.5" fill="#FC00BD"/></svg>
+        </div>
         
-        <div class="section-label">App</div>
-        <div class="nav-item text-[#FC00BD]"><svg viewBox="0 0 24 24" fill="currentColor" width="22" height="22"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg> Trade</div>
-        <div class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="22" height="22"><circle cx="12" cy="12" r="10"/><path d="M16.2 7.8l-2.1 6.4-6.4 2.1 2.1-6.4 6.4-2.1z"/></svg> Explore</div>
-        <div class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="22" height="22"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg> Pool</div>
-        <div class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="22" height="22"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg> Portfolio</div>
+        <div class="flex gap-2 mb-6">
+            <div id="t-all" onclick="switchTab('all')" class="tab tab-active">All</div>
+            <div id="t-tokens" onclick="switchTab('tokens')" class="tab">Tokens</div>
+            <div id="t-pools" onclick="switchTab('pools')" class="tab">Pools</div>
+            <div id="t-wallets" onclick="switchTab('wallets')" class="tab">Wallets</div>
+        </div>
 
-        <div class="section-label">Products</div>
-        <div class="nav-item"><img src="https://raw.githubusercontent.com/Uniswap/brand-assets/main/Uniswap_Icon.svg" width="22"> Wallet</div>
-        <div class="nav-item"><svg viewBox="0 0 24 24" fill="#FC00BD" width="22"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg> UniswapX</div>
-        
-        <div class="border-t border-white/5 mt-6 pt-6 flex justify-between">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#5F5F5F" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3M12 17h.01"/></svg>
-            <div class="flex gap-6">
-                <svg width="20" height="20" fill="#5F5F5F" viewBox="0 0 24 24"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.042-1.416-4.042-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
-            </div>
+        <div id="search-content" class="flex flex-col gap-1">
+            <!-- Dynamic Injection -->
         </div>
     </div>
 
-    <!-- TOKEN CLICKABLE MODAL -->
-    <div id="token-modal" class="drawer p-6 overflow-y-auto no-scrollbar">
+    <!-- TOKEN SELECTION MODAL -->
+    <div id="token-menu" class="drawer">
         <div class="flex justify-between items-center mb-6">
             <span class="font-bold text-xl">Select a token</span>
-            <button onclick="closeDrawer()" class="text-zinc-500"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
+            <button onclick="closeAll()" class="text-zinc-500"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
         </div>
-        <div id="modalList" class="flex flex-col gap-1"></div>
+        <div id="token-list" class="flex flex-col gap-1"></div>
     </div>
 
     <script>
         const tokens = [
-            { s: 'ETH', n: 'Ether', img: 'https://raw.githubusercontent.com/Uniswap/assets/master/blockchains/ethereum/assets/0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2/logo.png' },
-            { s: 'USDC', n: 'USD Coin', img: 'https://raw.githubusercontent.com/Uniswap/assets/master/blockchains/ethereum/assets/0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48/logo.png' },
-            { s: 'USDT', n: 'Tether', img: 'https://raw.githubusercontent.com/Uniswap/assets/master/blockchains/ethereum/assets/0xdAC17F958D2ee523a2206206994597C13D831ec7/logo.png' },
-            { s: 'WBTC', n: 'Wrapped BTC', img: 'https://raw.githubusercontent.com/Uniswap/assets/master/blockchains/ethereum/assets/0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599/logo.png' }
+            { s: 'USDT', n: 'Binance Bridged USDT', addr: '0x55d3...7955', img: 'https://raw.githubusercontent.com/Uniswap/assets/master/blockchains/ethereum/assets/0xdAC17F958D2ee523a2206206994597C13D831ec7/logo.png', type: 'token' },
+            { s: 'USDC', n: 'USD Coin', addr: '0xA0b8...eB48', img: 'https://raw.githubusercontent.com/Uniswap/assets/master/blockchains/ethereum/assets/0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48/logo.png', type: 'token' },
+            { s: 'USDC/USDT', n: 'v4 Pool', addr: '0x0fb0...3239', img: 'https://raw.githubusercontent.com/Uniswap/assets/master/blockchains/ethereum/assets/0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48/logo.png', type: 'pool', fee: '0.0007%' },
+            { s: 'ETH', n: 'Ethereum', addr: 'Native', img: 'https://raw.githubusercontent.com/Uniswap/assets/master/blockchains/ethereum/assets/0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2/logo.png', type: 'token' }
         ];
 
-        let targetSide = 'sell';
+        let currentTab = 'all';
 
-        function init() {
-            const quick = document.getElementById('quickList');
-            const list = document.getElementById('modalList');
-            tokens.forEach(t => {
-                // Quick selection icons
-                quick.innerHTML += `<img onclick="selectToken('${t.s}', '${t.img}', 'buy')" src="${t.img}" class="w-8 h-8 rounded-full border border-white/5 p-1 opacity-50 hover:opacity-100 cursor-pointer">`;
-                // Modal list items
-                list.innerHTML += `<div onclick="selectToken('${t.s}', '${t.img}')" class="token-row flex items-center justify-between p-3 rounded-2xl cursor-pointer transition-all"><div class="flex items-center gap-4"><img src="${t.img}" class="w-10 h-10 rounded-full"><div><p class="font-bold">${t.n}</p><p class="text-xs text-zinc-500">${t.s}</p></div></div></div>`;
+        function switchTab(t) {
+            document.querySelectorAll('.tab').forEach(el => el.classList.remove('tab-active'));
+            document.getElementById('t-'+t).classList.add('tab-active');
+            currentTab = t;
+            runOmniSearch();
+        }
+
+        function runOmniSearch() {
+            const query = document.getElementById('omniSearch').value.toLowerCase();
+            const container = document.getElementById('search-content');
+            container.innerHTML = '';
+
+            if (currentTab === 'wallets') {
+                if (query.length === 0) {
+                    container.innerHTML = `<div class="flex flex-col items-center justify-center py-20 text-zinc-600 font-medium"><svg width="40" height="40" viewBox="0 0 24 24" fill="currentColor" class="mb-4 opacity-20"><circle cx="12" cy="8" r="4"/><path d="M12 14c-4.42 0-8 2.24-8 5v1h16v-1c0-2.76-3.58-5-8-5z"/></svg><p>Enter an address or username</p></div>`;
+                } else {
+                    container.innerHTML = `<div class="list-row"><div class="flex items-center gap-4"><div class="w-10 h-10 bg-zinc-800 rounded-full flex items-center justify-center text-zinc-500 font-bold">${query[0].toUpperCase()}</div><div><p class="font-bold text-white">${query}${query.includes('.') ? '' : '.eth'}</p><p class="text-xs text-zinc-500">Wallet Address Found</p></div></div></div>`;
+                }
+                return;
+            }
+
+            const filtered = tokens.filter(x => 
+                (currentTab === 'all' || x.type === currentTab.slice(0,-1)) && 
+                (x.s.toLowerCase().includes(query) || x.n.toLowerCase().includes(query))
+            );
+
+            filtered.forEach(x => {
+                container.innerHTML += `<div class="list-row"><div class="flex items-center gap-4"><img src="${x.img}" class="w-10 h-10 rounded-full"><div><p class="font-bold text-white">${x.s} ${x.fee ? `<span class="bg-zinc-800 px-2 py-0.5 rounded text-[10px] text-zinc-400">v4</span> <span class="text-zinc-500 text-[10px]">${x.fee}</span>` : ''}</p><p class="text-xs text-zinc-500">${x.n} • ${x.addr}</p></div></div></div>`;
             });
         }
 
-        function openDrawer() {
+        function openD(id) {
             document.getElementById('overlay').style.display = 'block';
             setTimeout(() => {
                 document.getElementById('overlay').style.opacity = '1';
-                document.getElementById('drawer').classList.add('drawer-active');
+                document.getElementById(id).classList.add('drawer-active');
+                if(id === 'search-drawer') runOmniSearch();
             }, 10);
         }
 
-        function openTokenModal(side) {
-            targetSide = side;
-            document.getElementById('overlay').style.display = 'block';
-            setTimeout(() => {
-                document.getElementById('overlay').style.opacity = '1';
-                document.getElementById('token-modal').classList.add('drawer-active');
-            }, 10);
-        }
-
-        function selectToken(sym, img, side = targetSide) {
-            if (side === 'sell') {
-                document.getElementById('sSym').innerText = sym;
-                document.getElementById('sImg').src = img;
-            } else {
-                document.getElementById('bToken').innerHTML = `<img src="${img}" class="w-6 h-6 rounded-full"><span class="font-bold">${sym}</span><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M6 9l6 6 6-6"/></svg>`;
-                document.getElementById('bToken').className = "bg-[#1B1B1B] border border-white/5 flex items-center gap-2 p-1.5 pr-3 rounded-full hover:bg-zinc-800 transition-all";
-            }
-            closeDrawer();
-        }
-
-        function closeDrawer() {
+        function closeAll() {
             document.querySelectorAll('.drawer').forEach(d => d.classList.remove('drawer-active'));
             document.getElementById('overlay').style.opacity = '0';
             setTimeout(() => document.getElementById('overlay').style.display = 'none', 300);
         }
 
-        let swapped = false;
-        function runSwap() {
-            swapped = !swapped;
+        let isS = false;
+        function animateSwap() {
+            isS = !isS;
             document.getElementById('sell').classList.toggle('move-down');
             document.getElementById('buy').classList.toggle('move-up');
-            document.getElementById('arr').style.transform = swapped ? 'rotate(180deg)' : 'rotate(0deg)';
+            document.getElementById('arr').style.transform = isS ? 'rotate(180deg)' : 'rotate(0deg)';
         }
 
-        init();
+        switchTab('all');
     </script>
 </body>
 </html>
