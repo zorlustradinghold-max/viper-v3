@@ -4,184 +4,214 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0">
     <title>Uniswap Interface</title>
+    <!-- PRODUCTION REPO DEPENDENCIES -->
     <script src="https://cdn.ethers.io/lib/ethers-5.2.umd.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        /* REPO SOURCE: THEME/COLORS.TS */
+        /* OFFICIAL REPO SOURCE: src/theme/index.ts */
         :root {
-            --bg0: #000000; --bg1: #080808; --bg2: #121212; --bg3: #1B1B1B;
+            --bg0: #000000; --bg1: #0D0D0D; --bg2: #131313; --bg3: #1B1B1B;
             --pink: #FF007A; --text1: #FFFFFF; --text2: #9B9B9B; --border: #191919;
-            --pink-soft: rgba(255, 0, 122, 0.1);
+            --container-max-width: 480px;
         }
 
         * { box-sizing: border-box; font-family: 'Inter', sans-serif; -webkit-font-smoothing: antialiased; }
         body { margin: 0; background: var(--bg0); color: var(--text1); display: flex; flex-direction: column; align-items: center; min-height: 100vh; overflow-x: hidden; }
 
-        /* REPO SOURCE: COMPONENTS/HEADER */
+        /* HEADER: src/components/Header/index.tsx */
         header { 
             width: 100%; padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; 
             position: sticky; top: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(20px); 
-            border-bottom: 1px solid var(--border); z-index: 1000;
+            border-bottom: 1px solid var(--border); z-index: 1000; pointer-events: auto;
         }
         .header-left { display: flex; align-items: center; gap: 12px; }
-        .nav-pills { display: flex; background: var(--bg1); padding: 4px; border-radius: 16px; border: 1px solid var(--border); }
-        .nav-pills span { padding: 6px 14px; border-radius: 12px; cursor: pointer; color: var(--text2); font-weight: 500; font-size: 15px; transition: 0.2s; }
-        .nav-pills span.active { color: var(--text1); background: var(--bg3); }
-        .connect-header { background: var(--pink-soft); color: var(--pink); border: none; padding: 8px 16px; border-radius: 18px; font-weight: 600; cursor: pointer; }
+        .nav-links { display: flex; background: var(--bg1); padding: 4px; border-radius: 16px; border: 1px solid var(--border); }
+        .nav-links div { padding: 6px 16px; border-radius: 12px; cursor: pointer; color: var(--text2); font-weight: 500; font-size: 15px; transition: 0.15s; pointer-events: auto; }
+        .nav-links div.active { color: var(--text1); background: var(--bg3); }
 
-        /* PAGE LAYOUT */
-        .page { width: 100%; max-width: 480px; margin-top: 60px; padding: 0 10px; z-index: 1; }
-        .hero-title { font-size: 36px; font-weight: 600; letter-spacing: -1.5px; line-height: 1.1; margin-bottom: 24px; }
+        /* LAYOUT src/pages/App.tsx */
+        .app-container { width: 100%; max-width: var(--container-max-width); margin-top: 60px; padding: 0 12px; }
+        .hero-title { font-size: 38px; font-weight: 600; letter-spacing: -1.5px; line-height: 1.1; margin-bottom: 24px; text-align: left; }
 
-        /* REPO SOURCE: SWAP/WIDGET.TSX */
-        .swap-container { background: var(--bg1); border-radius: 24px; padding: 8px; border: 1px solid var(--border); box-shadow: 0 0 120px rgba(255,0,122,0.02); }
-        .input-section { background: var(--bg2); border-radius: 16px; padding: 16px; margin: 4px 0; border: 1px solid transparent; }
+        /* SWAP WIDGET: src/components/swap/SwapWidget.tsx */
+        .swap-card { background: var(--bg1); border-radius: 24px; padding: 8px; border: 1px solid var(--border); position: relative; }
+        .input-section { background: var(--bg2); border-radius: 16px; padding: 16px; margin: 4px 0; border: 1px solid transparent; transition: 0.15s; }
         .input-section:hover { border-color: #222; }
-        .label { font-size: 14px; color: var(--text2); margin-bottom: 12px; font-weight: 500; }
-        .row { display: flex; justify-content: space-between; align-items: center; }
-        input { background: none; border: none; color: white; font-size: 34px; width: 55%; outline: none; font-weight: 500; }
+        .section-label { font-size: 14px; color: var(--text2); margin-bottom: 12px; font-weight: 500; }
         
-        /* TOKEN PILL DIMENSIONS */
-        .token-trigger { 
+        .row { display: flex; justify-content: space-between; align-items: center; }
+        input.amt-input { background: none; border: none; color: white; font-size: 36px; width: 55%; outline: none; font-weight: 500; padding: 0; }
+        
+        .currency-select { 
             background: #000; border: 1px solid var(--border); padding: 4px 10px 4px 4px; 
             border-radius: 20px; display: flex; align-items: center; gap: 8px; cursor: pointer; font-weight: 700; font-size: 18px;
         }
-        .token-trigger img { width: 26px; height: 26px; border-radius: 50%; }
+        .currency-select img { width: 26px; height: 26px; border-radius: 50%; background: #222; }
 
-        .divider { 
+        .swap-arrow { 
             width: 40px; height: 40px; background: var(--bg2); border: 4px solid var(--bg1); 
-            border-radius: 12px; margin: -20px auto; display: flex; justify-content: center; 
-            align-items: center; position: relative; z-index: 5; cursor: pointer; color: var(--text2);
+            border-radius: 12px; margin: -22px auto; display: flex; justify-content: center; 
+            align-items: center; position: relative; z-index: 5; cursor: pointer; color: var(--text2); transition: 0.2s;
         }
+        .swap-arrow:hover { color: white; transform: rotate(180deg); }
 
-        .action-btn { 
-            width: 100%; background: var(--pink-soft); color: var(--pink); border: none; 
-            padding: 18px; border-radius: 20px; font-size: 18px; font-weight: 700; margin-top: 10px; cursor: pointer;
+        .btn-action { 
+            width: 100%; background: rgba(255, 0, 122, 0.1); color: var(--pink); border: none; 
+            padding: 18px; border-radius: 20px; font-size: 18px; font-weight: 700; margin-top: 10px; cursor: pointer; transition: 0.2s;
         }
+        .btn-action.ready { background: var(--pink); color: white; }
 
-        /* PORTAL MODAL: REPO SOURCE */
-        .portal { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 10000; display: none; justify-content: center; align-items: center; }
-        .modal-card { background: var(--bg1); width: 100%; max-width: 420px; height: 85vh; max-height: 620px; border-radius: 20px; border: 1px solid var(--border); display: flex; flex-direction: column; overflow: hidden; animation: slideUp 0.15s ease-out; }
-        @keyframes slideUp { from { transform: translateY(10px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        /* MODAL PORTAL: src/components/SearchModal/CurrencySearch.tsx */
+        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 20000; display: none; justify-content: center; align-items: center; }
+        .modal-container { 
+            background: var(--bg1); width: 95%; max-width: 420px; height: 85vh; max-height: 600px; 
+            border-radius: 20px; border: 1px solid var(--border); display: flex; flex-direction: column; overflow: hidden;
+            animation: slideUp 0.15s ease-out;
+        }
+        @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
         
-        .search-container { padding: 20px; }
-        .search-bar { width: 100%; background: var(--bg2); border: 1px solid var(--border); padding: 16px; border-radius: 16px; color: white; outline: none; font-size: 16px; }
-        .search-bar:focus { border-color: var(--pink); }
+        .modal-header { padding: 20px; display: flex; justify-content: space-between; font-weight: 600; }
+        .search-area { padding: 0 20px 20px; }
+        .search-input { width: 100%; background: var(--bg2); border: 1px solid var(--border); padding: 16px; border-radius: 16px; color: white; outline: none; font-size: 16px; }
+        .search-input:focus { border-color: var(--pink); }
 
         .common-bases { display: flex; gap: 8px; flex-wrap: wrap; padding: 0 20px 20px; }
-        .base-pill { background: var(--bg2); border: 1px solid var(--border); padding: 6px 12px; border-radius: 12px; font-size: 14px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px; }
+        .base-pill { background: var(--bg2); border: 1px solid var(--border); padding: 6px 12px; border-radius: 12px; font-size: 14px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px; }
         .base-pill img { width: 20px; border-radius: 50%; }
 
         .token-list { flex: 1; overflow-y: auto; border-top: 1px solid var(--border); }
-        .token-item { display: flex; align-items: center; gap: 12px; padding: 10px 20px; cursor: pointer; }
+        .token-item { display: flex; align-items: center; gap: 12px; padding: 12px 20px; cursor: pointer; }
         .token-item:hover { background: var(--bg2); }
 
-        .section-view { display: none; width: 100%; }
+        /* NFT src/pages/NFT/index.tsx */
+        .section-view { display: none; width: 100%; animation: fadeIn 0.2s; }
         .section-view.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        
+        .nft-grid { display: grid; grid-template-columns: 1fr; gap: 16px; margin-top: 20px; }
+        .nft-card { background: var(--bg1); border-radius: 24px; border: 1px solid var(--border); overflow: hidden; cursor: pointer; }
+        .nft-card img { width: 100%; aspect-ratio: 1; object-fit: cover; }
     </style>
 </head>
 <body>
 
     <header>
         <div class="header-left">
-            <img src="https://app.uniswap.org/favicon.png" width="30" onclick="nav('swap')">
-            <div class="nav-pills">
-                <span id="nav-swap" class="active" onclick="nav('swap')">Swap</span>
-                <span id="nav-tokens" onclick="nav('tokens')">Tokens</span>
-                <span id="nav-nfts" onclick="nav('nfts')">NFTs</span>
+            <img src="https://app.uniswap.org/favicon.png" width="30" onclick="switchPage('swap')" style="cursor:pointer">
+            <div class="nav-links">
+                <div id="nav-swap" class="active" onclick="switchPage('swap')">Swap</div>
+                <div id="nav-tokens" onclick="switchPage('tokens')">Tokens</div>
+                <div id="nav-nfts" onclick="switchPage('nfts')">NFTs</div>
             </div>
         </div>
-        <button class="connect-header" onclick="connect()">Connect</button>
+        <button style="background:var(--bg1); border:1px solid var(--border); color:white; padding:8px 16px; border-radius:18px; font-weight:600;" onclick="connect()">Connect</button>
     </header>
 
-    <div class="page">
+    <div class="app-container">
         <!-- SWAP SECTION -->
-        <div id="sec-swap" class="section-view active">
-            <div class="hero-title">Swap anytime,<br>anywhere.</div>
-            <div class="swap-container">
+        <div id="view-swap" class="section-view active">
+            <h1 class="hero-title">Swap anytime,<br>anywhere.</h1>
+            <div class="swap-card">
                 <div class="input-section">
-                    <div class="label">Sell</div>
+                    <div class="section-label">Sell</div>
                     <div class="row">
-                        <input type="number" id="valIn" placeholder="0" oninput="runQuote()">
-                        <div class="token-trigger" onclick="openP('sell')">
+                        <input type="number" id="inAmt" class="amt-input" placeholder="0" oninput="updateQuote()">
+                        <div class="currency-select" onclick="openModal('sell')">
                             <img id="sell-icon" src="https://raw.githubusercontent.com/Uniswap/assets/master/blockchains/ethereum/assets/0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2/logo.png">
-                            <span id="sell-txt">ETH</span>
+                            <span id="sell-sym">ETH</span>
                         </div>
                     </div>
                 </div>
-                <div class="divider">↓</div>
+                <div class="swap-arrow">↓</div>
                 <div class="input-section">
-                    <div class="label">Buy</div>
+                    <div class="section-label">Buy</div>
                     <div class="row">
-                        <input type="number" id="valOut" placeholder="0" readonly>
-                        <div class="token-trigger" id="buy-pill" onclick="openP('buy')" style="background:var(--pink); color:white; border:none;">
+                        <input type="number" id="outAmt" class="amt-input" placeholder="0" readonly>
+                        <div class="currency-select" id="buy-pill" onclick="openModal('buy')" style="background:var(--pink); border:none; color:white;">
                             <img id="buy-icon" src="" style="display:none">
-                            <span id="buy-txt">Select token</span>
+                            <span id="buy-sym">Select token</span>
                         </div>
                     </div>
                 </div>
-                <button class="action-btn" id="main-btn" onclick="connect()">Get started</button>
+                <button class="btn-action" id="actionBtn" onclick="connect()">Get started</button>
             </div>
         </div>
 
-        <!-- NFTS SECTION -->
-        <div id="sec-nfts" class="section-view">
-            <h2 style="margin-bottom:20px;">Trending NFTs</h2>
-            <div style="background:var(--bg1); border-radius:24px; border:1px solid var(--border); overflow:hidden;">
-                <img src="https://i.seadn.io/gae/Ju9Cqy-mBcyv_vS737M9t6z3e_xH0E88V6LTo32NisE636D8u0_h4vWc6vYlFfS_C8_L9?auto=format&w=800" style="width:100%">
-                <div style="padding:16px;"><b>Bored Ape Yacht Club</b><br><span style="color:var(--text2)">Floor: 22.4 ETH</span></div>
+        <!-- NFT SECTION -->
+        <div id="view-nfts" class="section-view">
+            <h2 style="margin-bottom:24px;">Trending Collections</h2>
+            <div class="nft-grid">
+                <div class="nft-card">
+                    <img src="https://i.seadn.io/gae/Ju9Cqy-mBcyv_vS737M9t6z3e_xH0E88V6LTo32NisE636D8u0_h4vWc6vYlFfS_C8_L9?auto=format&w=1000">
+                    <div style="padding:16px;"><b>Bored Ape Yacht Club</b><br><span style="color:var(--text2)">Floor: 22.4 ETH</span></div>
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- 1:1 PORTAL SYSTEM -->
-    <div class="portal" id="portal" onclick="this.style.display='none'">
-        <div class="modal-card" onclick="event.stopPropagation()">
-            <div class="search-container">
-                <div style="display:flex; justify-content:space-between; margin-bottom:15px; font-weight:600"><span>Select a token</span><span onclick="document.getElementById('portal').style.display='none'" style="cursor:pointer">✕</span></div>
-                <input type="text" class="search-bar" placeholder="Search name or paste address">
-            </div>
+    <!-- MODAL PORTAL -->
+    <div class="modal-overlay" id="modalPortal" onclick="this.style.display='none'">
+        <div class="modal-container" onclick="event.stopPropagation()">
+            <div class="modal-header"><span>Select a token</span><span onclick="closeModal()" style="cursor:pointer">✕</span></div>
+            <div class="search-area"><input type="text" class="search-input" placeholder="Search name or paste address" id="tokenSearch"></div>
             <div class="common-bases">
-                <div class="base-pill" onclick="pick('ETH', 'https://raw.githubusercontent.com/Uniswap/assets/master/blockchains/ethereum/assets/0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2/logo.png')"><img src="https://raw.githubusercontent.com/Uniswap/assets/master/blockchains/ethereum/assets/0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2/logo.png"> ETH</div>
-                <div class="base-pill" onclick="pick('USDT', 'https://raw.githubusercontent.com/Uniswap/assets/master/blockchains/ethereum/assets/0xdAC17F958D2ee523a2206206994597C13D831ec7/logo.png')"><img src="https://raw.githubusercontent.com/Uniswap/assets/master/blockchains/ethereum/assets/0xdAC17F958D2ee523a2206206994597C13D831ec7/logo.png"> USDT</div>
+                <div class="base-pill" onclick="select('ETH', 'https://raw.githubusercontent.com/Uniswap/assets/master/blockchains/ethereum/assets/0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2/logo.png')"><img src="https://raw.githubusercontent.com/Uniswap/assets/master/blockchains/ethereum/assets/0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2/logo.png"> ETH</div>
+                <div class="base-pill" onclick="select('USDT', 'https://raw.githubusercontent.com/Uniswap/assets/master/blockchains/ethereum/assets/0xdAC17F958D2ee523a2206206994597C13D831ec7/logo.png')"><img src="https://raw.githubusercontent.com/Uniswap/assets/master/blockchains/ethereum/assets/0xdAC17F958D2ee523a2206206994597C13D831ec7/logo.png"> USDT</div>
             </div>
-            <div class="token-list">
-                <div class="token-item" onclick="pick('UNI', 'https://raw.githubusercontent.com/Uniswap/assets/master/blockchains/ethereum/assets/0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984/logo.png')">
-                    <img src="https://raw.githubusercontent.com/Uniswap/assets/master/blockchains/ethereum/assets/0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984/logo.png" width="36">
-                    <div><b>UNI</b><br><small style="color:var(--text2)">Uniswap</small></div>
-                </div>
-            </div>
+            <div class="token-list" id="tokenRender"></div>
         </div>
     </div>
 
     <script>
-        let target = 'sell';
-        function nav(n) {
-            document.querySelectorAll('.section-view').forEach(s => s.classList.remove('active'));
-            document.querySelectorAll('.nav-pills span').forEach(p => p.classList.remove('active'));
-            document.getElementById('sec-' + n).classList.add('active');
-            document.getElementById('nav-' + n).classList.add('active');
+        const tokens = [
+            { s: 'UNI', n: 'Uniswap', i: 'https://raw.githubusercontent.com/Uniswap/assets/master/blockchains/ethereum/assets/0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984/logo.png' },
+            { s: 'USDC', n: 'USD Coin', i: 'https://raw.githubusercontent.com/Uniswap/assets/master/blockchains/ethereum/assets/0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eb48/logo.png' }
+        ];
+        let activeMode = 'sell';
+
+        function switchPage(name) {
+            document.querySelectorAll('.section-view').forEach(v => v.classList.remove('active'));
+            document.querySelectorAll('.nav-links div').forEach(l => l.classList.remove('active'));
+            document.getElementById('view-' + name).classList.add('active');
+            document.getElementById('nav-' + name).classList.add('active');
         }
-        function openP(t) { target = t; document.getElementById('portal').style.display='flex'; }
-        function pick(s, i) {
-            document.getElementById(target + '-txt').innerText = s;
-            const img = document.getElementById(target + '-icon');
+
+        function openModal(mode) {
+            activeMode = mode;
+            const container = document.getElementById('tokenRender');
+            container.innerHTML = '';
+            tokens.forEach(t => {
+                const div = document.createElement('div');
+                div.className = 'token-item';
+                div.innerHTML = `<img src="${t.i}" width="36"> <div><b>${t.s}</b><br><small style="color:gray">${t.n}</small></div>`;
+                div.onclick = () => select(t.s, t.i);
+                container.appendChild(div);
+            });
+            document.getElementById('modalPortal').style.display = 'flex';
+        }
+
+        function select(s, i) {
+            document.getElementById(activeMode + '-sym').innerText = s;
+            const img = document.getElementById(activeMode + '-icon');
             img.src = i; img.style.display = 'block';
-            if(target === 'buy') document.getElementById('buy-pill').style.background = '#000';
-            document.getElementById('portal').style.display = 'none';
+            if(activeMode === 'buy') document.getElementById('buy-pill').style.background = '#000';
+            closeModal();
         }
+
+        function closeModal() { document.getElementById('modalPortal').style.display='none'; }
+
         async function connect() {
             if (window.ethereum) {
                 const p = new ethers.providers.Web3Provider(window.ethereum);
                 await p.send("eth_requestAccounts", []);
-                document.getElementById('main-btn').innerText = 'Swap';
-                document.getElementById('main-btn').style.background = 'var(--pink)';
-                document.getElementById('main-btn').style.color = '#fff';
+                document.getElementById('actionBtn').innerText = 'Swap';
+                document.getElementById('actionBtn').classList.add('ready');
             }
         }
-        function runQuote() {
-            const v = document.getElementById('valIn').value;
-            if(v > 0) document.getElementById('valOut').value = (v * 2415.60).toFixed(2);
+
+        function updateQuote() {
+            const v = document.getElementById('inAmt').value;
+            if(v > 0) document.getElementById('outAmt').value = (v * 2415.65).toFixed(2);
         }
     </script>
 </body>
