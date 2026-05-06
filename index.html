@@ -3,157 +3,202 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Uniswap V4 | 1:1 Clone</title>
+    <title>Uniswap Interface | V4 Edition</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Uncut Sans Alternative -->
+    <link href="https://fonts.cdnfonts.com/css/uncut-sans" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
+        :root {
+            --bg-color: #080a0f;
+            --container-bg: #131a2a;
+            --input-bg: #19233a;
+            --accent-pink: #ff007a;
+            --accent-blue: #4c82fb;
+            --text-secondary: #98a1c0;
+            --border-color: #1b253f;
+        }
+
         body {
-            background-color: #0d111c;
-            color: #ffffff;
+            background-color: var(--bg-color);
+            color: white;
             font-family: 'Inter', sans-serif;
-            background: radial-gradient(circle at 50% -20%, #211e33 0%, #0d111c 80%);
-            min-height: 100vh;
+            /* The specific Figma background mesh gradient */
+            background: 
+                radial-gradient(circle at 50% 0%, rgba(255, 0, 122, 0.08) 0%, transparent 50%),
+                radial-gradient(circle at 0% 0%, rgba(76, 130, 251, 0.05) 0%, transparent 40%),
+                #080a0f;
+            overflow-x: hidden;
         }
-        .uniswap-card {
-            background: #131a2a;
-            border: 1px solid #1b253f;
-            border-radius: 24px;
+
+        .heading-font { font-family: 'Uncut Sans', sans-serif; }
+
+        /* Figma Shadow & Border Gloss */
+        .v4-container {
+            background: var(--container-bg);
+            border: 1px solid var(--border-color);
+            box-shadow: 0px 20px 40px rgba(0, 0, 0, 0.4);
+            border-radius: 28px;
         }
-        .input-box {
-            background: #19233a;
+
+        .token-input-container {
+            background: var(--input-bg);
+            border-radius: 20px;
             border: 1px solid transparent;
-            transition: border 0.2s;
+            transition: all 0.15s ease;
         }
-        .input-box:hover {
+
+        .token-input-container:hover {
             border: 1px solid #2e3e5e;
         }
-        .button-primary {
-            background: rgba(76, 130, 251, 0.2);
-            color: #4c82fb;
-            transition: background 0.2s;
+
+        /* The "Swap" arrow button with specific Figma styling */
+        .swap-arrow {
+            background: var(--input-bg);
+            border: 4px solid var(--bg-color);
+            position: absolute;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 10;
         }
-        .button-primary:hover {
-            background: rgba(76, 130, 251, 0.3);
+
+        .v4-badge {
+            background: linear-gradient(90deg, rgba(76, 130, 251, 0.1) 0%, rgba(255, 0, 122, 0.1) 100%);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--accent-blue);
         }
-        .hook-tag {
-            background: rgba(39, 174, 96, 0.1);
-            color: #27ae60;
-            font-size: 11px;
-            border: 1px solid rgba(39, 174, 96, 0.2);
+
+        .connect-btn {
+            background: rgba(76, 130, 251, 0.15);
+            color: var(--accent-blue);
+            transition: 0.3s;
         }
+
+        .connect-btn:hover {
+            background: rgba(76, 130, 251, 0.25);
+            transform: scale(1.01);
+        }
+
+        /* Custom Scrollbar for Figma feel */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: var(--bg-color); }
+        ::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 10px; }
     </style>
 </head>
-<body class="flex flex-col items-center py-10">
+<body class="flex flex-col items-center min-h-screen">
 
-    <!-- Header Navigation -->
-    <nav class="w-full max-w-6xl flex justify-between items-center px-6 mb-12">
-        <div class="flex items-center gap-8">
-            <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <!-- Navbar -->
+    <nav class="w-full flex justify-between items-center px-8 py-5 max-w-[1440px]">
+        <div class="flex items-center gap-10">
+            <svg width="36" height="36" viewBox="0 0 32 32" fill="none">
                 <path d="M28.6 16C28.6 23.1797 22.8797 29.2 16 29.2C9.1203 29.2 3.4 23.1797 3.4 16C3.4 8.8203 9.1203 2.8 16 2.8C22.8797 2.8 28.6 8.8203 28.6 16Z" fill="#FF007A"/>
             </svg>
-            <div class="hidden md:flex gap-6 text-[#98a1c0] font-medium">
+            <div class="flex gap-8 text-secondary font-semibold text-[16px]">
                 <a href="#" class="text-white">Swap</a>
-                <a href="#" class="hover:text-white transition">Tokens</a>
+                <a href="#" class="hover:text-white transition">Explore</a>
                 <a href="#" class="hover:text-white transition">NFTs</a>
                 <a href="#" class="hover:text-white transition flex items-center gap-1">Pools <i data-lucide="chevron-down" class="w-4 h-4"></i></a>
             </div>
         </div>
-        <div class="flex gap-4">
-            <div class="bg-[#131a2a] px-3 py-2 rounded-xl border border-[#1b253f] flex items-center gap-2">
-                <img src="https://cryptologos.cc/logos/ethereum-eth-logo.svg" class="w-5 h-5">
-                <span class="text-sm font-medium">Ethereum</span>
+        
+        <div class="flex items-center gap-3">
+            <div class="bg-[#131a2a] border border-[#1b253f] px-4 py-2 rounded-2xl flex items-center gap-2 cursor-pointer">
+                <div class="w-5 h-5 bg-blue-500 rounded-full"></div>
+                <span class="text-sm font-bold">Ethereum</span>
             </div>
-            <button class="bg-[#4c82fb] text-white px-4 py-2 rounded-xl font-semibold hover:bg-opacity-90">Connect</button>
+            <button class="connect-btn px-5 py-2.5 rounded-2xl font-bold">Connect</button>
         </div>
     </nav>
 
-    <!-- Main Content: V4 Swap Interface -->
-    <main class="w-full max-w-[480px]">
-        <div class="uniswap-card p-4 shadow-2xl">
-            <!-- Card Header -->
-            <div class="flex justify-between items-center mb-3 px-2">
-                <div class="flex gap-4 text-[#98a1c0] font-medium">
-                    <span class="text-white cursor-pointer">Swap</span>
-                    <span class="hover:text-white cursor-pointer transition">Buy</span>
-                </div>
-                <div class="text-[#98a1c0] flex gap-2">
-                    <i data-lucide="settings" class="w-5 h-5 cursor-pointer hover:text-white"></i>
+    <!-- Main V4 Interface -->
+    <div class="mt-14 w-full flex justify-center px-4">
+        <div class="v4-container w-full max-w-[480px] p-2 relative">
+            
+            <!-- Tab Selection -->
+            <div class="flex gap-4 p-4 pb-2">
+                <button class="text-[16px] font-bold text-white">Swap</button>
+                <button class="text-[16px] font-bold text-[#98a1c0] hover:text-white transition">Limit</button>
+                <button class="text-[16px] font-bold text-[#98a1c0] hover:text-white transition">Send</button>
+                <div class="ml-auto flex items-center text-[#98a1c0] gap-3">
+                    <i data-lucide="info" class="w-4 h-4 cursor-pointer"></i>
+                    <i data-lucide="settings" class="w-5 h-5 cursor-pointer"></i>
                 </div>
             </div>
 
-            <!-- Input Token -->
-            <div class="input-box p-4 rounded-2xl mb-1">
-                <div class="flex justify-between items-center">
-                    <input type="text" placeholder="0" class="bg-transparent text-3xl font-medium outline-none w-full placeholder-[#5d6785]">
-                    <button class="bg-[#0d111c] border border-[#1b253f] flex items-center gap-2 px-2 py-1 rounded-full hover:bg-[#1b253f] transition">
+            <!-- Token Input 1 -->
+            <div class="token-input-container p-4 mb-1">
+                <div class="flex justify-between items-center mb-2">
+                    <input type="text" placeholder="0" class="bg-transparent text-[36px] w-full outline-none font-medium placeholder-[#5d6785]">
+                    <button class="bg-[#0d111c] border border-[#1b253f] flex items-center gap-2 px-3 py-1.5 rounded-2xl hover:bg-[#1b253f] transition">
                         <img src="https://cryptologos.cc/logos/ethereum-eth-logo.svg" class="w-6 h-6">
-                        <span class="text-xl font-semibold">ETH</span>
+                        <span class="text-[20px] font-bold">ETH</span>
                         <i data-lucide="chevron-down" class="w-5 h-5"></i>
                     </button>
                 </div>
-                <div class="text-[#98a1c0] text-sm mt-1">$0.00</div>
+                <div class="text-secondary text-sm font-medium">$0.00</div>
             </div>
 
-            <!-- Arrow Divider -->
-            <div class="relative h-2 flex justify-center items-center z-10">
-                <div class="bg-[#131a2a] border-4 border-[#0d111c] p-2 rounded-xl cursor-pointer">
-                    <i data-lucide="arrow-down" class="w-4 h-4 text-[#4c82fb]"></i>
+            <!-- Swap Toggle -->
+            <div class="relative h-[12px]">
+                <div class="swap-arrow p-2 rounded-xl border-[#080a0f] cursor-pointer hover:scale-110 transition">
+                    <i data-lucide="arrow-down" class="w-5 h-5 text-accent-blue"></i>
                 </div>
             </div>
 
-            <!-- Output Token -->
-            <div class="input-box p-4 rounded-2xl mt-[-8px]">
-                <div class="flex justify-between items-center">
-                    <input type="text" placeholder="0" class="bg-transparent text-3xl font-medium outline-none w-full placeholder-[#5d6785]">
-                    <button class="bg-[#4c82fb] flex items-center gap-2 px-3 py-1 rounded-full hover:bg-opacity-80 transition">
-                        <span class="text-white font-semibold whitespace-nowrap">Select token</span>
-                        <i data-lucide="chevron-down" class="w-5 h-5 text-white"></i>
+            <!-- Token Input 2 -->
+            <div class="token-input-container p-4 mt-[-4px]">
+                <div class="flex justify-between items-center mb-2">
+                    <input type="text" placeholder="0" class="bg-transparent text-[36px] w-full outline-none font-medium placeholder-[#5d6785]">
+                    <button class="bg-[#4c82fb] text-white flex items-center gap-2 px-4 py-1.5 rounded-2xl hover:bg-opacity-90 transition shadow-lg">
+                        <span class="text-[18px] font-bold">Select token</span>
+                        <i data-lucide="chevron-down" class="w-5 h-5"></i>
                     </button>
                 </div>
-                <div class="text-[#98a1c0] text-sm mt-1">$0.00</div>
+                <div class="text-secondary text-sm font-medium">$0.00</div>
             </div>
 
-            <!-- V4 Hook Context (Official Design Kit Specific) -->
-            <div class="mt-4 px-2 py-3 border-t border-[#1b253f]">
+            <!-- V4 POOL MANAGER HOOKS BLOCK -->
+            <div class="mt-2 px-4 py-3 bg-[#131a2a] rounded-2xl border border-dashed border-[#2e3e5e]">
                 <div class="flex justify-between items-center">
-                    <div class="flex items-center gap-2">
-                        <span class="text-xs text-[#98a1c0]">V4 Hook Strategy</span>
-                        <span class="hook-tag px-2 py-0.5 rounded-md font-bold tracking-tight">DYNAMIC_FEE</span>
+                    <div class="flex flex-col">
+                        <span class="text-[11px] font-bold text-[#4c82fb] uppercase tracking-widest">Active V4 Hook</span>
+                        <span class="text-[14px] font-medium text-white">Dynamic Fee Oracle v4.2</span>
                     </div>
-                    <span class="text-xs text-[#27ae60] font-medium">-0.05% Price Impact</span>
+                    <div class="v4-badge px-3 py-1 rounded-lg text-[12px] font-bold">
+                        HOOK ENABLED
+                    </div>
                 </div>
             </div>
 
-            <!-- Action Button -->
-            <button class="w-full py-4 mt-4 text-xl font-bold rounded-2xl button-primary">
+            <!-- Main Action Button -->
+            <button class="w-full py-4 mt-2 text-[20px] font-bold rounded-2xl bg-[#4c82fb] text-white hover:bg-opacity-90 transition shadow-xl heading-font">
                 Connect Wallet
             </button>
         </div>
 
-        <!-- External Link Section -->
-        <div class="mt-4 text-center">
-            <a href="#" class="text-xs text-[#98a1c0] hover:text-[#4c82fb] flex justify-center items-center gap-1">
-                Learn more about Uniswap V4 Hooks <i data-lucide="external-link" class="w-3 h-3"></i>
-            </a>
+        <!-- Footer Note -->
+        <div class="absolute bottom-10 flex gap-6 text-secondary text-sm">
+            <span class="cursor-pointer hover:text-white">Help Center</span>
+            <span class="cursor-pointer hover:text-white">Privacy Policy</span>
+            <span class="cursor-pointer hover:text-white">Legal</span>
         </div>
-    </main>
+    </div>
 
     <script>
-        // Initialize Icons
         lucide.createIcons();
 
-        // Simple Input Interaction
+        // Real-time price simulation (Figma-style interaction)
         document.querySelectorAll('input').forEach(input => {
-            input.oninput = function() {
-                const sibling = this.parentElement.nextElementSibling;
-                if (this.value > 0) {
-                    sibling.innerText = '$' + (this.value * 2350).toLocaleString();
+            input.addEventListener('input', (e) => {
+                const val = e.target.value;
+                const priceDisplay = e.target.parentElement.nextElementSibling;
+                if(val && !isNaN(val)) {
+                    priceDisplay.innerText = '$' + (val * 2412.50).toLocaleString(undefined, {minimumFractionDigits: 2});
                 } else {
-                    sibling.innerText = '$0.00';
+                    priceDisplay.innerText = '$0.00';
                 }
-            
-            };
+            });
         });
     </script>
 </body>
